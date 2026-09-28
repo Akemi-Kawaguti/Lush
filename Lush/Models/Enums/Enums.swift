@@ -14,6 +14,7 @@
 
 import Foundation
 
+
 enum GarmentPosition: String, Codable, CaseIterable {
     case top = "Parte de cima"
     case bottom = "Parte de baixo"
@@ -22,7 +23,7 @@ enum GarmentPosition: String, Codable, CaseIterable {
 }
 
 enum GarmentCategory: String, Codable, CaseIterable {
-    // Top
+    // Peca de Cima
     case tShirt = "Camiseta"
     case tankTop = "Regata"
     case croppedTop = "Cropped"
@@ -31,19 +32,19 @@ enum GarmentCategory: String, Codable, CaseIterable {
     case bodysuit = "Body"
     case sweater = "Suéter"
     
-    // Bottom
+    // Peca de baixo
     case pants = "Calça"
     case shorts = "Short"
     case skirt = "Saia"
     case leggings = "Legging"
     case bermudaShorts = "Bermuda"
     
-    // One piece
+    // Peca unica
     case dress = "Vestido"
     case jumpsuit = "Macacão"
     case coordSet = "Conjunto"
     
-    // Outer layer
+    // Sobreposicao
     case jacket = "Jaqueta"
     case blazer = "Blazer"
     case coat = "Casaco"
