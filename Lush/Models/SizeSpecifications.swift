@@ -16,14 +16,14 @@ final class SizeSpecifications{
     var waistSize: Double
     var hipSize: Double
     
-    init(
-        shoulderSize: Double = 0.0,
-        waistSize: Double = 0.0,
-        hipSize: Double = 0.0
-    ) {
+    var user: UserModel?
+    
+    init(shoulderSize: Double, waistSize: Double, hipSize: Double, user: UserModel? = nil) {
         self.shoulderSize = shoulderSize
         self.waistSize = waistSize
         self.hipSize = hipSize
+        
+        self.user = user
     }
 }
 

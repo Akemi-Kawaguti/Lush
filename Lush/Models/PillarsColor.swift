@@ -18,13 +18,14 @@ final class PillarsColor {
     var contrast: String
     var saturation: String
     
-    var user: UserModel
+    var user: UserModel?
     
-    init(temperature: String, brightness: String, contrast: String, saturation: String, user: UserModel) {
+    init(temperature: String, brightness: String, contrast: String, saturation: String, user: UserModel? = nil) {
         self.temperature = temperature
         self.brightness = brightness
         self.contrast = contrast
         self.saturation = saturation
+        
         self.user = user
     }
 }
