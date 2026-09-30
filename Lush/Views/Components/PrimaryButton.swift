@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct LushPrimaryButton: View {
+struct PrimaryButton: View {
     
     let title: String
     let action: () -> Void
@@ -17,14 +17,14 @@ struct LushPrimaryButton: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 258, height: 44)
-                .background(Color("primary"))
+                .background(Color("button"))
                 .clipShape(Capsule())
         }
     }
 }
 
 #Preview {
-    LushPrimaryButton(title: "Continuar") {
+    PrimaryButton(title: "Continuar") {
         print("Botão pressionado")
     }
 }
