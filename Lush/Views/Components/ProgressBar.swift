@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct LushProgressBar: View {
+struct ProgressBar: View {
     
     let currentStep: Int
     let totalSteps: Int
@@ -27,7 +27,7 @@ struct LushProgressBar: View {
                     
                     Capsule().fill(Color.gray.opacity(0.15))
                     
-                    Capsule().fill(Color("primary"))
+                    Capsule().fill(Color("button"))
                     .frame(width: geometry.size.width * progress)
                 }
             }
@@ -37,7 +37,7 @@ struct LushProgressBar: View {
 }
 
 #Preview {
-    LushProgressBar(
+    ProgressBar(
         currentStep: 1,
         totalSteps: 4
     )

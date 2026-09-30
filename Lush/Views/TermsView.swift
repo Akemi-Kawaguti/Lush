@@ -15,7 +15,7 @@ struct TermsView: View {
         VStack(spacing: 0) {
             HStack {
 
-                LushBackButton {
+                BackButton {
                     print("Voltar")
                 }
 
@@ -83,7 +83,7 @@ struct TermsView: View {
 
       
 
-            LushPrimaryButton(title: "Continuar") {
+            PrimaryButton(title: "Continuar") {
                 print("Continuar")
             }
             .disabled(!viewModel.canContinue)
