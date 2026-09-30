@@ -67,7 +67,7 @@ struct PresentationView: View {
                     HStack {
                         Spacer()
 
-                        LushPrimaryButton(title: "Continuar") {
+                        PrimaryButton(title: "Continuar") {
                             print("Continuar")
                         }
 
