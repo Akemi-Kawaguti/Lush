@@ -11,4 +11,6 @@ struct UserColorInput {
     let skinHex: String   // Ex: "#F5D0B1"
     let eyeHex: String    // Ex: "#4A3B32"
     let hairHex: String   // Ex: "#2C221E"
-}
+} //AINDA ESTA COMO VARIAVEL
+
+//TALVEZ TRANSFORMAR EM ENUM
