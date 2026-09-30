@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct LushBackButton: View {
+struct BackButton: View {
     
     let action: () -> Void
     
@@ -22,7 +22,7 @@ struct LushBackButton: View {
 }
 
 #Preview {
-    LushBackButton {
+    BackButton {
         print("Voltar")
     }
 }
