@@ -5,7 +5,7 @@
 //  Created by Tais Akemi Kawaguti on 29/09/26.
 //
 
-//ombro - cintura - quadril
+// ombro - cintura - quadril
 
 import Foundation
 import SwiftData
