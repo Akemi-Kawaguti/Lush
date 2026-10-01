@@ -4,11 +4,8 @@
 //
 //  Created by Tais Akemi Kawaguti on 28/09/26.
 //
-
-//nome - foto
-//silhueta RESULTADO
-//Paleta do usuario RESULTADO
-//favoritos - roupas
+// nome - foto
+// favoritos - analises
 
 import Foundation
 import SwiftData
@@ -17,29 +14,22 @@ import SwiftData
 final class UserModel {
     var name: String
     var photoData: Data?
-    
-    var userSilhouette: String //RESULTADO
-    var userPallete: [String] // RESULTADO
     var favorites: [String]
+    
+    @Relationship(deleteRule: .cascade, inverse: \AnalysisModel.user)
+    var analysis: [AnalysisModel] = [] //analises do usuario
     
     @Relationship(deleteRule: .cascade)
         var userClothes: [ClothesModel] //guarda - roupa
-        
-        @Relationship(deleteRule: .cascade)
-        var pillarColor: PillarsColor? //parametros manuais
-        
-        @Relationship(deleteRule: .cascade)
-        var sizeSpecifications: SizeSpecifications? //parametros manuais
     
-    init(name: String, photoData: Data? = nil, userSilhouette: String, userPallete: [String], favorites: [String], userClothes: [ClothesModel], pillarColor: PillarsColor, sizeSpecifications: SizeSpecifications) {
+    init(name: String, photoData: Data? = nil, favorites: [String], analysis: [AnalysisModel], userClothes: [ClothesModel]) {
         self.name = name
         self.photoData = photoData
-        self.userSilhouette = userSilhouette
-        self.userPallete = userPallete
         self.favorites = favorites
+        self.analysis = analysis
         self.userClothes = userClothes
-        self.pillarColor = pillarColor
-        self.sizeSpecifications = sizeSpecifications
     }
 }
+
+
 
