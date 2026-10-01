@@ -15,6 +15,8 @@ import SwiftData
 
 @Model
 final class UserModel {
+    
+    //MARK: Volta de ID
     var name: String
     var photoData: Data?
     
