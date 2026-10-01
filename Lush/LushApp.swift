@@ -25,7 +25,8 @@ struct LushApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            //ContentView()
+            ClassifierTestView()
         }
         .modelContainer(sharedModelContainer)
     }
