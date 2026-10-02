@@ -9,5 +9,4 @@ enum GarmentPosition: String, Codable, CaseIterable {
     case top = "Parte de cima"
     case bottom = "Parte de baixo"
     case onePiece = "Peça única"
-    case outerLayer = "Sobreposição"
 }
