@@ -36,12 +36,10 @@ class FaceAnalyzerService {
 
             var extractedColors: [String: UIColor] = [:] // dicionario para colocar as cores dos pontos de referencia
 
-            // Extração da cor da boca
-            if let innerLips = landmarks.innerLips {
-                extractedColors["boca"] = PixelColorConversion.extractAverageColor(from: cgImage, points: innerLips.normalizedPoints, imageSize: imageSize)
-            } else if let outerLips = landmarks.outerLips {
-                extractedColors["boca"] = PixelColorConversion.extractAverageColor(from: cgImage, points: outerLips.normalizedPoints, imageSize: imageSize)
-            }
+            // Extração da cor da pele
+            if let skinColor = self.extractSkinColor(from: cgImage, faceBox: face.boundingBox, imageSize: imageSize) {
+                            extractedColors["pele"] = skinColor
+                        }
 
             // Extração da cor dos olhos
             if let leftEye = landmarks.leftEye {
@@ -90,4 +88,22 @@ class FaceAnalyzerService {
     // O Vision não consegue pegar automaticamente o cabelo
     // por isso tem essa função que estima que o cabelo fica em cima da cabeça, não sei o que fazer com os careca
     // ver possibilidade de sobrancelha, se não tiver tambem, piorou
+    
+    // estima região da pele (ex: bochecha / centro superior do rosto, abaixo dos olhos/sobrancelhas)
+        private func extractSkinColor(from cgImage: CGImage, faceBox: CGRect, imageSize: CGSize) -> UIColor? {
+            // pega uma área central do rosto (geralmente na altura das bochechas/nariz, onde tem menos sombras profundas de olhos e boca)
+            let skinRect = CGRect(
+                x: (faceBox.origin.x + (faceBox.width * 0.3)) * imageSize.width,
+                y: (1.0 - (faceBox.origin.y + (faceBox.height * 0.6))) * imageSize.height,
+                width: faceBox.width * 0.4 * imageSize.width,
+                height: faceBox.height * 0.2 * imageSize.height
+            ).integral.intersection(CGRect(origin: .zero, size: imageSize))
+
+            guard !skinRect.isNull, skinRect.width > 0, skinRect.height > 0,
+                  let cropped = cgImage.cropping(to: skinRect) else {
+                return nil
+            }
+
+            return PixelColorConversion.dominantColor(from: cropped)
+        }
 }
