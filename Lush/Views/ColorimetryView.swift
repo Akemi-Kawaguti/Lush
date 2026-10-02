@@ -10,8 +10,11 @@ import UIKit
 
 struct ColorimetryView: View {
     
+    @Environment(\.dismiss) private var dismiss
+    
     let image: UIImage?
 
+    @State private var showBiotypeMethod = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -20,7 +23,7 @@ struct ColorimetryView: View {
             HStack {
 
                 BackButton {
-                    print("Voltar")
+                    dismiss()
                 }
 
                 Spacer()
@@ -77,7 +80,7 @@ struct ColorimetryView: View {
 
 
             PrimaryButton(title: "Continuar") {
-                print("Continuar")
+                showBiotypeMethod = true
             }
             .padding(.horizontal, 32)
             .padding(.bottom, 10)
@@ -89,7 +92,13 @@ struct ColorimetryView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
         }
+        .navigationDestination(isPresented: $showBiotypeMethod) {
+                    BiotypeMethodView()
+                }
+                .navigationBarBackButtonHidden(true)
+
     }
+
 }
 
 #Preview {
