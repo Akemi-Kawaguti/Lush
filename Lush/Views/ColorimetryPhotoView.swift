@@ -14,6 +14,7 @@ import SwiftUI
 struct ColorimetryPhotoView: View {
     
     @State private var image: UIImage?
+    @State private var showColorimetry = false
     
     var body: some View {
         
@@ -77,7 +78,7 @@ struct ColorimetryPhotoView: View {
           
             
             PrimaryButton(title: "Continuar") {
-                print("Continuar")
+                showColorimetry = true
             }
             .disabled(image == nil)
             .opacity(image == nil ? 0.5 : 1)
@@ -91,6 +92,10 @@ struct ColorimetryPhotoView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
         }
+        .navigationDestination(isPresented: $showColorimetry) {
+            ColorimetryView(image: image)
+        }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
