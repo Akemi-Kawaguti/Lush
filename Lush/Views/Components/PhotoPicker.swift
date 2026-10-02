@@ -44,11 +44,11 @@ struct PhotoPicker: View {
                         
                         Image(systemName: "photo.on.rectangle")
                             .font(.system(size: 42))
-                            .foregroundStyle(.quartenary)
+                            .foregroundStyle(.quartenary.opacity(0.8))
                         
                         Text(title)
-                            .font(.system(size: 20,weight: .regular))
-                            .foregroundStyle(.quartenary)
+                            .font(.system(size: 16,weight: .regular))
+                            .foregroundStyle(.quartenary.opacity(0.8))
                             .multilineTextAlignment(.center)
                     }
                     .frame(width: width,height: height)
