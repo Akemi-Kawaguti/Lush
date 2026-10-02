@@ -13,6 +13,8 @@ import SwiftUI
 
 struct ColorimetryPhotoView: View {
     
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var image: UIImage?
     @State private var showColorimetry = false
     
@@ -24,7 +26,7 @@ struct ColorimetryPhotoView: View {
             HStack {
                 
                 BackButton {
-                    print("Voltar")
+                    dismiss()
                 }
                 
                 Spacer()
