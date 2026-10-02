@@ -16,7 +16,6 @@ struct BiotypeMethodView: View {
 
         VStack(spacing: 0) {
 
-            // MARK: - Header
 
             HStack {
 
@@ -37,7 +36,6 @@ struct BiotypeMethodView: View {
             .padding(.horizontal, 24)
             .padding(.top, 16)
 
-            // MARK: - Progress
 
             ProgressBar(
                 currentStep: 3,
@@ -46,31 +44,19 @@ struct BiotypeMethodView: View {
             .padding(.horizontal, 32)
             .padding(.top, 32)
 
-            // MARK: - Instructions
 
             VStack(alignment: .leading, spacing: 16) {
 
                 Text("Como quer identificar o seu biotipo?")
-                    .font(
-                        .system(
-                            size: 16,
-                            weight: .bold
-                        )
-                    )
+                    .font(.system(size: 16,weight: .bold))
+                    .foregroundStyle(.black)
 
-                Text(
-                    "Analisamos as proporções dos seus ombros, cintura e quadril para calcular a sua silhueta."
-                )
+                Text("Analisamos as proporções dos seus ombros, cintura e quadril para calcular a sua silhueta.")
 
                 Text("Escolha como prefere informar:")
             }
-            .font(
-                .system(
-                    size: 14,
-                    weight: .regular
-                )
-            )
-            .foregroundStyle(.gray)
+            .font(.system(size: 14,weight: .regular))
+            .foregroundStyle(.quartenary)
             .frame(
                 maxWidth: .infinity,
                 alignment: .leading
@@ -78,7 +64,6 @@ struct BiotypeMethodView: View {
             .padding(.horizontal, 32)
             .padding(.top, 28)
 
-            // MARK: - Options
 
             VStack(spacing: 40) {
 
@@ -98,12 +83,11 @@ struct BiotypeMethodView: View {
                     selectedMethod = .measurements
                 }
             }
-            .padding(.horizontal, 32)
-            .padding(.top, 52)
+            .padding(.horizontal, 20)
+            .padding(.top, 40)
 
             Spacer()
 
-            // MARK: - Continue
 
             PrimaryButton(title: "Continuar") {
 
