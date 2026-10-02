@@ -6,6 +6,7 @@
 //
 
 enum GarmentCategory: String, Codable, CaseIterable {
+    // Parte de cima
     case tShirt = "Camiseta"
     case tankTop = "Regata"
     case croppedTop = "Cropped"
@@ -13,24 +14,17 @@ enum GarmentCategory: String, Codable, CaseIterable {
     case shirt = "Camisa"
     case bodysuit = "Body"
     case sweater = "Suéter"
-    
+
+    // Parte de baixo
     case pants = "Calça"
     case shorts = "Short"
     case skirt = "Saia"
     case leggings = "Legging"
     case bermudaShorts = "Bermuda"
-    
+
+    // Peça única
     case dress = "Vestido"
     case jumpsuit = "Macacão"
-    case coordSet = "Conjunto"
-    
-    case jacket = "Jaqueta"
-    case blazer = "Blazer"
-    case coat = "Casaco"
-    case cardigan = "Cardigan"
-    case vest = "Colete"
-    case overcoat = "Sobretudo"
-    case other = "Outros"
 
     var position: GarmentPosition {
         switch self {
@@ -38,10 +32,8 @@ enum GarmentCategory: String, Codable, CaseIterable {
             return .top
         case .pants, .shorts, .skirt, .leggings, .bermudaShorts:
             return .bottom
-        case .dress, .jumpsuit, .coordSet:
+        case .dress, .jumpsuit:
             return .onePiece
-        case .jacket, .blazer, .coat, .cardigan, .vest, .overcoat, .other:
-            return .outerLayer
         }
     }
 }

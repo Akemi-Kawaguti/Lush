@@ -25,11 +25,16 @@ final class ClothesModel {
     var cutTop: GarmentCutTop?
     var cutBottom: GarmentCutBottom?
     var cutOnePiece: GarmentCutOnePiece?
-    var cutOuterLayer: GarmentCutOuterLayer?
     
     var user: UserModel?
     
-    init(id: UUID, name: String, photo: Data? = nil, garmentCategory: GarmentCategory, garmentPosition: GarmentPosition, cutTop: GarmentCutTop? = nil, cutBottom: GarmentCutBottom? = nil, cutOnePiece: GarmentCutOnePiece? = nil, cutOuterLayer: GarmentCutOuterLayer? = nil, user: UserModel? = nil) {
+    init(id: UUID, name: String, photo: Data? = nil,
+         garmentCategory: GarmentCategory,
+         garmentPosition: GarmentPosition,
+         cutTop: GarmentCutTop? = nil,
+         cutBottom: GarmentCutBottom? = nil,
+         cutOnePiece: GarmentCutOnePiece? = nil,
+         user: UserModel? = nil) {
         
         self.id = id
         self.name = name
@@ -41,7 +46,6 @@ final class ClothesModel {
         self.cutTop = cutTop
         self.cutBottom = cutBottom
         self.cutOnePiece = cutOnePiece
-        self.cutOuterLayer = cutOuterLayer
         
         self.user = user
     }
