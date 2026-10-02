@@ -1,37 +1,41 @@
 //
-//  PresentationView.swift
+//  TermsView.swift
 //  Lush
 //
 //  Created by Mariana Fracaroli Lopes on 29/09/26.
 //
+
 import SwiftUI
 
 struct TermsView: View {
 
     @State private var viewModel = TermsViewModel()
+    @State private var showColorimetryPhoto = false
+
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
 
         VStack(spacing: 0) {
+
             HStack {
 
                 BackButton {
-                    print("Voltar")
+                    dismiss()
                 }
 
                 Spacer()
 
                 Text("Termo de Uso")
-                .font(.AppTypography.title3)
+                    .font(.AppTypography.title3)
 
                 Spacer()
 
-         
-                Color.clear.frame(width: 44, height: 44)
+                Color.clear
+                    .frame(width: 44, height: 44)
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)
-
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -42,11 +46,17 @@ struct TermsView: View {
                         .lineSpacing(6)
                 }
                 .padding(32)
-                .frame(maxWidth: .infinity,alignment: .leading)
+                .frame(
+                    maxWidth: .infinity,
+                    alignment: .leading
+                )
             }
             .onScrollGeometryChange(for: Bool.self) { geometry in
 
-                let distanceFromBottom = geometry.contentSize.height - geometry.contentOffset.y - geometry.containerSize.height
+                let distanceFromBottom =
+                    geometry.contentSize.height
+                    - geometry.contentOffset.y
+                    - geometry.containerSize.height
 
                 return distanceFromBottom <= 20
 
@@ -57,23 +67,36 @@ struct TermsView: View {
                 }
             }
             .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .clipShape(
+                RoundedRectangle(cornerRadius: 24)
+            )
             .overlay {
-                RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.25),lineWidth: 1)
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(
+                        Color.gray.opacity(0.25),
+                        lineWidth: 1
+                    )
             }
             .padding(.horizontal, 24)
             .padding(.top, 32)
             .padding(.bottom, 16)
 
-
             HStack {
 
                 Text("Li e aceito os termos de uso")
-                    .font(.system(size: 14, weight: .regular))
+                    .font(
+                        .system(
+                            size: 14,
+                            weight: .regular
+                        )
+                    )
 
                 Spacer()
 
-                Toggle("",isOn: $viewModel.hasAcceptedTerms)
+                Toggle(
+                    "",
+                    isOn: $viewModel.hasAcceptedTerms
+                )
                 .labelsHidden()
                 .tint(Color("assistantTertiary"))
                 .disabled(!viewModel.hasReachedEnd)
@@ -81,10 +104,8 @@ struct TermsView: View {
             .padding(.horizontal, 35)
             .padding(.vertical, 20)
 
-      
-
             PrimaryButton(title: "Continuar") {
-                print("Continuar")
+                showColorimetryPhoto = true
             }
             .disabled(!viewModel.canContinue)
             .opacity(viewModel.canContinue ? 1 : 0.5)
@@ -92,13 +113,21 @@ struct TermsView: View {
             .padding(.top, 20)
             .padding(.bottom, 10)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(
+            maxWidth: .infinity,
+            maxHeight: .infinity
+        )
         .background {
             Image("backgroundLush")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
         }
+        .navigationDestination(isPresented: $showColorimetryPhoto) {
+            ColorimetryPhotoView()
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
     }
 }
 
