@@ -5,12 +5,7 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 
-//
-//  LookCard.swift
-//  Lush
-//
 //  Card de sugestão de look: foto, botão de favoritar e crédito da foto.
-//
 
 import SwiftUI
 

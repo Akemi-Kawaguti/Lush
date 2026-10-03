@@ -5,14 +5,6 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 
-//
-//  HomeView.swift
-//  Lush
-//
-//  Tela inicial: resumo do biotipo e da paleta, sugestões de looks e minhas roupas.
-//  Por enquanto com dados de exemplo.
-//
-
 import SwiftUI
 
 struct HomeView: View {
