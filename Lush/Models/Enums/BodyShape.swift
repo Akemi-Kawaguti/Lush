@@ -12,3 +12,16 @@ enum BodyShape: String, Codable, CaseIterable {
     case rectangle = "Retângulo"
     case oval = "Oval"
 }
+
+extension BodyShape {
+    // Nome da imagem no Assets (pasta BodyShapes)
+    var imageName: String {
+        switch self {
+        case .hourglass: return "ampulheta"
+        case .triangle: return "triangulo"
+        case .invertedTriangle: return "trianguloinvertido"
+        case .rectangle: return "retangulo"
+        case .oval: return "oval"
+        }
+    }
+}
