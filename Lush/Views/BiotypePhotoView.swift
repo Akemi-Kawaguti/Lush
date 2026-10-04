@@ -13,6 +13,8 @@ struct BiotypePhotoView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var image: UIImage?
+    
+    @State private var showResult = false
 
     var body: some View {
 
@@ -83,9 +85,8 @@ struct BiotypePhotoView: View {
 
             Spacer()
 
-
             PrimaryButton(title: "Ver resultados") {
-                print("Ver resultados")
+                showResult = true
             }
             .disabled(image == nil)
             .opacity(image == nil ? 0.5 : 1)
@@ -100,9 +101,15 @@ struct BiotypePhotoView: View {
                 .ignoresSafeArea()
         }
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $showResult) {
+            // TODO: usar o resultado real da análise
+            ResultView(palette: .autumnDeep, bodyShape: .hourglass)
+        }
     }
 }
 
 #Preview {
-    BiotypePhotoView()
+    NavigationStack {
+        BiotypePhotoView()
+    }
 }

@@ -37,4 +37,36 @@ extension BodyShape {
             return "O biotipo oval tem a região do meio do corpo mais arredondada, com ombros e quadril mais estreitos que a cintura."
         }
     }
+
+    // Frase curta do card de biotipo (tela de resultado) — REVISAR
+    var summary: String {
+        switch self {
+        case .hourglass:
+            return "Seus ombros e quadril são proporcionais e sua cintura é bem definida."
+        case .triangle:
+            return "Seu quadril é mais largo que os ombros."
+        case .invertedTriangle:
+            return "Seus ombros são mais largos que o quadril."
+        case .rectangle:
+            return "Seus ombros, cintura e quadril têm medidas parecidas."
+        case .oval:
+            return "O meio do seu corpo tem mais volume que ombros e quadril."
+        }
+    }
+
+    // Texto do card "O que isso significa?" (tela de resultado)
+    var meaning: String {
+        switch self {
+        case .hourglass:
+            return "Você possui um equilíbrio natural entre a parte superior e inferior do corpo, com uma cintura marcada."
+        case .triangle:
+            return "Seus quadris são proporcionalmente mais largos que os ombros, com uma cintura que pode ser bem definida."
+        case .invertedTriangle:
+            return "Seus ombros são proporcionalmente mais largos que os quadris, criando uma maior presença na parte superior do corpo."
+        case .rectangle:
+            return "Seus ombros e quadris apresentam proporções semelhantes, com uma cintura menos marcada."
+        case .oval:
+            return "A região central do corpo apresenta maior volume proporcional, enquanto a cintura tende a ser menos definida."
+        }
+    }
 }
