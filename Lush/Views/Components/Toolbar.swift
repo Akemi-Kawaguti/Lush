@@ -30,6 +30,7 @@ enum ToolbarAction {
 
 //toolbar
 struct Toolbar: ToolbarContent {
+    var title: String? = nil
     var action: ToolbarAction? = .add
     var isActionEnabled: Bool = true
     var onBackClick: () -> Void = {}
@@ -44,6 +45,13 @@ struct Toolbar: ToolbarContent {
                     .fontWeight(.semibold)
             }
             .accessibilityLabel("Voltar")
+        }
+        
+        if let title {              
+            ToolbarItem(placement: .principal) {
+                Text(title)
+                    .font(.AppTypography.title3)
+            }
         }
 
         // Ação da direita (opcional)
