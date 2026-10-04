@@ -27,8 +27,9 @@ struct LushApp: App {
         WindowGroup {
             //ContentView()
             //ClassifierTestView()
-//            GarmentAnalysisTestView()
-            PresentationView()
+            //GarmentAnalysisTestView()
+            //PresentationView()
+            RootView()
         }
         .modelContainer(sharedModelContainer)
     }
