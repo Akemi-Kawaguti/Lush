@@ -54,6 +54,7 @@ struct HomeView: View {
                                         isFavorite: favoriteLooks.contains(look),
                                         onFavorite: { toggleFavorite(look) }
                                     )
+                                    .frame(width: 170)
                                 }
                             }
                             .padding(.horizontal, 24)
