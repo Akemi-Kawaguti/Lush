@@ -75,6 +75,7 @@ struct ClothingDetailView: View {
 
                 Text("Compatibilidade com você")
                     .font(.AppTypography.title2)
+                    .foregroundStyle(Color("titles"))
                     .accessibilityAddTraits(.isHeader)
                     .padding(.top, 8)
 
@@ -157,7 +158,10 @@ struct ClothingDetailView: View {
                     Image(systemName: "photo.on.rectangle")
                         .font(.system(size: 42))
                         .foregroundStyle(Color("quartenary"))
+                        
                 }
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color("borderLines"), lineWidth: 0.5))
+
         }
     }
 

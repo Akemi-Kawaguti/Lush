@@ -34,15 +34,16 @@ struct BodyFeatureCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.AppTypography.headline)
+                    .foregroundStyle(Color("titles"))
                 Text(description)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("titles").opacity(0.7))
             }
         }
         .padding(16)
         .frame(width: 340, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(Color.gray.opacity(0.3), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(Color("borderLines"), lineWidth: 0.5))
     }
 }
 

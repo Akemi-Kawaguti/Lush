@@ -40,6 +40,7 @@ struct HomeView: View {
                     Text("Lush")
                         .font(.AppTypography.largeTitle)
                         .padding(.horizontal, 24)
+                        .foregroundStyle(Color("titles"))
 
                     // Mais informações
                     VStack(alignment: .leading, spacing: 16) {
@@ -124,7 +125,7 @@ struct HomeView: View {
                 Image(systemName: "chevron.right")
                     .font(.headline)
             }
-            .foregroundStyle(.primary)
+            .foregroundStyle(Color("titles"))
         }
         .buttonStyle(.plain)
     }
@@ -140,10 +141,11 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Seu biotipo:")
                     .font(.footnote)
-                    .foregroundStyle(Color(.black).opacity(0.7))
+                    .foregroundStyle(Color("textAttention").opacity(0.7))
             
                 Text(bodyShape.rawValue)
                     .font(.AppTypography.headline)
+                    .foregroundStyle(Color("titles"))
 
                 // Faixa com as cores da paleta
                 HStack(spacing: 0) {
@@ -157,16 +159,17 @@ struct HomeView: View {
 
                 Text("Sua paleta:")
                     .font(.footnote)
-                    .foregroundStyle(Color(.black).opacity(0.7))
+                    .foregroundStyle(Color("textAttention").opacity(0.7))
                 Text(palette)
                     .font(.AppTypography.headline)
+                    .foregroundStyle(Color("titles"))
             }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.2), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
     }
 
     func toggleFavorite(_ look: Look) {

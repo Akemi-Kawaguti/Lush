@@ -5,28 +5,6 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 02/10/26.
 //
 
-//  Cartão de resultado de uma análise
-//
-//  CompatibilitySection.swift
-//  Lush
-//
-//  Cartão de resultado de uma análise (layout da designer):
-//  ┌───────────────────────────────────────┐
-//  │ ( Biotipo: Alta compatibilidade   ● ) │  ← cabeçalho em destaque (cápsula cinza)
-//  │   Modelagem da peça          Evasê    │  ← linhas de detalhe
-//  │   ─────────────────────────────────   │
-//  │   Seu biotipo            Ampulheta    │
-//  └───────────────────────────────────────┘
-//    rodapé curto (opcional), fora do cartão
-//
-//  Uso:
-//  CompatibilitySection(title: "Biotipo", level: .high, footer: "Texto curto") {
-//      DetailRow(label: "Modelagem da peça", value: "Evasê")
-//      Divider().padding(.horizontal, 16)
-//      DetailRow(label: "Seu biotipo", value: "Ampulheta")
-//  }
-//
-
 import SwiftUI
 
 struct CompatibilitySection<Content: View>: View {
@@ -58,12 +36,14 @@ struct CompatibilitySection<Content: View>: View {
                     Text("\(Text("\(title):").font(.AppTypography.title3)) \(Text(level.title))")
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
+                        .foregroundColor(Color("titles"))
                     Spacer(minLength: 8)
                     CompatibilityIndicator(level: level)
+                        
                 }
                 .padding(.horizontal, 24)
                 .frame(minHeight: 56)
-                .background(Capsule().fill(Color(.systemGray6)))
+                .background(Capsule().fill(Color("textAttention").opacity(0.1)))
                 .padding(12)
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("\(title): \(level.title)")
@@ -75,13 +55,13 @@ struct CompatibilitySection<Content: View>: View {
             }
             .padding(.bottom, 12)
             .background(RoundedRectangle(cornerRadius: 32).fill(.white))
-            .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color.gray.opacity(0.2), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color("borderLines"), lineWidth: 0.5))
 
             // 3º nível: explicação
             if let footer {
                 Text(footer)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("textAttention").opacity(0.5))
                     .padding(.horizontal, 16)
             }
         }
@@ -102,9 +82,10 @@ struct DetailRow<Trailing: View>: View {
     var body: some View {
         HStack {
             Text(label)
+                .foregroundStyle(Color("textAttention"))
             Spacer()
             trailing
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("textAttention").opacity(0.4))
         }
         .padding(.horizontal, 16)
         .frame(minHeight: 52)

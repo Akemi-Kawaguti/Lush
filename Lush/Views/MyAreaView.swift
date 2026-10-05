@@ -33,11 +33,13 @@ struct MyAreaView: View {
                     Text("Minha área")
                         .font(.AppTypography.largeTitle)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(Color("titles"))
 
                     VStack(spacing: 12) {
                         UserPhoto(imageName: "user", size: 160)
                         Text(name)
                             .font(.AppTypography.title)
+                            .foregroundStyle(Color("titles"))
                     }
 
                     // Cards da paleta e do biotipo
@@ -102,9 +104,10 @@ struct MyAreaView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Sua paleta")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("textAttention").opacity(0.7))
             Text(palette)
                 .font(.AppTypography.title3)
+                .foregroundStyle(Color("titles"))
 
             // Cores em 2 linhas de 3
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
@@ -122,7 +125,7 @@ struct MyAreaView: View {
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.3), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
     }
 
     // Card do biotipo
@@ -130,9 +133,10 @@ struct MyAreaView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Seu biotipo")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("textAttention").opacity(0.7))
             Text(bodyShape.rawValue)
                 .font(.AppTypography.title3)
+                .foregroundStyle(Color("titles"))
 
             Image(bodyShape.imageName)
                 .resizable()
@@ -146,7 +150,7 @@ struct MyAreaView: View {
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.3), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
     }
 
     var seeDetails: some View {
