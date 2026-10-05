@@ -15,6 +15,8 @@ struct ResultView: View {
     let bodyShape: BodyShape
     var onExplore: () -> Void = {}
 
+    @State private var showUserIntro = false   // novo
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -36,8 +38,10 @@ struct ResultView: View {
         .scrollIndicators(.hidden)
         // Botão fixo embaixo
         .safeAreaInset(edge: .bottom) {
-            PrimaryButton(title: "Explorar meu estilo", action: onExplore)
-                .padding(.bottom, 8)
+            PrimaryButton(title: "Explorar meu estilo") {
+                showUserIntro = true   // novo: abre a tela "Sobre você"
+            }
+            .padding(.bottom, 16)
         }
         .background {
             Image("backgroundLush")
@@ -50,6 +54,13 @@ struct ResultView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
+        // novo: tela opcional de nome e foto
+        .navigationDestination(isPresented: $showUserIntro) {
+            UserIntroView { name, photo in
+                // TODO: salvar nome e foto no UserModel e ir para a Home
+                onExplore()
+            }
+        }
     }
 
     // Card da paleta
@@ -79,7 +90,7 @@ struct ResultView: View {
     // Card do biotipo
     var bodyShapeCard: some View {
         HStack(spacing: 16) {
-            Image(bodyShape.imageName)
+            Image(bodyShape.resultImageName)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 120, height: 150)
@@ -116,7 +127,7 @@ struct ResultView: View {
             Text("O que isso significa?")
                 .font(.AppTypography.title3)
             Text(bodyShape.meaning)
-                .font(.footnote)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
         .padding(24)
@@ -131,3 +142,4 @@ struct ResultView: View {
         ResultView(palette: .autumnDeep, bodyShape: .hourglass)
     }
 }
+
