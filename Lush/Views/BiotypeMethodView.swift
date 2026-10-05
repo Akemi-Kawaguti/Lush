@@ -11,61 +11,42 @@ struct BiotypeMethodView: View {
 
     @State private var selectedMethod: BiotypeMethod? = nil
     @State private var showBiotypePhoto = false
+    
 
     var body: some View {
 
         VStack(spacing: 0) {
-
-
-            HStack {
-
-                BackButton {
-                    dismiss()
-                }
-
-                Spacer()
-
-                Text("Biotipo de Silhueta")
-                    .font(.AppTypography.title3)
-
-                Spacer()
-
-                Color.clear
-                    .frame(width: 44, height: 44)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
-
 
             ProgressBar(
                 currentStep: 3,
                 totalSteps: 4
             )
             .padding(.horizontal, 32)
-            .padding(.top, 32)
+            .padding(.top, 20)
 
 
             VStack(alignment: .leading, spacing: 16) {
 
                 Text("Como quer identificar o seu biotipo?")
-                    .font(.system(size: 16,weight: .bold))
-                    .foregroundStyle(.black)
+                    .fontWeight(.bold)
 
                 Text("Analisamos as proporções dos seus ombros, cintura e quadril para calcular a sua silhueta.")
+                    .lineSpacing(6)
+                    .foregroundStyle(Color("quartenary"))
 
                 Text("Escolha como prefere informar:")
+                    .foregroundStyle(Color("quartenary"))
             }
-            .font(.system(size: 14,weight: .regular))
-            .foregroundStyle(.quartenary)
+            .font(.callout)
             .frame(
                 maxWidth: .infinity,
                 alignment: .leading
             )
             .padding(.horizontal, 32)
-            .padding(.top, 28)
+            .padding(.top, 20)
 
 
-            VStack(spacing: 40) {
+            VStack(spacing: 20) {
 
                 BiotypeMethodCard(
                     title: "Análise por foto",
@@ -118,6 +99,10 @@ struct BiotypeMethodView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
         }
+        .toolbar {
+            Toolbar(title: "Biotipo de Silhueta", action: nil, onBackClick: { dismiss() })
+        }
+        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showBiotypePhoto) {
             BiotypePhotoView()
         }
@@ -126,5 +111,7 @@ struct BiotypeMethodView: View {
 }
 
 #Preview {
-    BiotypeMethodView()
+    NavigationStack {
+        BiotypeMethodView()
+    }
 }
