@@ -9,8 +9,6 @@ import SwiftUI
 
 struct FavoritesView: View {
 
-    @Environment(\.dismiss) private var dismiss
-
     @State private var favorites = Look.samples
     @State private var selectedLook: Look?
 
@@ -51,10 +49,6 @@ struct FavoritesView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
         }
-        .toolbar {
-            Toolbar(action: nil, onBackClick: { dismiss() })
-        }
-        .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedLook) { look in
             LookDetailView(
