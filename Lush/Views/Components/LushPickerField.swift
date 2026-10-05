@@ -36,6 +36,7 @@ struct LushPickerField<Option: Hashable>: View {
             Text(title)
                 .font(.headline)
                 .fontWeight(.medium)
+                .foregroundStyle(Color("labels"))
 
             Menu {
                 Picker(title, selection: $selection) {
@@ -48,19 +49,19 @@ struct LushPickerField<Option: Hashable>: View {
                     Text(selection.map(optionTitle) ?? placeholder)
                         // Cores fixas: o Menu pinta o label de azul se usar .secondary
                         .foregroundStyle(selection == nil || !isEnabled
-                                         ? Color(.secondaryLabel)
-                                         : Color(.label))
+                                         ? Color("placeholders")
+                                         : Color("labels"))
                         .lineLimit(1)
                     Spacer()
                     Image(systemName: "chevron.up.chevron.down")
                         .font(.subheadline.weight(.medium))
-                        .foregroundStyle(Color(.secondaryLabel))
+                        .foregroundStyle(Color("placeholders"))
     
                 }
                 .padding(.horizontal, 20)
                 .frame(height: 56)
                 .background(Capsule().fill(.white))
-                .overlay(Capsule().stroke(Color.gray.opacity(0.3), lineWidth: 1))
+                .overlay(Capsule().stroke(Color("borderLines"), lineWidth: 1))
             }
             .tint(.primary)
         }

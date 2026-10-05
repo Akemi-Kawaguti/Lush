@@ -17,14 +17,16 @@ struct ScreenHeader: View {
             Text(title)
                 .font(.AppTypography.largeTitle)
                 .accessibilityAddTraits(.isHeader)
+                .foregroundStyle(Color("titles"))
 
             if let subtitle {
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("subtitles"))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        
     }
 }
 
