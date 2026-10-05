@@ -38,7 +38,7 @@ struct BiotypeMeasurementsView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Envie suas medidas")
                         .fontWeight(.bold)
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Color("textAttention"))
 
                     Text("Informe sua medida em centímetros")
                         .foregroundStyle(Color("quartenary"))
@@ -114,6 +114,7 @@ struct BiotypeMeasurementsView: View {
             HStack(spacing: 8) {
                 Text("Dica")
                     .font(.callout.weight(.semibold))
+                    .foregroundStyle(Color("labels"))
                 Image(systemName: "lightbulb.max")
                     .foregroundStyle(Color("button"))
             }

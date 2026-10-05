@@ -37,7 +37,7 @@ struct ClothesCategorySection: View {
                     Image(systemName: "chevron.right")
                         .font(.headline)
                 }
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color("titles"))
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 24)

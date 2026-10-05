@@ -18,12 +18,13 @@ struct LushTextField: View {
             Text(title)
                 .font(.headline)
                 .fontWeight(.medium)
+                .foregroundStyle(Color("labels"))
 
             TextField(
                 placeholder,
                 text: $text,
                 // Mesma cor de placeholder dos LushPickerField
-                prompt: Text(placeholder).foregroundStyle(Color(.secondaryLabel))
+                prompt: Text(placeholder).foregroundStyle(Color("placeholders"))
             )
                 .textInputAutocapitalization(.sentences)
                 .submitLabel(.done)
@@ -31,6 +32,7 @@ struct LushTextField: View {
                 .frame(height: 56)
                 .background(Capsule().fill(.white))
                 .overlay(Capsule().stroke(Color.gray.opacity(0.3), lineWidth: 1))
+                .foregroundStyle(Color("labels"))
         }
     }
 }
@@ -44,5 +46,5 @@ struct LushTextField: View {
         text: $name
     )
     .padding(24)
-    .background(Color.pink.opacity(0.05))
+
 }
