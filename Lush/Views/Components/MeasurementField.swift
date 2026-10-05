@@ -50,6 +50,7 @@ struct MeasurementField: View {
                             value = filtered
                         }
                     }
+                    .foregroundStyle(Color("textAttention"))
                     .accessibilityLabel("\(title) em centímetros")
 
                     Text("cm")
@@ -58,7 +59,7 @@ struct MeasurementField: View {
                 .padding(.horizontal, 20)
                 .frame(height: 48)
                 .background(Capsule().fill(.white))
-                .overlay(Capsule().strokeBorder(Color("borderLines"), lineWidth: 1))
+                .overlay(Capsule().strokeBorder(Color("borderLines"), lineWidth: 0.5))
             }
         }
     }

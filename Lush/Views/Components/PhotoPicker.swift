@@ -57,8 +57,9 @@ struct PhotoPicker: View {
                     )
                     .overlay {
                         RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.gray,style: StrokeStyle(lineWidth: 0.8,dash: [4, 4]))
+                        .stroke(Color("borderLines"),style: StrokeStyle(lineWidth: 0.8,dash: [4, 4]))
                     }
+
                 }
             }
             .frame(

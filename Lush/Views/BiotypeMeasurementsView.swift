@@ -125,7 +125,7 @@ struct BiotypeMeasurementsView: View {
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(Color.gray.opacity(0.3), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(Color("borderLines"), lineWidth: 0.5))
     }
 
     // Converte o texto em número (aceita "48" ou "48,5")
