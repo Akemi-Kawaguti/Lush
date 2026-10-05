@@ -25,6 +25,7 @@ struct LookCard: View {
             .overlay(alignment: .top) {
                 LookImage(imageName: imageName)
             }
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color("borderLines"), lineWidth: 0.5))
             // Botão de favoritar
             .overlay(alignment: .topLeading) {
                 Button(action: onFavorite) {

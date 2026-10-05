@@ -64,7 +64,7 @@ struct BodyShapeDetailView: View {
                     }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 32))
-                .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color.gray.opacity(0.3), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color("borderLines"), lineWidth: 0.5))
                 .padding(.horizontal, 24)
                 .padding(.top, 10)
 
@@ -72,6 +72,7 @@ struct BodyShapeDetailView: View {
                 VStack(spacing: 12) {
                     Text("Suas características")
                         .font(.AppTypography.title2)
+                        .foregroundStyle(Color("titles"))
 
                     // Carrossel de características
                     ScrollView(.horizontal) {
