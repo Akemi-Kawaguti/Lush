@@ -100,12 +100,23 @@ struct PixelColorConversion {
                              format: .RGBA8,
                              colorSpace: nil)
 
-        return UIColor(
-            red: CGFloat(bitmap[0]) / 255.0,
-            green: CGFloat(bitmap[1]) / 255.0,
-            blue: CGFloat(bitmap[2]) / 255.0,
-            alpha: CGFloat(bitmap[3]) / 255.0
-        )
+        let red = CGFloat(bitmap[0]) / 255.0
+                let green = CGFloat(bitmap[1]) / 255.0
+                let blue = CGFloat(bitmap[2]) / 255.0
+                let alpha = CGFloat(bitmap[3]) / 255.0
+        
+        let tempColor = UIColor(red: red, green: green, blue: blue, alpha: alpha)
+        
+        var hue: CGFloat = 0
+                var saturation: CGFloat = 0
+                var brightness: CGFloat = 0
+                var extractedAlpha: CGFloat = 0
+        
+        // O método getHue lê os valores HSB nativamente do UIColor
+                tempColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &extractedAlpha)
+
+                // 4. Retorna um UIColor inicializado diretamente com os componentes HSB
+                return UIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: extractedAlpha)
     } // finalmente podemos converter valores obtidos no vetor
     // criando objeto UIColor
 }
