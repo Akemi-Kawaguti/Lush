@@ -5,12 +5,6 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 //
-//  SettingsView.swift
-//  Lush
-//
-//  Tela "Configurações": foto, nome, termos e privacidade.
-//  O ✎ entra no modo de edição (foto e nome) e vira ✓ para salvar.
-//
 
 import SwiftUI
 import PhotosUI
@@ -53,8 +47,11 @@ struct SettingsView: View {
 
                     VStack(spacing: 0) {
                         NavigationLink {
-                            // TODO: tela de termos de uso
-                            Text("Termos de Uso")
+                            LegalDocumentView(
+                                title: "Termos de Uso",
+                                lastUpdated: TermsOfUse.lastUpdated,
+                                content: TermsOfUse.content
+                            )
                         } label: {
                             settingsRow(icon: "doc.text.fill", title: "Termos de Uso")
                         }
@@ -64,8 +61,11 @@ struct SettingsView: View {
                             .frame(height: 0.5)
                     
                         NavigationLink {
-                            // TODO: tela de política de privacidade
-                            Text("Política de Privacidade")
+                            LegalDocumentView(
+                                title: "Política de Privacidade",
+                                lastUpdated: PrivacyPolicy.lastUpdated,
+                                content: PrivacyPolicy.content
+                            )
                         } label: {
                             settingsRow(icon: "lock.shield.fill", title: "Política de Privacidade")
                         }
