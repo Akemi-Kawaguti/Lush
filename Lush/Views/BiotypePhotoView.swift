@@ -20,52 +20,26 @@ struct BiotypePhotoView: View {
 
         VStack(spacing: 0) {
 
-
-            HStack {
-
-                BackButton {
-                    dismiss()
-                }
-
-                Spacer()
-
-                Text("Biotipo de Silhueta")
-                    .font(.AppTypography.title3)
-
-                Spacer()
-
-                Color.clear
-                    .frame(width: 44, height: 44)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
-
-
             ProgressBar(
                 currentStep: 4,
                 totalSteps: 4
             )
             .padding(.horizontal, 32)
-            .padding(.top, 32)
-
+            .padding(.top, 20)
 
             VStack(alignment: .leading, spacing: 12) {
 
                 Text("Adicione uma foto do seu corpo")
-                    .font(.system(size: 16,weight: .bold))
+                    .fontWeight(.bold)
                     .foregroundStyle(.black)
 
                 Text("Para uma análise mais precisa:")
 
-                Text("• Prefira uma foto de frente, com corpo visível e sem roupas muito largas")
-                    .padding(.leading, 8)
+                BulletText(text: "Prefira uma foto de frente, com corpo visível e sem roupas muito largas")
+                    .lineSpacing(6)
+                    
             }
-            .font(
-                .system(
-                    size: 14,
-                    weight: .regular
-                )
-            )
+            .font(.callout)
             .foregroundStyle(.quartenary)
             .frame(
                 maxWidth: .infinity,
@@ -78,14 +52,14 @@ struct BiotypePhotoView: View {
             PhotoPicker(
                 image: $image,
                 title: "Adicione uma foto",
-                width: 320,
+                width: 326,
                 height: 410
             )
-            .padding(.top, 24)
+            .padding(.top, 28)
 
             Spacer()
 
-            PrimaryButton(title: "Ver resultados") {
+            PrimaryButton(title: "Ver resultado") {
                 showResult = true
             }
             .disabled(image == nil)
@@ -100,6 +74,10 @@ struct BiotypePhotoView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
         }
+        .toolbar {
+            Toolbar(title: "Biotipo de Silhueta", action: nil, onBackClick: { dismiss() })
+        }
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $showResult) {
             // TODO: usar o resultado real da análise

@@ -65,14 +65,14 @@ struct PresentationView: View {
                         Text("""
                         O Lush ajuda você a descobrir sua paleta de cores ideal e seu biotipo corporal de forma totalmente personalizada para que faça escolhas de looks assertivas e elegantes.
                         """)
-                        .font(.system(size: 16, weight: .regular))
+                        .font(.callout)
                         .foregroundStyle(.white)
                         .lineSpacing(4)
 
                         HStack {
                             Spacer()
 
-                            PrimaryButton(title: "Continuar") {
+                            PrimaryButton(title: "Começar") {
                                 showTerms = true
                             }
 
@@ -81,7 +81,7 @@ struct PresentationView: View {
                         .padding(.top, 18)
                     }
                     .padding(.horizontal, 36)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, 18)
                 }
             }
             .navigationDestination(isPresented: $showTerms) {

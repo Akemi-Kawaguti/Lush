@@ -49,13 +49,16 @@ struct BiotypeMethodCard: View {
                 VStack(alignment: .leading, spacing: 8) {
 
                     Text(title)
-                        .font(.system(size: 17,weight: .medium))
+                        .font(.body.weight(.medium))
                         .foregroundStyle(.black)
 
                     Text(subtitle)
-                        .font(.system(size: 12,weight: .regular))
+                        .font(.caption)
                         .foregroundStyle(.quartenary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Spacer()
             }
@@ -72,12 +75,15 @@ struct BiotypeMethodCard: View {
     }
 }
 #Preview {
-    BiotypeMethodCard(
-        title: "Análise por foto",
-        subtitle: "Análise automática e com maior precisão",
-        isSelected: true
-    ) {
-        print("Selecionado")
+    VStack {
+        BiotypeMethodCard(
+            title: "Análise por foto",
+            subtitle: "Análise automática e com maior precisão",
+            isSelected: true
+        ) {
+            print("Selecionado")
+        }
+        .padding()
     }
-    .padding()
+    .padding(.horizontal, 10)
 }

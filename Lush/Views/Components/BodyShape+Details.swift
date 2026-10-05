@@ -10,6 +10,11 @@ extension BodyShape {
     var iconName: String {
         imageName + "Icon"
     }
+    
+    // Ilustração da tela de resultado (pasta "bodys" no Assets)
+    var resultImageName: String {
+        "tipo-" + imageName
+    }
 
     // Ícone SF Symbol (não usado mais na tela de detalhes)
     var symbolName: String {
