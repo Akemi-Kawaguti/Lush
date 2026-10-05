@@ -22,62 +22,35 @@ struct ColorimetryPhotoView: View {
         
         VStack(spacing: 0) {
             
-            
-            HStack {
-                
-                BackButton {
-                    dismiss()
-                }
-                
-                Spacer()
-                
-                Text("Paleta de Cores")
-                    .font(.AppTypography.title3)
-                
-                Spacer()
-                
-                Color.clear.frame(width: 44, height: 44)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
-            
-            
             ProgressBar(currentStep: 1,totalSteps: 4)
             .padding(.horizontal, 32)
-            .padding(.top, 32)
-            
+            .padding(.top, 20)
             
             VStack(alignment: .leading, spacing: 20) {
                 
                 Text("Adicione uma foto do seu rosto")
-                    .font(.system(size: 16, weight: .bold))
+                    .fontWeight(.bold)
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    
-                    Text("• Use uma foto com boa iluminação.")
-                    
-                    Text("• Evite filtros, sombras fortes e luzes coloridas.")
-                    
-                    Text("• Mantenha pele, cabelo e olhos visíveis.")
+                    BulletText(text: "Use uma foto com boa iluminação")
+                    BulletText(text: "Evite filtros, sombra fortes e luzes coloridas")
+                    BulletText(text: "Mantenha pele, cabelo e olhos visíveis")
                 }
-                .font(.system(size: 14, weight: .regular))
-                .foregroundStyle(.quartenary)
             }
+            .font(.callout)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 32)
             .padding(.top, 28)
             
-            
             PhotoPicker(
                 image: $image,
                 title: "Adicione uma foto",
-                width: 318,
-                height: 302)
-            .padding(.top, 60)
+                width: 326,
+                height: 390
+            )
+            .padding(.top, 28)
             
             Spacer()
-            
-          
             
             PrimaryButton(title: "Continuar") {
                 showColorimetry = true
@@ -94,13 +67,20 @@ struct ColorimetryPhotoView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
         }
+        .toolbar {
+            Toolbar(title: "Paleta de Cores", action: nil, onBackClick: { dismiss() })
+        }
+        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showColorimetry) {
             ColorimetryView(image: image)
         }
         .navigationBarBackButtonHidden(true)
+        
     }
 }
 
 #Preview {
-    ColorimetryPhotoView()
+    NavigationStack {
+        ColorimetryPhotoView()
+    }
 }

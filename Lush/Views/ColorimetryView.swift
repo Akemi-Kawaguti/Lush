@@ -19,62 +19,38 @@ struct ColorimetryView: View {
     var body: some View {
         VStack(spacing: 0) {
 
-
-            HStack {
-
-                BackButton {
-                    dismiss()
-                }
-
-                Spacer()
-
-                Text("Paleta de Cores")
-                    .font(.AppTypography.title3)
-
-                Spacer()
-
-                Color.clear.frame(width: 44, height: 44)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
-
-
             ProgressBar(
                 currentStep: 2,
                 totalSteps: 4
             )
             .padding(.horizontal, 32)
-            .padding(.top, 32)
-
+            .padding(.top, 20)
 
             VStack(alignment: .leading, spacing: 16) {
 
                 Text("Selecione suas cores")
-                    .font(.system(size: 16,weight: .bold))
+                    .fontWeight(.bold)
 
                 VStack(alignment: .leading, spacing: 12) {
-
                     Text("Use o conta-gotas para selecionar uma cor de cada vez:")
-
-                    Text("• Pele: posicione sobre a pele do rosto")
-
-                    Text("• Cabelo: posicione sobre o cabelo")
-
-                    Text("• Olhos: posicione sobre a íris")
+                        .foregroundStyle(Color("quartenary"))
+                        .fixedSize(horizontal: false, vertical: true)
+                    BulletText(title: "Pele:", text: "posicione sobre a pele do rosto")
+                    BulletText(title: "Cabelo:", text: "posicione sobre o cabelo")
+                    BulletText(title: "Olhos:", text: "posicione sobre a íris")
                 }
-                .font(.system(size: 14,weight: .regular))
-                .foregroundStyle(.quartenary)
+                .font(.callout)
                 .lineSpacing(2)
             }
+            .font(.callout)
             .frame(maxWidth: .infinity,alignment: .leading)
             .padding(.horizontal, 32)
             .padding(.top, 20)
 
-
             ColorSelectionCard(
                 image: image
             )
-            .padding(.top, 32)
+            .padding(.top, 20)
 
             Spacer()
 
@@ -92,17 +68,23 @@ struct ColorimetryView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
         }
+        .toolbar {
+            Toolbar(title: "Paleta de Cores", action: nil, onBackClick: { dismiss() })
+        }
+        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showBiotypeMethod) {
-                    BiotypeMethodView()
-                }
-                .navigationBarBackButtonHidden(true)
+            BiotypeMethodView()
+        }
+        .navigationBarBackButtonHidden(true)
 
     }
 
 }
 
 #Preview {
-    ColorimetryView(
-        image: UIImage(named: "teste")
-    )
+    NavigationStack {
+        ColorimetryView(
+            image: UIImage(named: "teste")
+        )
+    }
 }

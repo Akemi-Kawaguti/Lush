@@ -18,32 +18,20 @@ struct TermsView: View {
 
         VStack(spacing: 0) {
 
-            HStack {
-
-                BackButton {
-                    dismiss()
-                }
-
-                Spacer()
-
-                Text("Termo de Uso")
-                    .font(.AppTypography.title3)
-
-                Spacer()
-
-                Color.clear
-                    .frame(width: 44, height: 44)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
+            
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 12) {
 
-                    Text(TermsOfUse.content)
-                        .font(.system(size: 16, weight: .regular))
-                        .foregroundStyle(.gray)
-                        .lineSpacing(6)
+                    ForEach(TermsOfUse.content.components(separatedBy: "\n\n"), id: \.self) { paragraph in
+                        let isTitle = paragraph.first?.isNumber == true
+
+                        Text(paragraph)
+                            .font(isTitle ? .callout.weight(.semibold) : .subheadline)
+                            .foregroundStyle(isTitle ? .primary : .secondary)
+                            .lineSpacing(isTitle ? 0 : 6)
+                            .padding(.top, isTitle ? 8 : 0)
+                    }
                 }
                 .padding(32)
                 .frame(
@@ -52,16 +40,8 @@ struct TermsView: View {
                 )
             }
             .onScrollGeometryChange(for: Bool.self) { geometry in
-
-                let distanceFromBottom =
-                    geometry.contentSize.height
-                    - geometry.contentOffset.y
-                    - geometry.containerSize.height
-
-                return distanceFromBottom <= 20
-
+                geometry.visibleRect.maxY >= geometry.contentSize.height - 40
             } action: { _, reachedBottom in
-
                 if reachedBottom {
                     viewModel.reachedEndOfTerms()
                 }
@@ -78,19 +58,16 @@ struct TermsView: View {
                     )
             }
             .padding(.horizontal, 24)
-            .padding(.top, 32)
+            .padding(.top, 8)
             .padding(.bottom, 16)
 
             HStack {
 
-                Text("Li e aceito os termos de uso")
-                    .font(
-                        .system(
-                            size: 14,
-                            weight: .regular
-                        )
-                    )
-
+                Text(viewModel.hasReachedEnd ? "Li e aceito os termos de uso" : "Role e leia os termos para aceitar")
+                    .font(.subheadline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    
                 Spacer()
 
                 Toggle(
@@ -98,7 +75,7 @@ struct TermsView: View {
                     isOn: $viewModel.hasAcceptedTerms
                 )
                 .labelsHidden()
-                .tint(Color("assistantTertiary"))
+                .tint(Color.black.opacity(0.7))
                 .disabled(!viewModel.hasReachedEnd)
             }
             .padding(.horizontal, 35)
@@ -126,11 +103,17 @@ struct TermsView: View {
         .navigationDestination(isPresented: $showColorimetryPhoto) {
             ColorimetryPhotoView()
         }
-        .toolbar(.hidden, for: .navigationBar)
+        .toolbar {
+            Toolbar(title: "Termo de Uso", action: nil, onBackClick: { dismiss() })
+        }
         .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+
     }
 }
 
 #Preview {
-    TermsView()
+    NavigationStack {
+        TermsView()
+    }
 }
