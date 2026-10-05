@@ -65,68 +65,68 @@ struct ClothingDetailView: View {
     ]
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
 
-                    ScreenHeader(title: name, subtitle: "Detalhes da peça")
+                ScreenHeader(title: name, subtitle: "Detalhes da peça")
 
-                    photoView
-                        .frame(maxWidth: .infinity)
+                photoView
+                    .frame(maxWidth: .infinity)
 
-                    Text("Compatibilidade com você")
-                        .font(.AppTypography.title2)
-                        .accessibilityAddTraits(.isHeader)
-                        .padding(.top, 8)
+                Text("Compatibilidade com você")
+                    .font(.AppTypography.title2)
+                    .accessibilityAddTraits(.isHeader)
+                    .padding(.top, 8)
 
-                    // Biotipo
-                    CompatibilitySection(
-                        title: "Biotipo",
-                        level: bodyCompatibility,
-                        footer: bodyTip
-                    ) {
-                        DetailRow(label: "Modelagem da peça", value: cut)
-                        Divider().padding(.horizontal, 16)
-                        DetailRow(label: "Seu biotipo", value: userBodyShape)
-                    }
-
-                    // Paleta
-                    CompatibilitySection(
-                        title: "Paleta",
-                        level: colorCompatibility,
-                        footer: colorTip
-                    ) {
-                        DetailRow(label: "Cores da peça") {
-                            colorDots
-                        }
-                        Divider().padding(.horizontal, 16)
-                        DetailRow(label: "Sua paleta de cor", value: userPalette)
-                        Divider().padding(.horizontal, 16)
-                        DetailRow(
-                            label: "Combinam com você",
-                            value: "\(colors.filter(\.matchesPalette).count) de \(colors.count)"
-                        )
-                    }
+                // Biotipo
+                CompatibilitySection(
+                    title: "Biotipo",
+                    level: bodyCompatibility,
+                    footer: bodyTip
+                ) {
+                    DetailRow(label: "Modelagem da peça", value: cut)
+                    Divider().padding(.horizontal, 16)
+                    DetailRow(label: "Seu biotipo", value: userBodyShape)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 32)
+
+                // Paleta
+                CompatibilitySection(
+                    title: "Paleta",
+                    level: colorCompatibility,
+                    footer: colorTip
+                ) {
+                    DetailRow(label: "Cores da peça") {
+                        colorDots
+                    }
+                    Divider().padding(.horizontal, 16)
+                    DetailRow(label: "Sua paleta de cor", value: userPalette)
+                    Divider().padding(.horizontal, 16)
+                    DetailRow(
+                        label: "Combinam com você",
+                        value: "\(colors.filter(\.matchesPalette).count) de \(colors.count)"
+                    )
+                }
             }
-            .scrollIndicators(.hidden)
-            .background {
-                Image("backgroundLush")
-                    .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea()
-            }
-            .toolbar {
-                Toolbar(
-                    action: .edit,
-                    onBackClick: { dismiss() },
-                    onActionClick: { isShowingEdit = true }
-                )
-            }
-            .navigationBarBackButtonHidden(true)
-            .sheet(isPresented: $isShowingEdit) {
+            .padding(.horizontal, 24)
+            .padding(.bottom, 32)
+        }
+        .scrollIndicators(.hidden)
+        .background {
+            Image("backgroundLush")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+        }
+        .toolbar {
+            Toolbar(
+                action: .edit,
+                onBackClick: { dismiss() },
+                onActionClick: { isShowingEdit = true }
+            )
+        }
+        .navigationBarBackButtonHidden(true)
+        .sheet(isPresented: $isShowingEdit) {
+            NavigationStack {
                 AddClothingView(
                     isEditMode: true,
                     name: name,
@@ -183,10 +183,13 @@ struct ClothingDetailView: View {
 }
 
 #Preview("Alta e média") {
-    ClothingDetailView()
+    NavigationStack {
+        ClothingDetailView()
+    }
 }
 
 #Preview("Baixa") {
+    NavigationStack {
     ClothingDetailView(
         name: "Calça skinny",
         category: .pants,
@@ -201,4 +204,5 @@ struct ClothingDetailView: View {
         colorCompatibility: .low,
         colorTip: "Cores frias apagam o seu tom de pele."
     )
+    }
 }

@@ -28,6 +28,7 @@ struct MeasurementField: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.headline)
+                    .foregroundStyle(Color("titles"))
 
                 Text(description)
                     .font(.subheadline)
@@ -39,7 +40,7 @@ struct MeasurementField: View {
                     TextField(
                         "Ex: 48 cm",
                         text: $value,
-                        prompt: Text("Ex: 48 cm").foregroundStyle(Color(.secondaryLabel))
+                        prompt: Text("Ex: 48 cm").foregroundStyle(Color("placeholders"))
                     )
                     .keyboardType(.decimalPad)
                     // Aceita só números e vírgula/ponto (bloqueia letras coladas ou digitadas)
@@ -52,12 +53,12 @@ struct MeasurementField: View {
                     .accessibilityLabel("\(title) em centímetros")
 
                     Text("cm")
-                        .foregroundStyle(Color(.secondaryLabel))
+                        .foregroundStyle(Color("placeholders"))
                 }
                 .padding(.horizontal, 20)
                 .frame(height: 48)
                 .background(Capsule().fill(.white))
-                .overlay(Capsule().strokeBorder(Color.gray.opacity(0.3), lineWidth: 1))
+                .overlay(Capsule().strokeBorder(Color("borderLines"), lineWidth: 1))
             }
         }
     }

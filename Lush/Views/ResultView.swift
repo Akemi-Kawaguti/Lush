@@ -13,9 +13,9 @@ struct ResultView: View {
 
     let palette: PalleteSeason
     let bodyShape: BodyShape
-    var onExplore: () -> Void = {}
 
-    @State private var showUserIntro = false   // novo
+    @State private var showUserIntro = false
+    @Environment(\.finishAnalysis) private var finishAnalysis
 
     var body: some View {
         ScrollView {
@@ -39,7 +39,7 @@ struct ResultView: View {
         // Botão fixo embaixo
         .safeAreaInset(edge: .bottom) {
             PrimaryButton(title: "Explorar meu estilo") {
-                showUserIntro = true   // novo: abre a tela "Sobre você"
+                showUserIntro = true   // abre a tela "Sobre você"
             }
             .padding(.bottom, 16)
         }
@@ -54,11 +54,11 @@ struct ResultView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
-        // novo: tela opcional de nome e foto
+        // Tela opcional de nome e foto; no final, vai para o app
         .navigationDestination(isPresented: $showUserIntro) {
-            UserIntroView { name, photo in
-                // TODO: salvar nome e foto no UserModel e ir para a Home
-                onExplore()
+            UserIntroView { _, _ in
+                // TODO: salvar nome, foto, paleta e biotipo no SwiftData
+                finishAnalysis()
             }
         }
     }
@@ -142,4 +142,3 @@ struct ResultView: View {
         ResultView(palette: .autumnDeep, bodyShape: .hourglass)
     }
 }
-

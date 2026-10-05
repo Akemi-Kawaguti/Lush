@@ -21,8 +21,16 @@ struct HomeView: View {
         Color(red: 0.36, green: 0.26, blue: 0.14)
     ]
 
-    let looks = ["look1", "look1", "look1"]
-    @State private var favoriteLooks: [String] = []
+    // Looks de exemplo (os 3 primeiros)
+    let looks = Array(Look.samples.prefix(3))
+    @State private var favoriteIDs: Set<UUID> = []
+
+    // Navegação
+    var onShowMyArea: () -> Void = {}
+    @State private var showLookSuggestions = false
+    @State private var showMyClothes = false
+    @State private var showClothingDetail = false
+    @State private var selectedLook: Look?
 
     var body: some View {
         NavigationStack {
@@ -35,26 +43,32 @@ struct HomeView: View {
 
                     // Mais informações
                     VStack(alignment: .leading, spacing: 16) {
-                        sectionTitle("Mais Informações")
+                        sectionTitle("Mais Informações") {
+                            onShowMyArea()
+                        }
                         profileCard
                     }
                     .padding(.horizontal, 24)
 
                     // Sugestões de looks
                     VStack(alignment: .leading, spacing: 16) {
-                        sectionTitle("Sugestões de looks")
-                            .padding(.horizontal, 24)
+                        sectionTitle("Sugestões de looks") {
+                            showLookSuggestions = true
+                        }
+                        .padding(.horizontal, 24)
 
                         ScrollView(.horizontal) {
                             HStack(spacing: 12) {
-                                ForEach(looks, id: \.self) { look in
+                                ForEach(looks) { look in
                                     LookCard(
-                                        imageName: look,
-                                        credit: "Photo by Nome on Pexels",
-                                        isFavorite: favoriteLooks.contains(look),
+                                        imageName: look.imageName,
+                                        credit: look.credit,
+                                        isFavorite: favoriteIDs.contains(look.id),
                                         onFavorite: { toggleFavorite(look) }
                                     )
                                     .frame(width: 170)
+                                    // Toque no card abre os detalhes
+                                    .onTapGesture { selectedLook = look }
                                 }
                             }
                             .padding(.horizontal, 24)
@@ -65,7 +79,12 @@ struct HomeView: View {
                     // Minhas roupas (componente que já existe)
                     ClothesCategorySection(
                         title: "Minhas roupas",
-                        photos: [nil, nil, nil, nil]
+                        photos: [nil, nil, nil, nil],
+                        onSeeAllClick: { showMyClothes = true },
+                        onItemClick: { _ in
+                            // TODO: abrir a peça real quando ligar no SwiftData
+                            showClothingDetail = true
+                        }
                     )
                 }
                 .padding(.vertical, 24)
@@ -77,14 +96,28 @@ struct HomeView: View {
                     .scaledToFill()
                     .ignoresSafeArea()
             }
+            .navigationDestination(isPresented: $showLookSuggestions) {
+                LookSuggestionsView()
+            }
+            .navigationDestination(isPresented: $showMyClothes) {
+                MyClothesView()
+            }
+            .navigationDestination(isPresented: $showClothingDetail) {
+                ClothingDetailView()
+            }
+            .sheet(item: $selectedLook) { look in
+                LookDetailView(
+                    look: look,
+                    isFavorite: favoriteIDs.contains(look.id),
+                    onFavorite: { toggleFavorite(look) }
+                )
+            }
         }
     }
 
     // Título de seção com seta: "Mais Informações >"
-    func sectionTitle(_ title: String) -> some View {
-        Button {
-            // TODO: abrir a tela da seção
-        } label: {
+    func sectionTitle(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             HStack(spacing: 12) {
                 Text(title)
                     .font(.AppTypography.title2)
@@ -136,11 +169,11 @@ struct HomeView: View {
         .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.2), lineWidth: 1))
     }
 
-    func toggleFavorite(_ look: String) {
-        if favoriteLooks.contains(look) {
-            favoriteLooks.removeAll { $0 == look }
+    func toggleFavorite(_ look: Look) {
+        if favoriteIDs.contains(look.id) {
+            favoriteIDs.remove(look.id)
         } else {
-            favoriteLooks.append(look)
+            favoriteIDs.insert(look.id)
         }
     }
 }

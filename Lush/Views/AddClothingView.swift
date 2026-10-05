@@ -5,9 +5,7 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 02/10/26.
 //
 
-
-//  Tela "Cadastrar roupa" e "Editar roupa" 
-
+//  Tela "Cadastrar roupa" e "Editar roupa"
 
 import SwiftUI
 
@@ -51,103 +49,105 @@ struct AddClothingView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
 
-                    // No modo edição o título fica na toolbar da sheet
-                    if !isEditMode {
-                        ScreenHeader(
-                            title: "Cadastrar roupa",
-                            subtitle: "O Lush analisará as cores e modelagem para você!"
-                        )
-                        .padding(.bottom, 10)
+                // No modo edição o título fica na toolbar da sheet
+                if !isEditMode {
+                    ScreenHeader(
+                        title: "Cadastrar roupa",
+                        subtitle: "O Lush analisará as cores e modelagem para você!"
+                    )
+                    .padding(.bottom, 10)
+                }
+
+                // Foto (câmera ou galeria — componente PhotoPicker + CameraView)
+                PhotoPicker(
+                    image: $image,
+                    title: "Adicione uma foto da sua\npeça de roupa",
+                    width: 345,
+                    height: 360
+                )
+                .frame(maxWidth: .infinity)
+
+                LushTextField(
+                    title: "Nome da roupa",
+                    placeholder: "Adicione o nome para a sua roupa",
+                    text: $name
+                )
+
+                LushPickerField(
+                    title: "Tipo de peça",
+                    placeholder: "Parte de cima, de baixo ou peça única",
+                    options: positions,
+                    selection: $position
+                )
+
+                LushPickerField(
+                    title: "Categoria",
+                    placeholder: position == nil
+                        ? "Escolha o tipo de peça primeiro"
+                        : "Selecione uma categoria",
+                    options: categories,
+                    selection: $category
+                )
+                .disabled(position == nil)
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
+        }
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .background {
+            Image("backgroundLush")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if isEditMode {
+                // Sheet de edição
+                SheetToolbar(
+                    title: "Editar roupa",
+                    isConfirmEnabled: isFormComplete,
+                    onClose: { dismiss() },
+                    onConfirm: {
+                        // TODO: salvar a edição e refazer a análise
+                        dismiss()
                     }
-
-                    // Foto (câmera ou galeria — componente PhotoPicker + CameraView)
-                    PhotoPicker(
-                        image: $image,
-                        title: "Adicione uma foto da sua\npeça de roupa",
-                        width: 345,
-                        height: 360
-                    )
-                    .frame(maxWidth: .infinity)
-
-                    LushTextField(
-                        title: "Nome da roupa",
-                        placeholder: "Adicione o nome para a sua roupa",
-                        text: $name
-                    )
-
-                    LushPickerField(
-                        title: "Tipo de peça",
-                        placeholder: "Parte de cima, de baixo ou peça única",
-                        options: positions,
-                        selection: $position
-                    )
-
-                    LushPickerField(
-                        title: "Categoria",
-                        placeholder: position == nil
-                            ? "Escolha o tipo de peça primeiro"
-                            : "Selecione uma categoria",
-                        options: categories,
-                        selection: $category
-                    )
-                    .disabled(position == nil)
-                }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 24)
+                )
+            } else {
+                // Cadastro
+                Toolbar(
+                    action: .confirm,
+                    isActionEnabled: isFormComplete,
+                    onBackClick: { dismiss() },
+                    onActionClick: {
+                        // TODO: salvar a peça e rodar a análise (GarmentAnalysisService)
+                        dismiss()
+                    }
+                )
             }
-            .scrollIndicators(.hidden)
-            .scrollDismissesKeyboard(.interactively)
-            .background {
-                Image("backgroundLush")
-                    .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea()
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                if isEditMode {
-                    // Sheet de edição
-                    SheetToolbar(
-                        title: "Editar roupa",
-                        isConfirmEnabled: isFormComplete,
-                        onClose: { dismiss() },
-                        onConfirm: {
-                            // TODO: salvar a edição e refazer a análise
-                            dismiss()
-                        }
-                    )
-                } else {
-                    // Cadastro
-                    Toolbar(
-                        action: .confirm,
-                        isActionEnabled: isFormComplete,
-                        onBackClick: { dismiss() },
-                        onActionClick: {
-                            // TODO: salvar a peça e rodar a análise (GarmentAnalysisService)
-                            dismiss()
-                        }
-                    )
-                }
-            }
-            .navigationBarBackButtonHidden(true)
-            // Trocou o tipo → limpa a categoria se ela não pertence ao novo tipo
-            .onChange(of: position) {
-                if category?.position != position {
-                    category = nil
-                }
+        }
+        .navigationBarBackButtonHidden(true)
+        // Trocou o tipo → limpa a categoria se ela não pertence ao novo tipo
+        .onChange(of: position) {
+            if category?.position != position {
+                category = nil
             }
         }
     }
 }
 
 #Preview("Cadastro") {
-    AddClothingView()
+    NavigationStack {
+        AddClothingView()
+    }
 }
 
 #Preview("Edição") {
-    AddClothingView(isEditMode: true, name: "Vestido longo", category: .dress)
+    NavigationStack {
+        AddClothingView(isEditMode: true, name: "Vestido longo", category: .dress)
+    }
 }

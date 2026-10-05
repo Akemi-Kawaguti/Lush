@@ -23,6 +23,8 @@ struct MyAreaView: View {
         Color(red: 0.53, green: 0.08, blue: 0.36)
     ]
 
+    @State private var showAnalysis = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -56,7 +58,7 @@ struct MyAreaView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                     PrimaryButton(title: "Refazer análise") {
-                        // TODO: refazer a análise
+                        showAnalysis = true
                     }
                 }
                 .padding(.horizontal, 24)
@@ -81,6 +83,15 @@ struct MyAreaView: View {
                     .tint(Color("button"))
                     .buttonBorderShape(.circle)
                     .accessibilityLabel("Configurações")
+                }
+            }
+            // Refazer análise: abre o fluxo por cima e fecha no final
+            .fullScreenCover(isPresented: $showAnalysis) {
+                NavigationStack {
+                    ColorimetryPhotoView()
+                }
+                .environment(\.finishAnalysis) {
+                    showAnalysis = false
                 }
             }
         }
