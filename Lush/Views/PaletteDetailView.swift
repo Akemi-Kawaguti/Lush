@@ -53,11 +53,13 @@ struct PaletteDetailView: View {
                 VStack(spacing: 12) {
                     Text("Sua paleta:")
                         .font(.subheadline)
+                        .foregroundStyle(Color("textAttention").opacity(0.7))
                     Text(palette)
                         .font(.AppTypography.title2)
+                        .foregroundStyle(Color("titles"))
                     Text(paletteDescription)
                         .font(.subheadline)
-                        .foregroundStyle(Color(.black).opacity(0.5))
+                        .foregroundStyle(Color("textAttention").opacity(0.5))
                         .multilineTextAlignment(.center)
 
                     Divider()
@@ -76,11 +78,12 @@ struct PaletteDetailView: View {
                 .padding(20)
                 .frame(maxWidth: .infinity)
                 .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-                .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.3), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
 
                 Text("Suas características")
                     .font(.AppTypography.title2)
                     .padding(.top, 8)
+                    .foregroundStyle(Color("titles"))
 
                 LazyVGrid(columns: columns, spacing: 12) {
                     CharacteristicCard(

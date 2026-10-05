@@ -61,7 +61,7 @@ struct LushPickerField<Option: Hashable>: View {
                 .padding(.horizontal, 20)
                 .frame(height: 56)
                 .background(Capsule().fill(.white))
-                .overlay(Capsule().stroke(Color("borderLines"), lineWidth: 1))
+                .overlay(Capsule().stroke(Color("borderLines"), lineWidth: 0.5))
             }
             .tint(.primary)
         }

@@ -31,7 +31,7 @@ struct LushTextField: View {
                 .padding(.horizontal, 24)
                 .frame(height: 56)
                 .background(Capsule().fill(.white))
-                .overlay(Capsule().stroke(Color.gray.opacity(0.3), lineWidth: 1))
+                .overlay(Capsule().stroke(Color("borderLines"), lineWidth: 0.5))
                 .foregroundStyle(Color("labels"))
         }
     }

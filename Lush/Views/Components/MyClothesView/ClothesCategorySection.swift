@@ -85,6 +85,7 @@ private struct ClothingCard: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
+            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color("borderLines"), lineWidth: 0.5))
     }
 }
 

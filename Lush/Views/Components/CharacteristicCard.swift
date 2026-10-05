@@ -22,10 +22,12 @@ struct CharacteristicCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.system(.subheadline, design: .serif))
-                        
+                    
                     Text(value)
                         .font(.AppTypography.headline)
+                        
                 }
+                .foregroundStyle(Color("titles"))
                 Spacer()
                 Image(systemName: icon)
                     .font(.title3)
@@ -36,12 +38,12 @@ struct CharacteristicCard: View {
 
             Text(description)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("textAttention").opacity(0.5))
         }
         .padding(16)
         .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 20).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.3), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color("borderLines"), lineWidth: 0.5))
     }
 }
 

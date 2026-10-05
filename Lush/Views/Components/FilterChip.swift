@@ -18,11 +18,11 @@ struct FilterChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .foregroundStyle(isSelected ? .white : .black.opacity(0.7))
+                .foregroundStyle(isSelected ? .white : .textAttention.opacity(0.7))
                 .padding(.horizontal, 20)
                 .frame(height: 40)
                 .background(Capsule().fill(isSelected ? Color("button") : .white))
-                .overlay(Capsule().strokeBorder(isSelected ? .clear : Color.gray.opacity(0.3), lineWidth: 1))
+                .overlay(Capsule().strokeBorder(isSelected ? .clear : Color("borderLines"), lineWidth: 0.5))
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
