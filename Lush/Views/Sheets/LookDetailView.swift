@@ -38,6 +38,7 @@ struct LookDetailView: View {
                             Image(systemName: "xmark")
                                 .fontWeight(.semibold)
                         }
+                        .tint(Color("textAttention"))
                         .accessibilityLabel("Fechar")
                     }
 

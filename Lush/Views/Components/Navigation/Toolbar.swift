@@ -47,6 +47,7 @@ struct Toolbar: ToolbarContent {
                 Image(systemName: "chevron.left")
                     .fontWeight(.semibold)
             }
+            .tint(Color("textAttention"))
             .accessibilityLabel("Voltar")
         }
         
@@ -54,6 +55,7 @@ struct Toolbar: ToolbarContent {
             ToolbarItem(placement: .principal) {
                 Text(title)
                     .font(.AppTypography.title3)
+                    .foregroundStyle(Color("titles"))
             }
         }
 

@@ -25,7 +25,7 @@ struct ProgressBar: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     
-                    Capsule().fill(Color.gray.opacity(0.15))
+                    Capsule().fill(Color("textAttention").opacity(0.08))
                     
                     Capsule().fill(Color("button"))
                     .frame(width: geometry.size.width * progress)

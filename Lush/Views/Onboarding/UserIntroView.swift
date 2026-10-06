@@ -28,10 +28,10 @@ struct UserIntroView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 32) {
 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text("Como podemos te chamar?")
                         .fontWeight(.bold)
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Color("textAttention"))
 
                     Text("Adicione seu nome e, se preferir, uma foto. Eles ficam salvos só no seu iPhone e você pode mudar depois em Configurações.")
                         .foregroundStyle(Color("quartenary"))

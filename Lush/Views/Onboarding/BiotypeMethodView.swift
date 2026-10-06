@@ -11,6 +11,7 @@ struct BiotypeMethodView: View {
 
     @State private var selectedMethod: BiotypeMethod? = nil
     @State private var showBiotypePhoto = false
+    @State private var showMeasurements = false
     
 
     var body: some View {
@@ -24,11 +25,11 @@ struct BiotypeMethodView: View {
             .padding(.horizontal, 32)
             .padding(.top, 20)
 
-
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 10) {
 
                 Text("Como quer identificar o seu biotipo?")
                     .fontWeight(.bold)
+                    .foregroundStyle(Color("textAttention"))
 
                 Text("Analisamos as proporções dos seus ombros, cintura e quadril para calcular a sua silhueta.")
                     .lineSpacing(6)
@@ -78,7 +79,7 @@ struct BiotypeMethodView: View {
                     showBiotypePhoto = true
 
                 case .measurements:
-                    print("Ir para tela de medidas")
+                    showMeasurements = true
 
                 case .none:
                     break
@@ -105,6 +106,9 @@ struct BiotypeMethodView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showBiotypePhoto) {
             BiotypePhotoView()
+        }
+        .navigationDestination(isPresented: $showMeasurements) {
+            BiotypeMeasurementsView()
         }
         .navigationBarBackButtonHidden(true)
     }

@@ -27,11 +27,11 @@ struct BiotypePhotoView: View {
             .padding(.horizontal, 32)
             .padding(.top, 20)
 
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
 
                 Text("Adicione uma foto do seu corpo")
                     .fontWeight(.bold)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color("textAttention"))
 
                 Text("Para uma análise mais precisa:")
 
@@ -55,7 +55,7 @@ struct BiotypePhotoView: View {
                 width: 326,
                 height: 410
             )
-            .padding(.top, 28)
+            .padding(.top, 20)
 
             Spacer()
 

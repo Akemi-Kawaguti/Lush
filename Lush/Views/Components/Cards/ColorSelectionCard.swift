@@ -10,18 +10,22 @@ import UIKit
 
 struct ColorSelectionCard: View {
 
+    // Tamanho da área da foto (a coluna das cores tem 103 de largura)
+    private static let photoWidth: CGFloat = 242
+    private static let photoHeight: CGFloat = 370
+
     let image: UIImage?
 
-    @State private var dropperPosition: CGPoint = CGPoint(
-        x: 121,
-        y: 190
+    @State private var dropperPosition = CGPoint(
+        x: photoWidth / 2,
+        y: photoHeight / 2
     )
 
     @State private var selectedTarget: ColorTarget = .skin
 
-    @State private var skinColor: Color?
-    @State private var hairColor: Color?
-    @State private var eyeColor: Color?
+    @Binding var skinColor: Color?
+    @Binding var hairColor: Color?
+    @Binding var eyeColor: Color?
 
     @State private var zoomScale: CGFloat = 1.0
 
@@ -34,14 +38,13 @@ struct ColorSelectionCard: View {
     var body: some View {
         HStack(spacing: 0) {
 
-
             if let image {
                 ZStack {
 
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 242,height: 380)
+                        .frame(width: Self.photoWidth, height: Self.photoHeight)
                         .scaleEffect(zoomScale)
                         .offset(panOffset)
                         .clipped()
@@ -65,19 +68,15 @@ struct ColorSelectionCard: View {
                             isEnabled: zoomScale > 1
                         )
 
-
                     // Conta-gotas
                     Circle()
                         .fill(currentColor)
-                        .frame(width: 32,height: 32)
+                        .frame(width: 32, height: 32)
                         .overlay {
                             Circle()
-                                .stroke(.white,lineWidth: 3)
+                                .stroke(.white, lineWidth: 3)
                         }
-                        .shadow(
-                            color: .black.opacity(0.25),
-                            radius: 4
-                        )
+                        .shadow(color: .black.opacity(0.25), radius: 4)
                         // Área de toque maior e inteira (o miolo transparente também conta)
                         .padding(8)
                         .contentShape(Circle())
@@ -86,63 +85,55 @@ struct ColorSelectionCard: View {
                         .highPriorityGesture(
                             DragGesture(coordinateSpace: .named("photo"))
                                 .onChanged { value in
+                                    let x = min(max(value.location.x, 16), Self.photoWidth - 16)
+                                    let y = min(max(value.location.y, 16), Self.photoHeight - 16)
 
-                                    let x = min(max(value.location.x,16),226)
-                                    let y = min(max(value.location.y,16),364)
-
-                                    let position = CGPoint(x: x,y: y)
-
+                                    let position = CGPoint(x: x, y: y)
                                     dropperPosition = position
-
-                                    sampleColor(at: position,image: image)
+                                    sampleColor(at: position, image: image)
                                 }
                         )
-
 
                     HStack(spacing: 0) {
 
                         Button {
-                            zoomScale = max(1.0,zoomScale - 0.25)
+                            zoomScale = max(1.0, zoomScale - 0.25)
                             // Com menos zoom, a foto não pode ficar fora do card
                             panOffset = clampedOffset(panOffset)
                             lastPanOffset = panOffset
                         } label: {
                             Image(systemName: "minus")
-                                .font(.system(size: 20,weight: .medium))
-                                .frame(width: 46,height: 40)
+                                .font(.system(size: 20, weight: .medium))
+                                .frame(width: 46, height: 40)
                         }
                         .accessibilityLabel("Diminuir zoom")
 
                         Rectangle()
                             .fill(.white.opacity(0.6))
-                            .frame(width: 1,height: 40)
+                            .frame(width: 1, height: 40)
 
                         Button {
-                            zoomScale = min(
-                                3.0,
-                                zoomScale + 0.25
-                            )
+                            zoomScale = min(3.0, zoomScale + 0.25)
                         } label: {
                             Image(systemName: "plus")
-                                .font(.system(size: 20,weight: .medium))
-                                .frame(width: 46,height: 40)
+                                .font(.system(size: 20, weight: .medium))
+                                .frame(width: 46, height: 40)
                         }
                         .accessibilityLabel("Aumentar zoom")
                     }
                     .foregroundStyle(.white)
                     // Mesmo vidro escuro do crédito dos cards de looks
                     .glassEffect(.regular.tint(.black.opacity(0.5)), in: Capsule())
-                    .position(x: 70,y: 340)
+                    .position(x: 70, y: Self.photoHeight - 40)
                 }
-                .frame(width: 242,height: 380)
+                .frame(width: Self.photoWidth, height: Self.photoHeight)
                 .clipped()
                 .coordinateSpace(name: "photo")
 
             } else {
                 Color.gray.opacity(0.2)
-                    .frame(width: 242,height: 380)
+                    .frame(width: Self.photoWidth, height: Self.photoHeight)
             }
-
 
             VStack(spacing: 0) {
 
@@ -167,31 +158,23 @@ struct ColorSelectionCard: View {
                     selectedTarget = .eyes
                 }
             }
-            .frame(width: 103,height: 380)
+            .frame(width: 103, height: Self.photoHeight)
             .background(.white)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 24)
-        )
-        .overlay {RoundedRectangle(cornerRadius: 24)
-            .stroke(Color.gray.opacity(0.4),lineWidth: 0.8)
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .overlay {
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(Color("borderLines").opacity(0.4), lineWidth: 0.8)
         }
     }
-
 
     private var currentColor: Color {
         switch selectedTarget {
-
-        case .skin:
-            return skinColor ?? .clear
-
-        case .hair:
-            return hairColor ?? .clear
-
-        case .eyes:
-            return eyeColor ?? .clear
+        case .skin: return skinColor ?? .clear
+        case .hair: return hairColor ?? .clear
+        case .eyes: return eyeColor ?? .clear
         }
     }
-
 
     // A parte selecionada (pele, cabelo ou olhos) já tem cor?
     private var hasSelectedColor: Bool {
@@ -202,31 +185,30 @@ struct ColorSelectionCard: View {
         }
     }
 
-
     // Limita o arraste para a foto não sair do card
     private func clampedOffset(_ offset: CGSize) -> CGSize {
-        let maxX = 242 * (zoomScale - 1) / 2
-        let maxY = 380 * (zoomScale - 1) / 2
+        let maxX = Self.photoWidth * (zoomScale - 1) / 2
+        let maxY = Self.photoHeight * (zoomScale - 1) / 2
         return CGSize(
             width: min(max(offset.width, -maxX), maxX),
             height: min(max(offset.height, -maxY), maxY)
         )
     }
 
+    private func sampleColor(at position: CGPoint, image: UIImage) {
 
-    private func sampleColor(at position: CGPoint,image: UIImage
-    ) {
-
-        let center = CGPoint(x: 121,y: 190)
+        let center = CGPoint(x: Self.photoWidth / 2, y: Self.photoHeight / 2)
 
         // desconta o arraste e o zoom para achar o ponto na foto original
         let unzoomedX = center.x + (position.x - panOffset.width - center.x) / zoomScale
-
         let unzoomedY = center.y + (position.y - panOffset.height - center.y) / zoomScale
 
-        let unzoomedPosition = CGPoint(x: unzoomedX,y: unzoomedY)
+        let unzoomedPosition = CGPoint(x: unzoomedX, y: unzoomedY)
 
-        guard let uiColor = sampler.color(from: image, at: unzoomedPosition, displayedSize: CGSize( width: 242, height: 380)
+        guard let uiColor = sampler.color(
+            from: image,
+            at: unzoomedPosition,
+            displayedSize: CGSize(width: Self.photoWidth, height: Self.photoHeight)
         ) else {
             return
         }
@@ -234,19 +216,12 @@ struct ColorSelectionCard: View {
         let color = Color(uiColor)
 
         switch selectedTarget {
-
-        case .skin:
-            skinColor = color
-
-        case .hair:
-            hairColor = color
-
-        case .eyes:
-            eyeColor = color
+        case .skin: skinColor = color
+        case .hair: hairColor = color
+        case .eyes: eyeColor = color
         }
     }
 }
-
 
 private struct ColorOption: View {
 
@@ -263,7 +238,7 @@ private struct ColorOption: View {
 
                 Text(title)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("textAttention").opacity(0.6))
 
                 Circle()
                     .fill(color ?? .white)
@@ -295,7 +270,10 @@ private struct ColorOption: View {
 
 #Preview {
     ColorSelectionCard(
-        image: UIImage(named: "teste")
+        image: UIImage(named: "teste"),
+        skinColor: .constant(nil),
+        hairColor: .constant(nil),
+        eyeColor: .constant(nil)
     )
     .padding()
 }

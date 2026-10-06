@@ -23,7 +23,7 @@ struct ResultView: View {
 
                 Text("Parabéns! Você está a um passo à frente na sua jornada de descoberta de estilo pessoal.")
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("quartenary"))
                     .multilineTextAlignment(.center)
                     .padding(.top, 10)
 
@@ -68,9 +68,10 @@ struct ResultView: View {
         VStack(spacing: 4) {
             Text("Sua paleta")
                 .font(.body)
-                .foregroundStyle(.black.opacity(0.7))
+                .foregroundStyle(Color("textAttention").opacity(0.7))
             Text(palette.rawValue)
                 .font(.AppTypography.title2)
+                .foregroundStyle(Color("textAttention"))
 
             HStack(spacing: 12) {
                 ForEach(palette.colorPalletes.prefix(6), id: \.self) { colorName in
@@ -98,14 +99,15 @@ struct ResultView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Seu Biotipo")
                     .font(.body)
-                    .foregroundStyle(.black.opacity(0.7))
+                    .foregroundStyle(Color("textAttention").opacity(0.7))
                 Text(bodyShape.rawValue)
                     .font(.AppTypography.title2)
                     .padding(.bottom, 18)
+                    .foregroundStyle(Color("textAttention"))
 
                 Text(bodyShape.summary)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color("quartenary").opacity(0.8))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -126,9 +128,10 @@ struct ResultView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("O que isso significa?")
                 .font(.AppTypography.title3)
+                .foregroundStyle(Color("textAttention"))
             Text(bodyShape.meaning)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("quartenary").opacity(0.8))
         }
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)

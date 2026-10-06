@@ -8,6 +8,7 @@
 import SwiftUI
 import PhotosUI
 import UIKit
+import AVFoundation
 
 struct PhotoPicker: View {
     
@@ -21,6 +22,8 @@ struct PhotoPicker: View {
     @State private var showingCamera = false
     @State private var showingGallery = false
     @State private var selectedPhoto: PhotosPickerItem?
+    @State private var showingCameraDenied = false
+    @Environment(\.openURL) private var openURL
     
     var body: some View {
         
@@ -57,7 +60,7 @@ struct PhotoPicker: View {
                     )
                     .overlay {
                         RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.gray,style: StrokeStyle(lineWidth: 0.8,dash: [4, 4]))
+                        .stroke(Color("borderLines"),style: StrokeStyle(lineWidth: 0.8,dash: [4, 4]))
                     }
                 }
             }
@@ -72,9 +75,9 @@ struct PhotoPicker: View {
         .confirmationDialog("Adicionar foto", isPresented: $showingPhotoMenu,titleVisibility: .visible) {
             
             Button {
-                showingCamera = true
+                openCamera()
             } label: {
-                Label("Tirar foto",systemImage: "camera")
+                Label("Tirar foto", systemImage: "camera")
             }
             
             Button {
@@ -118,6 +121,16 @@ struct PhotoPicker: View {
         .onChange(of: selectedPhoto) {
             loadImageFromGallery()
         }
+        .alert("Acesso à câmera desativado", isPresented: $showingCameraDenied) {
+            Button("Cancelar", role: .cancel) {}
+            Button("Abrir Ajustes") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    openURL(url)
+                }
+            }
+        } message: {
+            Text("Para tirar uma foto, permita o acesso à câmera nos Ajustes do iPhone. Você também pode escolher uma foto da galeria.")
+        }
     }
     
     
@@ -145,6 +158,24 @@ struct PhotoPicker: View {
                 
                 print("Erro ao carregar imagem: \(error)")
             }
+        }
+    }
+    
+    private func openCamera() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            showingCamera = true
+        case .notDetermined:
+            Task {
+                let granted = await AVCaptureDevice.requestAccess(for: .video)
+                if granted {
+                    showingCamera = true
+                } else {
+                    showingCameraDenied = true
+                }
+            }
+        default:
+            showingCameraDenied = true
         }
     }
 }

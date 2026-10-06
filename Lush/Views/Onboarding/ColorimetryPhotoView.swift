@@ -26,10 +26,11 @@ struct ColorimetryPhotoView: View {
             .padding(.horizontal, 32)
             .padding(.top, 20)
             
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 10) {
                 
                 Text("Adicione uma foto do seu rosto")
                     .fontWeight(.bold)
+                    .foregroundStyle(Color("textAttention"))
                 
                 VStack(alignment: .leading, spacing: 12) {
                     BulletText(text: "Use uma foto com boa iluminação")
@@ -46,9 +47,9 @@ struct ColorimetryPhotoView: View {
                 image: $image,
                 title: "Adicione uma foto",
                 width: 326,
-                height: 390
+                height: 370
             )
-            .padding(.top, 28)
+            .padding(.top, 20)
             
             Spacer()
             

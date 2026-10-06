@@ -24,7 +24,8 @@ struct LegalDocumentView: View {
 
                 LegalText(content: content)
             }
-            .padding(24)
+            .padding(.horizontal, 24)
+            .padding(.top, 10)
         }
         .scrollIndicators(.hidden)
         .background {

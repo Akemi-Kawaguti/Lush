@@ -17,7 +17,7 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab("Início", systemImage: "house.fill", value: .home) {
+            Tab("Lush", systemImage: "house.fill", value: .home) {
                 // "Mais informações" na Home leva para a aba Minha área
                 HomeView(onShowMyArea: { selectedTab = .myArea })
             }
