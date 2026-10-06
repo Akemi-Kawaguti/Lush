@@ -84,18 +84,6 @@ struct LookSuggestionsView: View {
                 }
             )
         }
-        
-        .task {
-            print("Chave lida:", APIKeys.pexels)
-            do {
-                let photos = try await RequestAPI.searchPhotos(query: "casual outfit")
-                print("Fotos encontradas:", photos.count)
-            } catch {
-                print("Erro na busca:", error)
-            }
-        }
-        
-        
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedLook) { look in
