@@ -22,7 +22,7 @@ struct LookDetailView: View {
             Color.clear
                 // Foto ocupando a tela
                 .background {
-                    LookImage(imageName: look.imageName)
+                    LookImage(imageName: look.imageName, url: look.largeImageURL ?? look.imageURL)
                         .ignoresSafeArea()
                 }
                 // Card de informações

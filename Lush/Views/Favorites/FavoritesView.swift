@@ -5,12 +5,21 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 04/10/26.
 //
 
+//
+//  FavoritesView.swift
+//  Lush
+//
+//  Created by Agatha Barbosa Marinho dos Santos on 04/10/26.
+//
+
 import SwiftUI
 
 struct FavoritesView: View {
 
-    @State private var favorites = Look.samples
+    @Environment(FavoritesStore.self) private var favoritesStore
     @State private var selectedLook: Look?
+
+    var favorites: [Look] { favoritesStore.looks }
 
     // Alturas que se repetem para formar o mosaico
     let heights: [CGFloat] = [240, 320, 130, 150, 240, 240]
@@ -33,9 +42,11 @@ struct FavoritesView: View {
                     .padding(.top, 40)
                 } else {
                     // Duas colunas: índices pares na esquerda, ímpares na direita
+                    let items = Array(favorites.enumerated())
+                    
                     HStack(alignment: .top, spacing: 16) {
-                        column(favorites.indices.filter { $0.isMultiple(of: 2) })
-                        column(favorites.indices.filter { !$0.isMultiple(of: 2) })
+                        column(items.filter { $0.offset.isMultiple(of: 2) })
+                        column(items.filter { !$0.offset.isMultiple(of: 2) })
                     }
                 }
             }
@@ -56,27 +67,29 @@ struct FavoritesView: View {
                 isFavorite: true,
                 onFavorite: {
                     // Desfavoritar: tira da lista e fecha os detalhes
-                    favorites.removeAll { $0.id == look.id }
+                    favoritesStore.toggle(look)
                     selectedLook = nil
                 }
             )
         }
     }
 
-    func column(_ indices: [Int]) -> some View {
+    func column(_ items: [(offset: Int, element: Look)]) -> some View {
         VStack(spacing: 16) {
-            ForEach(indices, id: \.self) { index in
+            ForEach(items, id: \.element.id) { item in
+                let look = item.element
+
                 Color.clear
                     .frame(maxWidth: .infinity)
-                    .frame(height: heights[index % heights.count])
+                    .frame(height: heights[item.offset % heights.count])
                     .overlay {
-                        LookImage(imageName: favorites[index].imageName)
+                        LookImage(imageName: look.imageName, url: look.imageURL)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .contentShape(RoundedRectangle(cornerRadius: 16))
-                    .onTapGesture { selectedLook = favorites[index] }
+                    .onTapGesture { selectedLook = look }
                     .accessibilityAddTraits(.isButton)
-                    .accessibilityLabel("Look \(favorites[index].style.rawValue)")
+                    .accessibilityLabel(look.altText ?? "Look \(look.style.rawValue)")
             }
         }
     }
@@ -86,4 +99,5 @@ struct FavoritesView: View {
     NavigationStack {
         FavoritesView()
     }
+    .environment(FavoritesStore())
 }

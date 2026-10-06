@@ -14,6 +14,7 @@ enum AppTab {
 struct MainTabView: View {
 
     @State private var selectedTab: AppTab = .home
+    @State private var favorites = FavoritesStore()
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -33,6 +34,7 @@ struct MainTabView: View {
             }
         }
         .tint(Color("button"))
+        .environment(favorites)
     }
 }
 
