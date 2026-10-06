@@ -35,15 +35,19 @@ struct PexelsPhoto: Decodable, Identifiable {
 enum RequestAPI {
 
     // Busca fotos no Pexels. Ex.: searchPhotos(query: "casual outfit")
-    static func searchPhotos(query: String, page: Int = 1) async throws -> [PexelsPhoto] {
+    static func searchPhotos(query: String, color: String? = nil, perPage: Int = 20, page: Int = 1) async throws -> [PexelsPhoto] {
         var components = URLComponents(string: "https://api.pexels.com/v1/search")!
         components.queryItems = [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "orientation", value: "portrait"),
-            URLQueryItem(name: "per_page", value: "20"),
+            URLQueryItem(name: "per_page", value: "\(perPage)"),
             URLQueryItem(name: "page", value: "\(page)")
         ]
 
+        if let color {
+            components.queryItems?.append(URLQueryItem(name: "color", value: color))
+        }
+        
         var request = URLRequest(url: components.url!)
         request.setValue(APIKeys.pexels, forHTTPHeaderField: "Authorization")
 

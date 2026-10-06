@@ -12,6 +12,7 @@ import SwiftUI
 struct LookCard: View {
 
     let imageName: String          // nome da imagem no Assets
+    var imageURL: URL? = nil
     let credit: String
     let isFavorite: Bool
     var height: CGFloat = 220
@@ -23,7 +24,7 @@ struct LookCard: View {
             .frame(height: height)
             // Foto
             .overlay(alignment: .top) {
-                LookImage(imageName: imageName)
+                LookImage(imageName: imageName, url: imageURL)
             }
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color("borderLines"), lineWidth: 0.5))
             // Botão de favoritar
