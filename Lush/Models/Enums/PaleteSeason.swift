@@ -1,11 +1,11 @@
 //
-//  PalleteSeason.swift
+//  PaleteSeason.swift
 //  Lush
 //
 //  Created by Tais Akemi Kawaguti on 29/09/26.
 //
 
-enum PalleteSeason: String, CaseIterable {
+enum PaleteSeason: String, CaseIterable {
     case springClear = "Primavera Clara"
     case springWarn = "Primavera Quente"
     case springLight = "Primavera Brilhante"
@@ -22,7 +22,7 @@ enum PalleteSeason: String, CaseIterable {
     case winterCool = "Inverno Frio"
     case winterDeep = "Inverno Profundo"
     
-    var colorPalletes: [String]{
+    var colorPaletes: [String]{
         switch self{
         case .springClear:
             return["CSp_Color_00", "CSp_Color_01", "CSp_Color_02", "CSp_Color_03", "CSp_Color_04", "CSp_Color_05", "CSp_Color_06"]

@@ -15,7 +15,7 @@ import SwiftData
 @Model
 final class AnalysisModel {
     var id: UUID
-    var date: Data //registrar quando foi feita a avaliação
+    var date: Date //registrar quando foi feita a avaliação
     
     // Resultados da Avaliação
     var userSilhouette: String
@@ -30,7 +30,7 @@ final class AnalysisModel {
     // Relacionamento inverso com o usuário
     var user: UserModel?
     
-    init(id: UUID, date: Data, userSilhouette: String, userPalette: [String], pillarColor: PillarsColor? = nil, sizeSpecifications: SizeSpecifications? = nil, user: UserModel? = nil) {
+    init(id: UUID = UUID(), date: Date = Date(), userSilhouette: String, userPalette: [String], pillarColor: PillarsColor? = nil, sizeSpecifications: SizeSpecifications? = nil, user: UserModel? = nil) {
         self.id = id
         self.date = date
         self.userSilhouette = userSilhouette

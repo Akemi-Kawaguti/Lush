@@ -11,7 +11,7 @@ struct ResultView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    let palette: PalleteSeason
+    let palette: PaleteSeason
     let bodyShape: BodyShape
 
     @State private var showUserIntro = false
@@ -74,7 +74,7 @@ struct ResultView: View {
                 .foregroundStyle(Color("textAttention"))
 
             HStack(spacing: 12) {
-                ForEach(palette.colorPalletes.prefix(6), id: \.self) { colorName in
+                ForEach(palette.colorPaletes.prefix(6), id: \.self) { colorName in
                     Circle()
                         .fill(Color(colorName))
                         .frame(width: 38, height: 38)
