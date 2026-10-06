@@ -33,7 +33,7 @@ struct SettingsView: View {
                     if isEditing {
                         Text("Toque na foto ou no nome para editar")
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color("quartenary"))
                             .transition(.opacity)
                     }
                 }
@@ -44,6 +44,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Mais informações")
                         .font(.AppTypography.title3)
+                        .foregroundStyle(Color("titles"))
 
                     VStack(spacing: 0) {
                         NavigationLink {
@@ -57,7 +58,7 @@ struct SettingsView: View {
                         }
 
                         Rectangle()
-                            .fill(Color.gray.opacity(0.3))
+                            .fill(Color("borderLines"))
                             .frame(height: 0.5)
                     
                         NavigationLink {
@@ -72,7 +73,7 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.plain)
                     .background(RoundedRectangle(cornerRadius: 20).fill(.white))
-                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray.opacity(0.3), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color("borderLines"), lineWidth: 0.5))
                 }
             }
             .padding(.horizontal, 24)
@@ -153,6 +154,7 @@ struct SettingsView: View {
                 Text(name)
             }
         }
+        .foregroundStyle(Color("textAttention"))
         .font(.AppTypography.title2)
         .padding(.horizontal, 32)
         .frame(height: 56)
@@ -160,7 +162,7 @@ struct SettingsView: View {
         .background(Capsule().fill(.white))
         .overlay(
             Capsule().stroke(
-                isEditing ? Color("button") : Color.gray.opacity(0.3),
+                isEditing ? Color("button") : Color("borderLines"),
                 lineWidth: isEditing ? 2 : 1
             )
         )
@@ -177,7 +179,7 @@ struct SettingsView: View {
                 .frame(width: 40, height: 40)
                 .background(Circle().fill(Color("button")))
             Text(title)
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color("quartenary").opacity(0.70))
             Spacer()
             Image(systemName: "chevron.right")
                 .foregroundStyle(Color("borderLines"))

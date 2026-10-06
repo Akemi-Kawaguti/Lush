@@ -42,6 +42,7 @@ struct MeasurementField: View {
                         text: $value,
                         prompt: Text("Ex: 48 cm").foregroundStyle(Color("placeholders"))
                     )
+                    .foregroundStyle(Color("textAttention"))
                     .keyboardType(.decimalPad)
                     // Aceita só números e vírgula/ponto (bloqueia letras coladas ou digitadas)
                     .onChange(of: value) { _, newValue in

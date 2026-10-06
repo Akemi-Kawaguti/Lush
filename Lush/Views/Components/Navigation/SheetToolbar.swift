@@ -5,24 +5,6 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 02/10/26.
 //
 
-//
-//  SheetToolbar.swift
-//  Lush
-//
-//  Toolbar para telas abertas em sheet:
-//  [ ✕ ]        Título        [ ✓ ]
-//
-//  Uso:
-//  .toolbar {
-//      SheetToolbar(
-//          title: "Editar roupa",
-//          isConfirmEnabled: formValido,
-//          onClose: { dismiss() },
-//          onConfirm: { salvar() }
-//      )
-//  }
-//
-
 import SwiftUI
 
 struct SheetToolbar: ToolbarContent {
@@ -33,12 +15,13 @@ struct SheetToolbar: ToolbarContent {
 
     var body: some ToolbarContent {
 
-        // Fechar — no iOS 26 o item já ganha o círculo de vidro
+        // Fechar
         ToolbarItem(placement: .topBarLeading) {
             Button(action: onClose) {
                 Image(systemName: "xmark")
                     .fontWeight(.semibold)
             }
+            .tint(Color("textAttention"))
             .accessibilityLabel("Fechar")
         }
 

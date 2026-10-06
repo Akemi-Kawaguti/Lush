@@ -33,7 +33,6 @@ struct LegalText: View {
         let email = PrivacyPolicy.contactEmail
         if let range = result.range(of: email) {
             result[range].link = URL(string: "mailto:\(email)")
-            result[range].underlineStyle = .single
         }
         return result
     }

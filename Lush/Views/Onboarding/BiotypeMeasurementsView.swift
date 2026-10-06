@@ -30,7 +30,7 @@ struct BiotypeMeasurementsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 20) {
 
                 ProgressBar(currentStep: 4, totalSteps: 4)
                     .padding(.top, 20)
@@ -47,7 +47,7 @@ struct BiotypeMeasurementsView: View {
 
                 tipCard
 
-                VStack(spacing: 28) {
+                VStack(spacing: 20) {
                     MeasurementField(
                         imageName: "ombros",
                         title: "Ombros",
@@ -122,10 +122,11 @@ struct BiotypeMeasurementsView: View {
                 .font(.subheadline)
                 .foregroundStyle(Color("quartenary"))
         }
-        .padding(20)
+        .padding(17)
+        .padding(.vertical, 2)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(Color.gray.opacity(0.3), lineWidth: 1))
+        .background(RoundedRectangle(cornerRadius: 20).fill(.white))
+        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Color.gray.opacity(0.3), lineWidth: 1))
     }
 
     // Converte o texto em número (aceita "48" ou "48,5")

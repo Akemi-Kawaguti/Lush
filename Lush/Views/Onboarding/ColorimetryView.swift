@@ -15,6 +15,10 @@ struct ColorimetryView: View {
     let image: UIImage?
 
     @State private var showBiotypeMethod = false
+    
+    @State private var skinColor: Color?
+    @State private var hairColor: Color?
+    @State private var eyeColor: Color?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -26,10 +30,11 @@ struct ColorimetryView: View {
             .padding(.horizontal, 32)
             .padding(.top, 20)
 
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 10) {
 
                 Text("Selecione suas cores")
                     .fontWeight(.bold)
+                    .foregroundStyle(Color("textAttention"))
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Use o conta-gotas para selecionar uma cor de cada vez:")
@@ -48,9 +53,12 @@ struct ColorimetryView: View {
             .padding(.top, 20)
 
             ColorSelectionCard(
-                image: image
+                image: image,
+                skinColor: $skinColor,
+                hairColor: $hairColor,
+                eyeColor: $eyeColor
             )
-            .padding(.top, 20)
+            .padding(.top, 16)
 
             Spacer()
 
@@ -58,6 +66,8 @@ struct ColorimetryView: View {
             PrimaryButton(title: "Continuar") {
                 showBiotypeMethod = true
             }
+            .disabled(!hasAllColors)
+            .opacity(hasAllColors ? 1 : 0.5)
             .padding(.horizontal, 32)
             .padding(.bottom, 10)
         }
@@ -79,6 +89,10 @@ struct ColorimetryView: View {
 
     }
 
+    private var hasAllColors: Bool {
+        skinColor != nil && hairColor != nil && eyeColor != nil
+    }
+    
 }
 
 #Preview {

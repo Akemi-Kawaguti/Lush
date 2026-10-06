@@ -22,10 +22,12 @@ struct BulletText: View {
                 .foregroundStyle(Color("button"))
 
             if let title {
-                Text("\(Text(title).fontWeight(.semibold).foregroundStyle(.primary)) \(Text(text).foregroundStyle(Color("quartenary")))")
+                Text("\(Text(title).fontWeight(.semibold).foregroundStyle(Color("textAttention"))) \(Text(text).foregroundStyle(Color("quartenary")))")
+                    .fixedSize(horizontal: false, vertical: true)
             } else {
                 Text(text)
                     .foregroundStyle(Color("quartenary"))
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

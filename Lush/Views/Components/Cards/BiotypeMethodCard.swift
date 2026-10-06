@@ -28,7 +28,7 @@ struct BiotypeMethodCard: View {
                     .stroke(
                         isSelected
                             ? Color.button
-                            : Color.gray.opacity(0.5),
+                            : Color("borderLines"),
                         lineWidth: 1
                     )
                     .frame(width: 28, height: 28)
@@ -50,7 +50,7 @@ struct BiotypeMethodCard: View {
 
                     Text(title)
                         .font(.body.weight(.medium))
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Color("textAttention"))
 
                     Text(subtitle)
                         .font(.caption)
@@ -68,7 +68,7 @@ struct BiotypeMethodCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .overlay {
                 RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray.opacity(0.35),lineWidth: 0.8)
+                    .stroke(Color("borderLines"),lineWidth: 0.5)
             }
         }
         .buttonStyle(.plain)
