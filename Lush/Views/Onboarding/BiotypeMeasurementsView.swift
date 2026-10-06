@@ -16,10 +16,15 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct BiotypeMeasurementsView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext // 2. Contexto do banco de dados
+
+    // Query para buscar a usuária (ajuste conforme a lógica de autenticação/perfil do seu app)
+    @Query private var users: [UserModel]
 
     @State private var shoulder = ""
     @State private var waist = ""
@@ -27,6 +32,9 @@ struct BiotypeMeasurementsView: View {
 
     @State private var showResult = false
     @FocusState private var isKeyboardOpen: Bool
+    
+    // Armazena a análise criada para passar para a tela de resultado se necessário
+    @State private var currentAnalysis: AnalysisModel?
 
     var body: some View {
         ScrollView {
@@ -84,7 +92,7 @@ struct BiotypeMeasurementsView: View {
         .safeAreaInset(edge: .bottom) {
             PrimaryButton(title: "Ver resultado") {
                 isKeyboardOpen = false
-                showResult = true
+                saveAndAnalyze()
             }
             .disabled(!isFormValid)
             .opacity(isFormValid ? 1 : 0.5)
@@ -152,10 +160,60 @@ struct BiotypeMeasurementsView: View {
         ))
         return mathBodyShape(measurements: measure)
     }
-}
+    // MARK: - Integração com o Banco de Dados (SwiftData)
+        private func saveAndAnalyze() {
+            guard let sVal = number(shoulder),
+                  let wVal = number(waist),
+                  let hVal = number(hip) else { return }
 
-#Preview {
-    NavigationStack {
-        BiotypeMeasurementsView()
+            // 1. Recupera ou cria uma usuária padrão caso ainda não exista no banco
+            let currentUser: UserModel
+            if let existingUser = users.first {
+                currentUser = existingUser
+            } else {
+                currentUser = UserModel(name: "Usuária Lush")
+                modelContext.insert(currentUser)
+            }
+
+            // 2. Cria o objeto de especificações de tamanho
+            let sizeSpecs = SizeSpecifications(
+                shoulderSize: sVal,
+                waistSize: wVal,
+                hipSize: hVal,
+                user: currentUser
+            )
+            modelContext.insert(sizeSpecs)
+
+            // 3. Monta o BodyMeasure para o serviço de análise
+            let measurements = BodyMeasure(shoulder: sVal, waist: wVal, hip: hVal)
+
+            // 4. Executa o serviço de análise (gera o AnalysisModel integrando biotipo e cores)
+            // Nota: se você tiver amostras de cores reais capturadas em outra tela, passe-as no dicionário.
+            let newAnalysis = AnalysisService.performNewAnalysis(
+                measurements: measurements,
+                colorSamples: [:],
+                user: currentUser
+            )
+
+            // Associa as especificações de tamanho à análise
+            newAnalysis.sizeSpecifications = sizeSpecs
+
+            // Salva a análise no contexto
+            modelContext.insert(newAnalysis)
+
+            do {
+                try modelContext.save()
+                self.currentAnalysis = newAnalysis
+                self.showResult = true // Dispara a navegação
+            } catch {
+                print("Erro ao salvar dados no SwiftData: \(error.localizedDescription)")
+            }
+        }
     }
-}
+
+    #Preview {
+        NavigationStack {
+            BiotypeMeasurementsView()
+                .modelContainer(for: [UserModel.self, AnalysisModel.self, SizeSpecifications.self], inMemory: true)
+        }
+    }

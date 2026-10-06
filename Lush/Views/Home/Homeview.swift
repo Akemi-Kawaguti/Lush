@@ -6,42 +6,69 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
-
-    // Dados de exemplo (depois virão do UserModel)
-    let palette = "Outono Profundo"
-    let bodyShape: BodyShape = .hourglass
-    let paletteColors: [Color] = [
-        Color(red: 0.0, green: 0.52, blue: 0.62),
-        Color(red: 0.05, green: 0.36, blue: 0.29),
-        Color(red: 0.53, green: 0.08, blue: 0.36),
-        Color(red: 0.49, green: 0.13, blue: 0.16),
-        Color(red: 0.98, green: 0.52, blue: 0.08),
-        Color(red: 0.36, green: 0.26, blue: 0.14)
-    ]
-
+    
+    // Contexto e Query para buscar o usuário no SwiftData
+    @Environment(\.modelContext) private var modelContext
+    @Query private var users: [UserModel]
+    
+    @State private var selectedClothingItem: ClothesModel?
+    @State private var showClothingDetail = false
+    
+    var currentUser: UserModel? {
+        users.first
+    }
+    
+    var latestAnalysis: AnalysisModel? {
+        currentUser?.analysis.sorted(by: { $0.date > $1.date }).first
+    }
+    
+    // Biotipo integrado com o BodyShape
+    var bodyShape: BodyShape {
+        if let silhouetteName = latestAnalysis?.userSilhouette,
+           let shape = BodyShape.allCases.first(where: { $0.rawValue == silhouetteName }) {
+            return shape
+        }
+        return .hourglass
+    }
+    
+    var paleteSeason: PaleteSeason {
+        // Tenta buscar pelo nome salvo no userPalette (ex: "Outono Profundo")
+        if let seasonName = latestAnalysis?.userPalette.first,
+           let season = PaleteSeason.allCases.first(where: { $0.rawValue == seasonName }) {
+            return season
+        }
+        return .autumnDeep // Fallback padrão caso não haja análise
+    }
+    
+    var paletteColors: [Color] {
+        return paleteSeason.colorPaletes.map { colorName in
+            Color(colorName)
+        }
+    }
+    
     // Looks de exemplo (os 3 primeiros)
     let looks = Array(Look.samples.prefix(3))
     @State private var favoriteIDs: Set<UUID> = []
-
+    
     // Navegação
     var onShowMyArea: () -> Void = {}
     @State private var showLookSuggestions = false
     @State private var showMyClothes = false
-    @State private var showClothingDetail = false
     @State private var selectedLook: Look?
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
-
+                    
                     Text("Lush")
                         .font(.AppTypography.largeTitle)
                         .padding(.horizontal, 24)
                         .foregroundStyle(Color("titles"))
-
+                    
                     // Mais informações
                     VStack(alignment: .leading, spacing: 16) {
                         sectionTitle("Mais Informações") {
@@ -50,14 +77,14 @@ struct HomeView: View {
                         profileCard
                     }
                     .padding(.horizontal, 24)
-
+                    
                     // Sugestões de looks
                     VStack(alignment: .leading, spacing: 16) {
                         sectionTitle("Sugestões de looks") {
                             showLookSuggestions = true
                         }
                         .padding(.horizontal, 24)
-
+                        
                         ScrollView(.horizontal) {
                             HStack(spacing: 12) {
                                 ForEach(looks) { look in
@@ -76,16 +103,26 @@ struct HomeView: View {
                         }
                         .scrollIndicators(.hidden)
                     }
-
-                    // Minhas roupas (componente que já existe)
+                    
+                    // Minhas roupas conectadas ao SwiftData (`currentUser?.userClothes`)
+                    let userClothes = currentUser?.userClothes ?? []
+                    let clothesPhotos: [UIImage?] = userClothes.prefix(4).map { item in
+                        if let data = item.photo {
+                            return UIImage(data: data)
+                        }
+                        return nil
+                    }
+                    let displayPhotos = clothesPhotos.isEmpty ? [nil, nil, nil, nil] : clothesPhotos
+                    
                     ClothesCategorySection(
                         title: "Minhas roupas",
-                        photos: [nil, nil, nil, nil],
+                        photos: displayPhotos,
                         onSeeAllClick: { showMyClothes = true },
-                        onItemClick: { _ in
-                            // TODO: abrir a peça real quando ligar no SwiftData
-                            showClothingDetail = true
-                        }
+                        onItemClick: { index in
+                            if index < userClothes.count {
+                                selectedClothingItem = userClothes[index]
+                                showClothingDetail = true
+                            }}
                     )
                 }
                 .padding(.vertical, 24)
@@ -104,7 +141,10 @@ struct HomeView: View {
                 MyClothesView()
             }
             .navigationDestination(isPresented: $showClothingDetail) {
-                ClothingDetailView()
+                if let item = selectedClothingItem {
+                    ClothingDetailView(clothingItem: item)
+                }
+            
             }
             .sheet(item: $selectedLook) { look in
                 LookDetailView(
@@ -115,7 +155,7 @@ struct HomeView: View {
             }
         }
     }
-
+    
     // Título de seção com seta: "Mais Informações >"
     func sectionTitle(_ title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -129,7 +169,7 @@ struct HomeView: View {
         }
         .buttonStyle(.plain)
     }
-
+    
     // Card com o biotipo e a paleta da usuária
     var profileCard: some View {
         HStack(spacing: 20) {
@@ -137,16 +177,16 @@ struct HomeView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 90, height: 130)
-
+            
             VStack(alignment: .leading, spacing: 2) {
                 Text("Seu biotipo:")
                     .font(.footnote)
                     .foregroundStyle(Color("textAttention").opacity(0.7))
-            
+                
                 Text(bodyShape.rawValue)
                     .font(.AppTypography.headline)
                     .foregroundStyle(Color("titles"))
-
+                
                 // Faixa com as cores da paleta
                 HStack(spacing: 0) {
                     ForEach(paletteColors, id: \.self) { color in
@@ -156,11 +196,11 @@ struct HomeView: View {
                 .frame(height: 6)
                 .clipShape(Capsule())
                 .padding(.vertical, 10)
-
+                
                 Text("Sua paleta:")
                     .font(.footnote)
                     .foregroundStyle(Color("textAttention").opacity(0.7))
-                Text(palette)
+                Text(paleteSeason.rawValue)
                     .font(.AppTypography.headline)
                     .foregroundStyle(Color("titles"))
             }
@@ -171,13 +211,16 @@ struct HomeView: View {
         .background(RoundedRectangle(cornerRadius: 24).fill(.white))
         .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
     }
-
+    
     func toggleFavorite(_ look: Look) {
         if favoriteIDs.contains(look.id) {
             favoriteIDs.remove(look.id)
         } else {
             favoriteIDs.insert(look.id)
         }
+        
+        currentUser?.favorites = favoriteIDs.map { $0.uuidString }
+        try? modelContext.save()
     }
 }
 

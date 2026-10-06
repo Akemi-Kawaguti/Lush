@@ -6,69 +6,76 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ClothingDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
+    
+    // Conecta com o SwiftData para buscar o usuário atual e suas análises de biotipo/paleta
+    @Query private var users: [UserModel]
 
-    // Peça
-    let name: String
-    let category: GarmentCategory
-    let photo: UIImage?
-
-    // Biotipo
-    let cut: String
-    let userBodyShape: String
-    let bodyCompatibility: CompatibilityLevel
-    let bodyTip: String?
-
-    // Paleta
-    let colors: [GarmentColor]
-    let userPalette: String
-    let colorCompatibility: CompatibilityLevel
-    let colorTip: String?
-
-    @State private var isShowingEdit = false
-
-    init(
-        name: String = "Vestido longo",
-        category: GarmentCategory = .dress,
-        photo: UIImage? = nil,
-        cut: String = "Evasê",
-        userBodyShape: String = "Ampulheta",
-        bodyCompatibility: CompatibilityLevel = .high,
-        bodyTip: String? = "A modelagem evasê marca a cintura e equilibra quadril e ombros, valorizando a silhueta ampulheta.",
-        colors: [GarmentColor] = ClothingDetailView.sampleColors,
-        userPalette: String = "Outono Suave",
-        colorCompatibility: CompatibilityLevel = .medium,
-        colorTip: String? = "Os tons quentes combinam com você. Evite o azul perto do rosto."
-    ) {
-        self.name = name
-        self.category = category
-        self.photo = photo
-        self.cut = cut
-        self.userBodyShape = userBodyShape
-        self.bodyCompatibility = bodyCompatibility
-        self.bodyTip = bodyTip
-        self.colors = colors
-        self.userPalette = userPalette
-        self.colorCompatibility = colorCompatibility
-        self.colorTip = colorTip
+    var currentUser: UserModel? {
+        users.first
     }
 
-    // Cores de exemplo (até ligar a análise de cor)
-    static let sampleColors: [GarmentColor] = [
-        GarmentColor(color: .yellow, matchesPalette: true),
-        GarmentColor(color: .orange, matchesPalette: true),
-        GarmentColor(color: .pink, matchesPalette: true),
-        GarmentColor(color: .indigo, matchesPalette: false)
-    ]
+    // Recebe a peça de roupa selecionada do SwiftData
+    let clothingItem: ClothesModel
+    @State private var isShowingEdit = false
+
+    // Inicializador que recebe a peça real
+    init(clothingItem: ClothesModel) {
+        self.clothingItem = clothingItem
+    }
+
+    // Helper para extrair o texto descritivo do corte, independente se é Top, Bottom ou OnePiece
+    private var cutDescription: String {
+        if let cutTop = clothingItem.cutTop {
+            return cutTop.rawValue
+        } else if let cutBottom = clothingItem.cutBottom {
+            return cutBottom.rawValue
+        } else if let cutOnePiece = clothingItem.cutOnePiece {
+            return cutOnePiece.rawValue
+        }
+        return "Não especificado"
+    }
+
+    // Dados dinâmicos baseados no perfil do usuário e na análise mais recente
+    private var userBodyShapeText: String {
+        currentUser?.analysis.first?.userSilhouette ?? "Não definido"
+    }
+
+    private var userPaletteText: String {
+        if let paletteArray = currentUser?.analysis.first?.userPalette, let firstPalette = paletteArray.first {
+            return firstPalette
+        }
+        return "Não definida"
+    }
+
+    // Exemplo de lógica de compatibilidade de biotipo
+    private var calculatedBodyCompatibility: CompatibilityLevel {
+        return .high
+    }
+    
+    private var bodyTipText: String {
+        return "A modelagem \(cutDescription.lowercased()) interage com o seu biotipo \(userBodyShapeText.lowercased()), valorizando a silhueta."
+    }
+
+    // Exemplo de cores da peça
+    private var garmentColors: [GarmentColor] {
+        [
+            GarmentColor(color: .yellow, matchesPalette: true),
+            GarmentColor(color: .orange, matchesPalette: true),
+            GarmentColor(color: .pink, matchesPalette: true),
+            GarmentColor(color: .indigo, matchesPalette: false)
+        ]
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
 
-                ScreenHeader(title: name, subtitle: "Detalhes da peça")
+                ScreenHeader(title: clothingItem.name, subtitle: "Detalhes da peça")
 
                 photoView
                     .frame(maxWidth: .infinity)
@@ -82,29 +89,29 @@ struct ClothingDetailView: View {
                 // Biotipo
                 CompatibilitySection(
                     title: "Biotipo",
-                    level: bodyCompatibility,
-                    footer: bodyTip
+                    level: calculatedBodyCompatibility,
+                    footer: bodyTipText
                 ) {
-                    DetailRow(label: "Modelagem da peça", value: cut)
+                    DetailRow(label: "Modelagem da peça", value: cutDescription)
                     Divider().padding(.horizontal, 16)
-                    DetailRow(label: "Seu biotipo", value: userBodyShape)
+                    DetailRow(label: "Seu biotipo", value: userBodyShapeText)
                 }
 
                 // Paleta
                 CompatibilitySection(
                     title: "Paleta",
-                    level: colorCompatibility,
-                    footer: colorTip
+                    level: calculatedBodyCompatibility,
+                    footer: bodyTipText
                 ) {
                     DetailRow(label: "Cores da peça") {
                         colorDots
                     }
                     Divider().padding(.horizontal, 16)
-                    DetailRow(label: "Sua paleta de cor", value: userPalette)
+                    DetailRow(label: "Sua paleta de cor", value: userPaletteText)
                     Divider().padding(.horizontal, 16)
                     DetailRow(
                         label: "Combinam com você",
-                        value: "\(colors.filter(\.matchesPalette).count) de \(colors.count)"
+                        value: "\(garmentColors.filter(\.matchesPalette).count) de \(garmentColors.count)"
                     )
                 }
             }
@@ -130,9 +137,9 @@ struct ClothingDetailView: View {
             NavigationStack {
                 AddClothingView(
                     isEditMode: true,
-                    name: name,
-                    category: category,
-                    photo: photo
+                    name: clothingItem.name,
+                    category: clothingItem.garmentCategory,
+                    photo: clothingItem.photo != nil ? UIImage(data: clothingItem.photo!) : nil
                 )
             }
         }
@@ -143,13 +150,13 @@ struct ClothingDetailView: View {
     private var photoView: some View {
         let shape = RoundedRectangle(cornerRadius: 24)
 
-        if let photo {
-            Image(uiImage: photo)
+        if let photoData = clothingItem.photo, let uiImage = UIImage(data: photoData) {
+            Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 345, height: 360)
                 .clipShape(shape)
-                .accessibilityLabel("Foto de \(name)")
+                .accessibilityLabel("Foto de \(clothingItem.name)")
         } else {
             shape
                 .fill(.white)
@@ -158,18 +165,15 @@ struct ClothingDetailView: View {
                     Image(systemName: "photo.on.rectangle")
                         .font(.system(size: 42))
                         .foregroundStyle(Color("quartenary"))
-                        
                 }
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color("borderLines"), lineWidth: 0.5))
-
         }
     }
 
     // MARK: - Bolinhas de cor
-    // As que não combinam com a paleta ficam com um "x" branco.
     private var colorDots: some View {
         HStack(spacing: 6) {
-            ForEach(colors) { item in
+            ForEach(garmentColors) { item in
                 Circle()
                     .fill(item.color)
                     .frame(width: 24, height: 24)
@@ -182,31 +186,6 @@ struct ClothingDetailView: View {
                     }
             }
         }
-        .accessibilityLabel("\(colors.count) cores na peça")
-    }
-}
-
-#Preview("Alta e média") {
-    NavigationStack {
-        ClothingDetailView()
-    }
-}
-
-#Preview("Baixa") {
-    NavigationStack {
-    ClothingDetailView(
-        name: "Calça skinny",
-        category: .pants,
-        cut: "Skinny",
-        userBodyShape: "Triângulo",
-        bodyCompatibility: .low,
-        bodyTip: "A skinny destaca o quadril e as coxas.",
-        colors: [
-            GarmentColor(color: .black, matchesPalette: false),
-            GarmentColor(color: .gray, matchesPalette: false)
-        ],
-        colorCompatibility: .low,
-        colorTip: "Cores frias apagam o seu tom de pele."
-    )
+        .accessibilityLabel("\(garmentColors.count) cores na peça")
     }
 }

@@ -6,24 +6,55 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MyAreaView: View {
 
-    // Dados de exemplo (depois virão do UserModel)
-    let name = "Priscila"
-    let photoName: String? = "userTest"   // foto de teste (Assets)
-    let bodyShape: BodyShape = .hourglass
-    let palette = "Outono Profundo"
-    let paletteColors: [Color] = [
-        Color(red: 0.49, green: 0.13, blue: 0.16),
-        Color(red: 0.98, green: 0.52, blue: 0.08),
-        Color(red: 0.36, green: 0.26, blue: 0.14),
-        Color(red: 0.0, green: 0.52, blue: 0.62),
-        Color(red: 0.05, green: 0.36, blue: 0.29),
-        Color(red: 0.53, green: 0.08, blue: 0.36)
-    ]
+    // Injeta o contexto do SwiftData para buscar os dados salvos
+        @Environment(\.modelContext) private var modelContext
 
-    @State private var showAnalysis = false
+        // Busca o UserModel cadastrado no banco (considerando que há um usuário principal)
+        @Query private var users: [UserModel]
+
+        @State private var showAnalysis = false
+
+        // Computa o usuário atual (pega o primeiro ou nulo se não houver)
+        private var currentUser: UserModel? {
+            users.first
+        }
+
+        // Computa a análise mais recente do usuário
+        private var latestAnalysis: AnalysisModel? {
+            currentUser?.analysis.sorted(by: { $0.date > $1.date }).first
+        }
+
+        // Converte a string do biotipo salva no banco para o enum BodyShape
+        private var bodyShape: BodyShape {
+            guard let silhouetteString = latestAnalysis?.userSilhouette else { return .hourglass }
+            return BodyShape.allCases.first { $0.rawValue == silhouetteString } ?? .hourglass
+        }
+
+        // Nome do usuário salvo ou fallback
+        private var userName: String {
+            currentUser?.name ?? "Priscila"
+        }
+
+        // Nome da paleta salva (ex: primeiro item de userPalette)
+        private var paletteName: String {
+            latestAnalysis?.userPalette.first ?? "Outono Profundo"
+        }
+
+        // Cores da paleta com base na estação detectada
+        private var paletteColors: [Color] {
+            guard let seasonName = latestAnalysis?.userPalette.first,
+                  let seasonEnum = PaleteSeason.allCases.first(where: { $0.rawValue == seasonName }) else {
+                // Fallback de cores caso não encontre
+                return PaleteSeason.autumnDeep.colorPaletes.map { Color($0) }
+            }
+            
+            // Mapeia os nomes dos assets da paleta para Cores do SwiftUI (ou Assets)
+            return seasonEnum.colorPaletes.map { Color($0) }
+        }
 
     var body: some View {
         NavigationStack {
@@ -36,11 +67,21 @@ struct MyAreaView: View {
                         .foregroundStyle(Color("titles"))
 
                     VStack(spacing: 12) {
-                        UserPhoto(imageName: "user", size: 160)
-                        Text(name)
-                            .font(.AppTypography.title)
-                            .foregroundStyle(Color("titles"))
-                    }
+                        // Se o usuário tiver foto em Data, converte para Image, senão usa o padrão
+                                                if let photoData = currentUser?.photoData, let uiImage = UIImage(data: photoData) {
+                                                    Image(uiImage: uiImage)
+                                                        .resizable()
+                                                        .scaledToFill()
+                                                        .frame(width: 160, height: 160)
+                                                        .clipShape(Circle())
+                                                } else {
+                                                    UserPhoto(imageName: "user", size: 160)
+                                                }
+                                                
+                                                Text(userName)
+                                                    .font(.AppTypography.title)
+                                                    .foregroundStyle(Color("titles"))
+                                            }
 
                     // Cards da paleta e do biotipo
                     HStack(spacing: 12) {
@@ -51,7 +92,13 @@ struct MyAreaView: View {
                         }
 
                         NavigationLink {
-                            BodyShapeDetailView()
+                            // Passa a análise real encontrada no banco para a tela de detalhes do biotipo
+                            if let analysis = latestAnalysis {
+                                BodyShapeDetailView(analysis: analysis)
+                            } else {
+                                // Fallback caso não tenha análise salva ainda
+                                BodyShapeDetailView(analysis: AnalysisModel(userSilhouette: "Ampulheta", userPalette: ["Outono Profundo"]))
+                            }
                         } label: {
                             bodyShapeCard
                         }
@@ -105,7 +152,7 @@ struct MyAreaView: View {
             Text("Sua paleta")
                 .font(.subheadline)
                 .foregroundStyle(Color("textAttention").opacity(0.7))
-            Text(palette)
+            Text(paletteName)
                 .font(.AppTypography.title3)
                 .foregroundStyle(Color("titles"))
 

@@ -20,9 +20,9 @@ final class UserModel {
     var analysis: [AnalysisModel] = [] //analises do usuario
     
     @Relationship(deleteRule: .cascade)
-        var userClothes: [ClothesModel] //guarda - roupa
+        var userClothes: [ClothesModel] = []//guarda - roupa
     
-    init(name: String, photoData: Data? = nil, favorites: [String], analysis: [AnalysisModel], userClothes: [ClothesModel]) {
+    init(name: String, photoData: Data? = nil, favorites: [String] = [], analysis: [AnalysisModel] = [], userClothes: [ClothesModel] = []) {
         self.name = name
         self.photoData = photoData
         self.favorites = favorites

@@ -6,18 +6,19 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct BodyShapeDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    // Dados de exemplo
-    let bodyShape: BodyShape = .hourglass
-    let features: [(title: String, description: String, imageName: String)] = [
-        ("Ombros", "Alinhados com o quadril.", "ombros"),
-        ("Cintura", "Bem definida e marcada.", "cintura"),
-        ("Quadril", "Proporcional aos ombros.", "quadril")
-    ]
+    let analysis: AnalysisModel
+
+        // Propriedade computada para converter a string do banco de volta para o Enum BodyShape
+        private var bodyShape: BodyShape {
+            // Tenta encontrar o biotipo pelo rawValue (ex: "Ampulheta"), se não achar, usa .hourglass como fallback
+            return BodyShape.allCases.first { $0.rawValue == analysis.userSilhouette } ?? .hourglass
+        }
 
     var body: some View {
         ScrollView {
@@ -77,7 +78,7 @@ struct BodyShapeDetailView: View {
                     // Carrossel de características
                     ScrollView(.horizontal) {
                         HStack(spacing: 12) {
-                            ForEach(features, id: \.title) { feature in
+                            ForEach(bodyShape.features, id: \.title) { feature in
                                 BodyFeatureCard(
                                     imageName: feature.imageName,
                                     title: feature.title,
@@ -109,7 +110,12 @@ struct BodyShapeDetailView: View {
 }
 
 #Preview {
-    NavigationStack {
-        BodyShapeDetailView()
+    let mockAnalysis = AnalysisModel(
+        userSilhouette: "Ampulheta",
+        userPalette: ["Outono Quente"]
+    )
+    
+    return NavigationStack {
+        BodyShapeDetailView(analysis: mockAnalysis)
     }
 }

@@ -8,7 +8,7 @@
 import UIKit
 
 struct ColorProfile {
-    let season: PalleteSeason
+    let season: PaleteSeason
     let temperature: String
     let depth: String
     let saturation: String
@@ -70,7 +70,7 @@ class PalleteMapper {
         )
     }
 
-    private static func mapToSeason(isWarm: Bool, brightnessVal: CGFloat, saturationVal: CGFloat) -> PalleteSeason {
+    private static func mapToSeason(isWarm: Bool, brightnessVal: CGFloat, saturationVal: CGFloat) -> PaleteSeason {
         if isWarm {
             if brightnessVal > Thresholds.brightnessLight {
                 if saturationVal > 0.50 { return .springLight }

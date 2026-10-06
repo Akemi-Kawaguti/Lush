@@ -6,28 +6,34 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PaletteDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    // Dados de exemplo
-    let photoName: String? = nil
-    let palette = "Outono Profundo"
-    let paletteDescription = "A paleta Outono Profundo é composta por cores quentes, profundas e intensas, que trazem harmonia e equilíbrio para a sua aparência natural."
-    let paletteColors: [Color] = [
-        Color(red: 0.0, green: 0.52, blue: 0.62),
-        Color(red: 0.05, green: 0.36, blue: 0.29),
-        Color(red: 0.53, green: 0.08, blue: 0.36),
-        Color(red: 0.49, green: 0.13, blue: 0.16),
-        Color(red: 0.98, green: 0.52, blue: 0.08),
-        Color(red: 0.36, green: 0.26, blue: 0.14)
-    ]
-
-    let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
+    // Busca a análise mais recente salva no SwiftData
+        @Query(sort: \AnalysisModel.date, order: .reverse) private var analyses: [AnalysisModel]
+        
+        // Propriedade computada para pegar a análise atual (ou cair em um fallback se vazio)
+        private var currentAnalysis: AnalysisModel? {
+            analyses.first
+        }
 
     var body: some View {
-        ScrollView {
+        
+        // Extrai os dados da análise ou usa valores padrão caso ainda não haja análise
+                let paletteName = currentAnalysis?.userPalette.first ?? "Outono Profundo"
+                let details = PaletteDescriptionProvider.details(for: paletteName)
+                
+                // Mapeia os nomes das cores do enum PaleteSeason para as Color do SwiftUI
+                let colorNames = PaleteSeason.allCases.first { $0.rawValue == paletteName }?.colorPaletes ?? PaleteSeason.autumnDeep.colorPaletes
+                let paletteColors: [Color] = colorNames.map { Color($0) }
+                
+                // Foto do usuário vinda do banco (UserModel associado à análise)
+                let userPhotoData = currentAnalysis?.user?.photoData
+
+                return ScrollView {
             VStack(spacing: 24) {
 
                 // Foto com o anel de cores da paleta
@@ -44,7 +50,16 @@ struct PaletteDetailView: View {
                     }
                     .rotationEffect(.degrees(-90))
 
-                    UserPhoto(imageName: "user", size: 128, showsBorder: false)
+                    // Renderiza a foto do usuário do banco se existir, caso contrário usa a padrão
+                                        if let data = userPhotoData, let uiImage = UIImage(data: data) {
+                                            Image(uiImage: uiImage)
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 128, height: 128)
+                                                .clipShape(Circle())
+                                        } else {
+                                            UserPhoto(imageName: "user", size: 128, showsBorder: false)
+                                        }
                 }
                 .frame(width: 150, height: 150)
                 .padding(.top, 8)
@@ -54,10 +69,10 @@ struct PaletteDetailView: View {
                     Text("Sua paleta:")
                         .font(.subheadline)
                         .foregroundStyle(Color("textAttention").opacity(0.7))
-                    Text(palette)
+                    Text(paletteName)
                         .font(.AppTypography.title2)
                         .foregroundStyle(Color("titles"))
-                    Text(paletteDescription)
+                    Text(details.description)
                         .font(.subheadline)
                         .foregroundStyle(Color("textAttention").opacity(0.5))
                         .multilineTextAlignment(.center)
@@ -85,23 +100,23 @@ struct PaletteDetailView: View {
                     .padding(.top, 8)
                     .foregroundStyle(Color("titles"))
 
-                LazyVGrid(columns: columns, spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                     CharacteristicCard(
-                        title: "Temperatura", value: "Quente", icon: "thermometer.medium",
-                        description: "Tons quentes e terrosos harmonizam melhor com você."
-                    )
-                    CharacteristicCard(
-                        title: "Luminosidade", value: "Média", icon: "sun.max",
-                        description: "Cores de intensidade média equilibram seus traços."
-                    )
-                    CharacteristicCard(
-                        title: "Saturação", value: "Suave", icon: "drop.fill",
-                        description: "Tons mais suaves e menos vibrantes te valorizam."
-                    )
-                    CharacteristicCard(
-                        title: "Contraste", value: "Baixo", icon: "circle.lefthalf.filled",
-                        description: "Combinações de cores próximas ficam mais harmônicas."
-                    )
+                                            title: "Temperatura", value: details.temperature, icon: "thermometer.medium",
+                                            description: details.temperatureDesc
+                                        )
+                                        CharacteristicCard(
+                                            title: "Luminosidade", value: details.brightness, icon: "sun.max",
+                                            description: details.brightnessDesc
+                                        )
+                                        CharacteristicCard(
+                                            title: "Saturação", value: details.saturation, icon: "drop.fill",
+                                            description: details.saturationDesc
+                                        )
+                                        CharacteristicCard(
+                                            title: "Contraste", value: details.contrast, icon: "circle.lefthalf.filled",
+                                            description: details.contrastDesc
+                                        )
                 }
             }
             .padding(.horizontal, 24)
@@ -124,5 +139,6 @@ struct PaletteDetailView: View {
 #Preview {
     NavigationStack {
         PaletteDetailView()
+            .modelContainer(for: [AnalysisModel.self, UserModel.self], inMemory: true)
     }
 }
