@@ -85,7 +85,7 @@ struct MyClothesView: View {
                     Capsule()
                         .fill(.ultraThinMaterial)
                         .overlay {
-                            Capsule().fill(.white.opacity(0.20))
+                            Capsule().fill(.white.opacity(0.4))
                         }
                 }
                 .overlay {
