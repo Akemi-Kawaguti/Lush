@@ -14,11 +14,11 @@ struct FashionColor {
     let keywords: [String]  // palavras que podem aparecer na descrição da foto
 }
 
-extension PalleteSeason {
+extension PaleteSeason {
 
     // As 7 cores da paleta (Assets) com hex e nome da cor mais parecida
     var fashionColors: [FashionColor] {
-        colorPalletes.compactMap { assetName in
+        colorPaletes.compactMap { assetName in
             guard let color = UIColor(named: assetName) else { return nil }
 
             var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0

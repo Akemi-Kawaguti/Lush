@@ -63,6 +63,7 @@ struct ResultView: View {
         }
     }
 
+    @ViewBuilder
     // Card da paleta
     var paletteCard: some View {
         VStack(spacing: 4) {
@@ -88,6 +89,7 @@ struct ResultView: View {
         .overlay(RoundedRectangle(cornerRadius: 32).strokeBorder(Color.gray.opacity(0.3), lineWidth: 1))
     }
 
+    @ViewBuilder
     // Card do biotipo
     var bodyShapeCard: some View {
         HStack(spacing: 16) {
@@ -123,6 +125,7 @@ struct ResultView: View {
         .overlay(RoundedRectangle(cornerRadius: 32).strokeBorder(Color.gray.opacity(0.3), lineWidth: 1))
     }
 
+    @ViewBuilder
     // Card "O que isso significa?"
     var meaningCard: some View {
         VStack(alignment: .leading, spacing: 8) {

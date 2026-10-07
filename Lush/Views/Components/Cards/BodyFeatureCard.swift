@@ -18,11 +18,11 @@ struct BodyFeatureCard: View {
         HStack(spacing: 16) {
             Group {
                 if let imageName {
-                    Image(imageName)
+                    Image(imageName) //bodyShape.imageName
                         .resizable()
                         .scaledToFit()
                 } else {
-                    Image(systemName: "figure.stand")
+                    Image(systemName: "figure.stand")  //MARK
                         .font(.largeTitle)
                         .foregroundStyle(.secondary)
                 }

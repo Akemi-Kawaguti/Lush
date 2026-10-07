@@ -4,10 +4,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct BiotypeMethodView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    
+    @Query private var users: [UserModel]
 
     @State private var selectedMethod: BiotypeMethod? = nil
     @State private var showBiotypePhoto = false
