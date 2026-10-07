@@ -8,50 +8,67 @@
 //  Tela "Cadastrar roupa" e "Editar roupa"
 
 import SwiftUI
+import SwiftData
 
 struct AddClothingView: View {
-
+    
     @Environment(\.dismiss) private var dismiss
-
+    @Environment(\.modelContext) private var modelContext
+    
+    var clothingToEdit: ClothesModel?
+    
     // Parte de cima, de baixo e peça única
     private let positions = GarmentPosition.allCases
     private let isEditMode: Bool
-
+    
     @State private var image: UIImage?
     @State private var name: String
     @State private var position: GarmentPosition?
     @State private var category: GarmentCategory?
-
+    
     init(
         isEditMode: Bool = false,
+        clothingToEdit: ClothesModel? = nil,
         name: String = "",
         category: GarmentCategory? = nil,
         photo: UIImage? = nil
     ) {
         self.isEditMode = isEditMode
-        _name = State(initialValue: name)
-        _category = State(initialValue: category)
-        _position = State(initialValue: category?.position)
-        _image = State(initialValue: photo)
+        self.clothingToEdit = clothingToEdit
+        
+        if let clothing = clothingToEdit {
+            _name = State(initialValue: clothing.name)
+            _category = State(initialValue: clothing.garmentCategory)
+            _position = State(initialValue: clothing.garmentPosition)
+            if let data = clothing.photo, let uiImage = UIImage(data: data) {
+                _image = State(initialValue: uiImage)
+            } else {
+                _image = State(initialValue: photo)
+            }
+        } else {
+            _name = State(initialValue: name)
+            _category = State(initialValue: category)
+            _position = State(initialValue: category?.position)
+            _image = State(initialValue: photo)
+        }
     }
-
-    // Categorias compatíveis com o tipo escolhido no primeiro picker
+    
     private var categories: [GarmentCategory] {
         guard let position else { return [] }
         return GarmentCategory.allCases.filter { $0.position == position }
     }
-
-    // O check só fica ativo com tudo preenchido
+    
     private var isFormComplete: Bool {
         image != nil
-            && !name.trimmingCharacters(in: .whitespaces).isEmpty
-            && category != nil
+        && !name.trimmingCharacters(in: .whitespaces).isEmpty
+        && category != nil
+        && position != nil
     }
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-
+                
                 // No modo edição o título fica na toolbar da sheet
                 if !isEditMode {
                     ScreenHeader(
@@ -60,7 +77,7 @@ struct AddClothingView: View {
                     )
                     .padding(.bottom, 10)
                 }
-
+                
                 // Foto (câmera ou galeria — componente PhotoPicker + CameraView)
                 PhotoPicker(
                     image: $image,
@@ -69,25 +86,25 @@ struct AddClothingView: View {
                     height: 360
                 )
                 .frame(maxWidth: .infinity)
-
+                
                 LushTextField(
                     title: "Nome da roupa",
                     placeholder: "Adicione o nome para a sua roupa",
                     text: $name
                 )
-
+                
                 LushPickerField(
                     title: "Tipo de peça",
                     placeholder: "Parte de cima, de baixo ou peça única",
                     options: positions,
                     selection: $position
                 )
-
+                
                 LushPickerField(
                     title: "Categoria",
                     placeholder: position == nil
-                        ? "Escolha o tipo de peça primeiro"
-                        : "Selecione uma categoria",
+                    ? "Escolha o tipo de peça primeiro"
+                    : "Selecione uma categoria",
                     options: categories,
                     selection: $category
                 )
@@ -113,7 +130,16 @@ struct AddClothingView: View {
                     isConfirmEnabled: isFormComplete,
                     onClose: { dismiss() },
                     onConfirm: {
-                        // TODO: salvar a edição e refazer a análise
+                        if let clothing = clothingToEdit, let category, let position {
+                            ClothingService.updateClothing(
+                                clothing,
+                                name: name,
+                                image: image,
+                                category: category,
+                                position: position,
+                                in: modelContext
+                            )
+                        }
                         dismiss()
                     }
                 )
@@ -124,7 +150,15 @@ struct AddClothingView: View {
                     isActionEnabled: isFormComplete,
                     onBackClick: { dismiss() },
                     onActionClick: {
-                        // TODO: salvar a peça e rodar a análise (GarmentAnalysisService)
+                        if let category, let position {
+                            ClothingService.saveClothing(
+                                name: name,
+                                image: image,
+                                category: category,
+                                position: position,
+                                in: modelContext
+                            )
+                        }
                         dismiss()
                     }
                 )

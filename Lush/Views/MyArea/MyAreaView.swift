@@ -34,14 +34,20 @@ struct MyAreaView: View {
             return BodyShape.allCases.first { $0.rawValue == silhouetteString } ?? .hourglass
         }
 
-        // Nome do usuário salvo ou fallback
+    // Nome do usuário salvo ou fallback dinâmico (se a string estiver vazia ou nula)
         private var userName: String {
-            currentUser?.name ?? "Priscila"
+            if let name = currentUser?.name, !name.trimmingCharacters(in: .whitespaces).isEmpty {
+                return name
+            }
+            return "Convidado(a)" // Ou deixe vazio se preferir ocultar
         }
 
-        // Nome da paleta salva (ex: primeiro item de userPalette)
+        // Nome da paleta salva (valida se o array existe e tem elementos válidos)
         private var paletteName: String {
-            latestAnalysis?.userPalette.first ?? "Outono Profundo"
+            if let firstPalette = latestAnalysis?.userPalette.first, !firstPalette.isEmpty {
+                return firstPalette
+            }
+            return "Não definida"
         }
 
         // Cores da paleta com base na estação detectada

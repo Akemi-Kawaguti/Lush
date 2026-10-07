@@ -53,7 +53,7 @@ struct BiotypeMethodView: View {
 
             VStack(spacing: 20) {
 
-                BiotypeMethodCard(
+                BiotypeMethodCard (
                     title: "Análise por foto",
                     subtitle: "Análise automática e com maior precisão",
                     isSelected: selectedMethod == .photo
@@ -61,7 +61,7 @@ struct BiotypeMethodView: View {
                     selectedMethod = .photo
                 }
 
-                BiotypeMethodCard(
+                BiotypeMethodCard (
                     title: "Digitar minhas medidas",
                     subtitle: "Análise com menor precisão",
                     isSelected: selectedMethod == .measurements

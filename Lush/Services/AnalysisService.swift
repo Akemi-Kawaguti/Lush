@@ -27,14 +27,22 @@ struct AnalysisService {
         
         // Exemplo de preenchimento da paleta de cores com base na estação detectada
         var paletteStrings: [String] = []
-        let seasonName = colorProfile?.season.rawValue ?? "Padrão"
+        let seasonName = colorProfile?.season.rawValue ?? "autumnDeep"
         paletteStrings.append(seasonName)
         if let temp = colorProfile?.temperature { paletteStrings.append(temp) }
         if let depth = colorProfile?.depth { paletteStrings.append(depth) }
         if let saturation = colorProfile?.saturation { paletteStrings.append(saturation) }
+            
+            let pillars = PillarsColor(
+                        temperature: colorProfile?.temperature ?? "Neutro",
+                        brightness: colorProfile?.depth ?? "Médio",
+                        contrast: "Médio", // Ajuste conforme sua lógica de contraste
+                        saturation: colorProfile?.saturation ?? "Suave",
+                        user: user
+                    )
         
         // 4. Instancia e retorna o AnalysisModel
-        let newAnalysis = AnalysisModel( id: UUID(),date: Date(), userSilhouette: silhouetteString, userPalette: paletteStrings, pillarColor: nil, sizeSpecifications: nil, user: user )
+        let newAnalysis = AnalysisModel( id: UUID(),date: Date(), userSilhouette: silhouetteString, userPalette: paletteStrings, pillarColor: pillars, sizeSpecifications: nil, user: user )
         
         return newAnalysis
     }

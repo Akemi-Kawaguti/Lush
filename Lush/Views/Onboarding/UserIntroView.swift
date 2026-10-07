@@ -6,23 +6,19 @@
 //
 
 import SwiftUI
-import PhotosUI
+import SwiftData
+import _PhotosUI_SwiftUI
 
 struct UserIntroView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
-    @State private var name = ""
-    @State private var photoItem: PhotosPickerItem?
-    @State private var photo: UIImage?
+    @State private var viewModel = UserIntroViewModel()
     @FocusState private var isKeyboardOpen: Bool
 
     // Chamado ao continuar ou pular (nome e foto podem vir vazios)
     var onFinish: (_ name: String?, _ photo: UIImage?) -> Void = { _, _ in }
-
-    var hasName: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty
-    }
 
     var body: some View {
         ScrollView {
@@ -41,10 +37,10 @@ struct UserIntroView: View {
                 .padding(.top, 20)
 
                 // Foto (toque para escolher da galeria)
-                PhotosPicker(selection: $photoItem, matching: .images) {
-                    UserPhoto(image: photo, size: 160)
+                PhotosPicker(selection: $viewModel.photoItem, matching: .images) {
+                    UserPhoto(image: viewModel.photo, size: 160)
                         .overlay(alignment: .bottomTrailing) {
-                            Image(systemName: photo == nil ? "camera.fill" : "pencil")
+                            Image(systemName: viewModel.photo == nil ? "camera.fill" : "pencil")
                                 .font(.headline)
                                 .foregroundStyle(.white)
                                 .frame(width: 44, height: 44)
@@ -53,12 +49,12 @@ struct UserIntroView: View {
                         }
                 }
                 .frame(maxWidth: .infinity)
-                .accessibilityLabel(photo == nil ? "Adicionar foto" : "Trocar foto")
+                .accessibilityLabel(viewModel.photo == nil ? "Adicionar foto" : "Trocar foto")
 
                 LushTextField(
                     title: "Seu nome",
                     placeholder: "Digite seu nome",
-                    text: $name
+                    text: $viewModel.name
                 )
                 .focused($isKeyboardOpen)
                 .textInputAutocapitalization(.words)
@@ -78,15 +74,15 @@ struct UserIntroView: View {
             VStack(spacing: 8) {
                 PrimaryButton(title: "Continuar") {
                     isKeyboardOpen = false
-                    onFinish(name.trimmingCharacters(in: .whitespaces), photo)
-                }
-                .disabled(!hasName)
-                .opacity(hasName ? 1 : 0.5)
+                    viewModel.saveUser(modelContext: modelContext, isSkipped: false, onFinish: onFinish)
+                                    }
+                                    .disabled(!viewModel.hasName)
+                                    .opacity(viewModel.hasName ? 1 : 0.5)
 
                 Button("Pular por enquanto") {
                     isKeyboardOpen = false
-                    onFinish(nil, nil)
-                }
+                    viewModel.saveUser(modelContext: modelContext, isSkipped: true, onFinish: onFinish)
+                                    }
                 .font(.callout.weight(.semibold))
                 .foregroundStyle(Color("button"))
                 .frame(height: 44)
@@ -106,15 +102,13 @@ struct UserIntroView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         // Carrega a foto escolhida na galeria
-        .onChange(of: photoItem) {
-            Task {
-                if let data = try? await photoItem?.loadTransferable(type: Data.self) {
-                    photo = UIImage(data: data)
-                }
+        .onChange(of: viewModel.photoItem) {
+                    Task {
+                        await viewModel.loadPhoto()
+                    }
             }
         }
     }
-}
 
 #Preview {
     NavigationStack {

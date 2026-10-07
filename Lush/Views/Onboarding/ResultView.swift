@@ -6,16 +6,29 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ResultView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
-    let palette: PaleteSeason
-    let bodyShape: BodyShape
+    let analysis: AnalysisModel
 
     @State private var showUserIntro = false
     @Environment(\.finishAnalysis) private var finishAnalysis
+    
+    // Propriedades computadas para facilitar o uso na UI com base no AnalysisModel
+        var bodyShape: BodyShape {
+            // Converte a string salva no banco de volta para o Enum BodyShape
+            BodyShape(rawValue: analysis.userSilhouette) ?? .hourglass
+        }
+
+        var paletteSeason: PaleteSeason {
+            // Pega a estação salva na primeira posição do array userPalette
+            let seasonName = analysis.userPalette.first ?? "autumnDeep"
+            return PaleteSeason(rawValue: seasonName) ?? .autumnDeep
+        }
 
     var body: some View {
         ScrollView {
@@ -70,12 +83,12 @@ struct ResultView: View {
             Text("Sua paleta")
                 .font(.body)
                 .foregroundStyle(Color("textAttention").opacity(0.7))
-            Text(palette.rawValue)
+            Text(paletteSeason.rawValue)
                 .font(.AppTypography.title2)
                 .foregroundStyle(Color("textAttention"))
 
             HStack(spacing: 12) {
-                ForEach(palette.colorPaletes.prefix(6), id: \.self) { colorName in
+                ForEach(paletteSeason.colorPaletes.prefix(6), id: \.self) { colorName in
                     Circle()
                         .fill(Color(colorName))
                         .frame(width: 38, height: 38)
@@ -143,8 +156,13 @@ struct ResultView: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        ResultView(palette: .autumnDeep, bodyShape: .hourglass)
-    }
-}
+//#Preview {
+//    let sampleAnalysis = AnalysisModel(
+//        userSilhouette: "Ampulheta",
+//        userPalette: ["autumnDeep", "Quente", "Profundo", "Suave"]
+//    )
+//    
+//    return NavigationStack {
+//        ResultView(analysis: sampleAnalysis)
+//    }
+//}
