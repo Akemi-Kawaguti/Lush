@@ -78,10 +78,6 @@ struct MyClothesView: View {
                         }
                         .buttonStyle(.plain)
                     }
-
-                    Image(systemName: "mic.fill")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color("titles"))
                 }
                 .padding(.horizontal, 17)
                 .frame(height: 48)
