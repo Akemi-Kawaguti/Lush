@@ -112,8 +112,8 @@ struct BiotypeMeasurementsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $showResult) {
-            // TODO: usar a paleta real da análise de cores
-            ResultView(palette: .autumnDeep, bodyShape: bodyShape)
+            if let analysis = currentAnalysis {
+                ResultView(analysis: analysis)}
         }
     }
 

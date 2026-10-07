@@ -36,7 +36,7 @@ func mathBodyShape(measurements: BodyMeasure) -> BodyShape {
     if shoulderHipDiff <= (shoulderSize * balanceTolerance) && waistSize < shoulderSize * waistNarrowRatio {
         return .hourglass
     }
-    
+    #warning("arrumar lógica")
     return .rectangle
 }
 

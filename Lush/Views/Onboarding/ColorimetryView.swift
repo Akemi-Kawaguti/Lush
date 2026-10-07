@@ -6,36 +6,32 @@
 //
 
 import SwiftUI
-import UIKit
+import SwiftData
 
 struct ColorimetryView: View {
     
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     
-    let image: UIImage?
-
-    @State private var showBiotypeMethod = false
+    @State private var viewModel: ColorimetryViewModel
     
-    @State private var skinColor: Color?
-    @State private var hairColor: Color?
-    @State private var eyeColor: Color?
-
+    init(image: UIImage?, user: UserModel? = nil) {
+        _viewModel = State(initialValue: ColorimetryViewModel(image: image, user: user))
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
-
-            ProgressBar(
-                currentStep: 2,
-                totalSteps: 4
-            )
-            .padding(.horizontal, 32)
-            .padding(.top, 20)
-
+            
+            ProgressBar( currentStep: 2, totalSteps: 4)
+                .padding(.horizontal, 32)
+                .padding(.top, 20)
+            
             VStack(alignment: .leading, spacing: 10) {
-
+                
                 Text("Selecione suas cores")
                     .fontWeight(.bold)
                     .foregroundStyle(Color("textAttention"))
-
+                
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Use o conta-gotas para selecionar uma cor de cada vez:")
                         .foregroundStyle(Color("quartenary"))
@@ -51,23 +47,22 @@ struct ColorimetryView: View {
             .frame(maxWidth: .infinity,alignment: .leading)
             .padding(.horizontal, 32)
             .padding(.top, 20)
-
+            
             ColorSelectionCard(
-                image: image,
-                skinColor: $skinColor,
-                hairColor: $hairColor,
-                eyeColor: $eyeColor
+                image: viewModel.image,
+                skinColor: $viewModel.skinColor,
+                hairColor: $viewModel.hairColor,
+                eyeColor: $viewModel.eyeColor
             )
             .padding(.top, 16)
-
+            
             Spacer()
-
-
+            
+            
             PrimaryButton(title: "Continuar") {
-                showBiotypeMethod = true
-            }
-            .disabled(!hasAllColors)
-            .opacity(hasAllColors ? 1 : 0.5)
+                viewModel.saveAnalysisAndProceed(modelContext: modelContext)            }
+            .disabled(!viewModel.hasAllColors)
+            .opacity(viewModel.hasAllColors ? 1 : 0.5)
             .padding(.horizontal, 32)
             .padding(.bottom, 10)
         }
@@ -82,23 +77,19 @@ struct ColorimetryView: View {
             Toolbar(title: "Paleta de Cores", action: nil, onBackClick: { dismiss() })
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(isPresented: $showBiotypeMethod) {
+        .navigationDestination(isPresented: $viewModel.showBiotypeMethod) {
             BiotypeMethodView()
         }
         .navigationBarBackButtonHidden(true)
-
-    }
-
-    private var hasAllColors: Bool {
-        skinColor != nil && hairColor != nil && eyeColor != nil
+        
     }
     
 }
 
 #Preview {
     NavigationStack {
-        ColorimetryView(
-            image: UIImage(named: "teste")
+        ColorimetryView(image: UIImage(named: "teste")
         )
     }
 }
+

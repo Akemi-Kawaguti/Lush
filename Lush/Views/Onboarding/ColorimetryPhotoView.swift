@@ -10,6 +10,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ColorimetryPhotoView: View {
     
@@ -23,8 +24,8 @@ struct ColorimetryPhotoView: View {
         VStack(spacing: 0) {
             
             ProgressBar(currentStep: 1,totalSteps: 4)
-            .padding(.horizontal, 32)
-            .padding(.top, 20)
+                .padding(.horizontal, 32)
+                .padding(.top, 20)
             
             VStack(alignment: .leading, spacing: 10) {
                 

@@ -7,37 +7,39 @@
 
 import SwiftUI
 import UIKit
+import SwiftData
 
 struct BiotypePhotoView: View {
-
-    @Environment(\.dismiss) private var dismiss
-
-    @State private var image: UIImage?
     
-    @State private var showResult = false
-
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Query private var users: [UserModel]
+    
+    @State private var image: UIImage?
+    @State private var viewModel = BiotypePhotoSave()
+    
     var body: some View {
-
+        
         VStack(spacing: 0) {
-
+            
             ProgressBar(
                 currentStep: 4,
                 totalSteps: 4
             )
             .padding(.horizontal, 32)
             .padding(.top, 20)
-
+            
             VStack(alignment: .leading, spacing: 10) {
-
+                
                 Text("Adicione uma foto do seu corpo")
                     .fontWeight(.bold)
                     .foregroundStyle(Color("textAttention"))
-
+                
                 Text("Para uma análise mais precisa:")
-
+                
                 BulletText(text: "Prefira uma foto de frente, com corpo visível e sem roupas muito largas")
                     .lineSpacing(6)
-                    
+                
             }
             .font(.callout)
             .foregroundStyle(.quartenary)
@@ -47,8 +49,8 @@ struct BiotypePhotoView: View {
             )
             .padding(.horizontal, 32)
             .padding(.top, 20)
-
-
+            
+            
             PhotoPicker(
                 image: $image,
                 title: "Adicione uma foto",
@@ -56,14 +58,19 @@ struct BiotypePhotoView: View {
                 height: 410
             )
             .padding(.top, 20)
-
+            
             Spacer()
-
-            PrimaryButton(title: "Ver resultado") {
-                showResult = true
+            
+            PrimaryButton(title: viewModel.isLoading ? "Analisando..." : "Ver resultado") {
+                Task {
+                    await viewModel.processPhotoAndSave(
+                        image: image,
+                        modelContext: modelContext,
+                        users: users
+                    )                            }
             }
-            .disabled(image == nil)
-            .opacity(image == nil ? 0.5 : 1)
+            .disabled(image == nil || viewModel.isLoading )
+            .opacity(image == nil || viewModel.isLoading  ? 0.5 : 1)
             .padding(.horizontal, 32)
             .padding(.bottom, 16)
         }
@@ -79,10 +86,10 @@ struct BiotypePhotoView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .navigationDestination(isPresented: $showResult) {
-            // TODO: usar o resultado real da análise
-            ResultView(palette: .autumnDeep, bodyShape: .hourglass)
-        }
+        .navigationDestination(isPresented: $viewModel.showResult) {
+            
+            if let analysis = viewModel.createdAnalysis {
+                ResultView(analysis: analysis)        }}
     }
 }
 
