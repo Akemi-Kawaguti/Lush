@@ -18,7 +18,7 @@ struct LookSuggestionsView: View {
     @State private var errorMessage: String?
     @Environment(FavoritesStore.self) private var favorites
     @State private var selectedLook: Look?
-    var palette: PalleteSeason = .autumnDeep
+    var palette: PaleteSeason = .autumnDeep
 
     let columns = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
 

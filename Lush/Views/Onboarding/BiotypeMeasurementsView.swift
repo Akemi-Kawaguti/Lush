@@ -21,7 +21,8 @@ import SwiftData
 struct BiotypeMeasurementsView: View {
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext // 2. Contexto do banco de dados
+    @Environment(\.modelContext) private var modelContext
+    // 2. Contexto do banco de dados
 
     // Query para buscar a usuária (ajuste conforme a lógica de autenticação/perfil do seu app)
     @Query private var users: [UserModel]
