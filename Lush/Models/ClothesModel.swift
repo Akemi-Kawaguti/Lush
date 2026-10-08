@@ -18,6 +18,9 @@ final class ClothesModel {
     var garmentCategory: GarmentCategory
     var garmentPosition: GarmentPosition
     
+    var predominantColors: [String]
+    
+    
     //Como não pode receber varias enums
     //precisa declarar como opcionais para selecionar 1
     //MARK: para usar - For each
@@ -34,6 +37,7 @@ final class ClothesModel {
          cutTop: GarmentCutTop? = nil,
          cutBottom: GarmentCutBottom? = nil,
          cutOnePiece: GarmentCutOnePiece? = nil,
+         predominantColors: [String] = [],
          user: UserModel? = nil) {
         
         self.id = id
@@ -48,6 +52,8 @@ final class ClothesModel {
         self.cutOnePiece = cutOnePiece
         
         self.user = user
+        
+        self.predominantColors = predominantColors
     }
 }
 
