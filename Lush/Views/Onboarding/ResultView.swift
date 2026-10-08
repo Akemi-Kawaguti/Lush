@@ -17,21 +17,20 @@ struct ResultView: View {
 
     @State private var showUserIntro = false
     @Environment(\.finishAnalysis) private var finishAnalysis
-    
-    // Propriedades computadas para facilitar o uso na UI com base no AnalysisModel
-        var bodyShape: BodyShape {
-            // Converte a string salva no banco de volta para o Enum BodyShape
-            BodyShape(rawValue: analysis.userSilhouette) ?? .hourglass
-        }
 
-        var paletteSeason: PaleteSeason {
-            // Pega a estação salva na primeira posição do array userPalette
-            guard let seasonName = analysis.userPalette.first else { return .autumnDeep }
-                // Tenta achar pelo rawValue exato ou por correspondência case-insensitive/português se houver
-                return PaleteSeason(rawValue: seasonName) ?? 
-                       PaleteSeason.allCases.first { $0.rawValue.localizedCaseInsensitiveCompare(seasonName) == .orderedSame } ??
-                       .autumnDeep
-            }
+    // true depois da primeira análise: no "Refazer análise" não pede nome e foto de novo
+    @AppStorage("hasFinishedOnboarding") private var hasFinishedOnboarding = false
+
+    // Converte o biotipo salvo no banco (ex.: "Ampulheta") de volta para o enum
+    var bodyShape: BodyShape {
+        BodyShape(rawValue: analysis.userSilhouette) ?? .hourglass
+    }
+
+    // A primeira posição do userPalette é o nome da estação (ex.: "Outono Profundo")
+    var paletteSeason: PaleteSeason {
+        guard let seasonName = analysis.userPalette.first else { return .autumnDeep }
+        return PaleteSeason(rawValue: seasonName) ?? .autumnDeep
+    }
 
     var body: some View {
         ScrollView {
@@ -55,7 +54,11 @@ struct ResultView: View {
         // Botão fixo embaixo
         .safeAreaInset(edge: .bottom) {
             PrimaryButton(title: "Explorar meu estilo") {
-                showUserIntro = true   // abre a tela "Sobre você"
+                if hasFinishedOnboarding {
+                    finishAnalysis()       // refazendo a análise: volta direto para o app
+                } else {
+                    showUserIntro = true   // primeira vez: abre a tela "Sobre você"
+                }
             }
             .padding(.bottom, 16)
         }
@@ -72,19 +75,9 @@ struct ResultView: View {
         .navigationBarTitleDisplayMode(.inline)
         // Tela opcional de nome e foto; no final, vai para o app
         .navigationDestination(isPresented: $showUserIntro) {
-            UserIntroView { name, photoData in
-                            // Busca o usuário atual no banco para atualizar nome e foto
-                            let descriptor = FetchDescriptor<UserModel>()
-                            if let currentUser = try? modelContext.fetch(descriptor).first {
-                                if let validName = name, !validName.isEmpty {
-                                    currentUser.name = validName
-                                }
-                                if let validPhoto = photoData {
-                                    currentUser.photoData = validPhoto.jpegData(compressionQuality: 0.8)
-                                }
-                                try? modelContext.save()
-                            }
-                            finishAnalysis()
+            // A UserIntroView já salva o nome e a foto na usuária
+            UserIntroView { _, _ in
+                finishAnalysis()
             }
         }
     }
@@ -174,7 +167,7 @@ struct ResultView: View {
 //        userSilhouette: "Ampulheta",
 //        userPalette: ["autumnDeep", "Quente", "Profundo", "Suave"]
 //    )
-//    
+//
 //    return NavigationStack {
 //        ResultView(analysis: sampleAnalysis)
 //    }

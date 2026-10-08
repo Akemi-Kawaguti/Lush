@@ -5,15 +5,17 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 
-extension BodyShape {
+import Foundation
 
+extension BodyShape {
+    // Ícone pequeno da silhueta (pasta "SilhouetteIcons" no Assets), ex.: "retangulo-icon"
     var iconName: String {
-        imageName + "Icon"
+        imageName.replacingOccurrences(of: "tipo-", with: "") + "-icon"
     }
     
     // Ilustração da tela de resultado (pasta "bodys" no Assets)
     var resultImageName: String {
-        "tipo-" + imageName
+        imageName   // o imageName já é o nome da ilustração, ex.: "tipo-retangulo"
     }
 
     // Ícone SF Symbol (não usado mais na tela de detalhes)

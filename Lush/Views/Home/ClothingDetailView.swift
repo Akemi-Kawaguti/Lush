@@ -86,11 +86,11 @@ struct ClothingDetailView: View {
     }
     // Dados dinâmicos baseados no perfil do usuário e na análise mais recente
     private var userBodyShapeText: String {
-        currentUser?.analysis.first?.userSilhouette ?? "Não definido"
+        currentUser?.currentAnalysis?.userSilhouette ?? "Não definido"
     }
 
     private var userPaletteText: String {
-        if let paletteArray = currentUser?.analysis.first?.userPalette, let firstPalette = paletteArray.first {
+        if let paletteArray = currentUser?.currentAnalysis?.userPalette, let firstPalette = paletteArray.first {
             return firstPalette
         }
         return "Não definida"

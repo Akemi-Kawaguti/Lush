@@ -46,19 +46,19 @@ struct BiotypeMeasurementsView: View {
                     MeasurementField(
                         imageName: "ombros",
                         title: "Ombros",
-                        description: "Meça o comprimento dos ombros",
+                        description: "Meça o contorno na altura dos ombros",
                         value: $viewModel.shoulder
                     )
                     MeasurementField(
                         imageName: "cintura",
                         title: "Cintura",
-                        description: "Meça o comprimento da cintura",
+                        description: "Meça o contorno da parte mais fina da cintura",
                         value: $viewModel.waist
                     )
                     MeasurementField(
                         imageName: "quadril",
                         title: "Quadril",
-                        description: "Meça o comprimento do quadril",
+                        description: "Meça o contorno da parte mais larga do quadril",
                         value: $viewModel.hip
                     )
                 }
@@ -129,3 +129,4 @@ struct BiotypeMeasurementsView: View {
             .modelContainer(for: [UserModel.self, AnalysisModel.self, SizeSpecifications.self], inMemory: true)
     }
 }
+
