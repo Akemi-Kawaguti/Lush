@@ -16,7 +16,7 @@ func processBodyData(from source: BodyInputSource) -> BodyMeasure{
         let shoulderCm = shoulderPixels * cmPerPixel
         let hipCm = hipPixels * cmPerPixel
         
-        let estimatedWaistCm = (shoulderCm + hipCm) / 2 * 0.85
+        let estimatedWaistCm = ((shoulderCm + hipCm) / 2) * 0.85
         
         return BodyMeasure(shoulder: shoulderCm, waist: estimatedWaistCm, hip: hipCm)
         

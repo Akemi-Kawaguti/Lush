@@ -26,9 +26,12 @@ struct ResultView: View {
 
         var paletteSeason: PaleteSeason {
             // Pega a estação salva na primeira posição do array userPalette
-            let seasonName = analysis.userPalette.first ?? "autumnDeep"
-            return PaleteSeason(rawValue: seasonName) ?? .autumnDeep
-        }
+            guard let seasonName = analysis.userPalette.first else { return .autumnDeep }
+                // Tenta achar pelo rawValue exato ou por correspondência case-insensitive/português se houver
+                return PaleteSeason(rawValue: seasonName) ?? 
+                       PaleteSeason.allCases.first { $0.rawValue.localizedCaseInsensitiveCompare(seasonName) == .orderedSame } ??
+                       .autumnDeep
+            }
 
     var body: some View {
         ScrollView {
@@ -69,9 +72,19 @@ struct ResultView: View {
         .navigationBarTitleDisplayMode(.inline)
         // Tela opcional de nome e foto; no final, vai para o app
         .navigationDestination(isPresented: $showUserIntro) {
-            UserIntroView { _, _ in
-                // TODO: salvar nome, foto, paleta e biotipo no SwiftData
-                finishAnalysis()
+            UserIntroView { name, photoData in
+                            // Busca o usuário atual no banco para atualizar nome e foto
+                            let descriptor = FetchDescriptor<UserModel>()
+                            if let currentUser = try? modelContext.fetch(descriptor).first {
+                                if let validName = name, !validName.isEmpty {
+                                    currentUser.name = validName
+                                }
+                                if let validPhoto = photoData {
+                                    currentUser.photoData = validPhoto.jpegData(compressionQuality: 0.8)
+                                }
+                                try? modelContext.save()
+                            }
+                            finishAnalysis()
             }
         }
     }

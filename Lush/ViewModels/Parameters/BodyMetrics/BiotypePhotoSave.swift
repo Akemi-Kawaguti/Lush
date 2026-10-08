@@ -15,13 +15,8 @@ final class BiotypePhotoSave {
     var detectedBodyShape: BodyShape = .rectangle
     var showResult = false
     var createdAnalysis: AnalysisModel?
-
-    func processPhotoAndSave(
-        image: UIImage?,
-        modelContext: ModelContext,
-        users: [UserModel]
-    ) async {
-        guard let uiImage = image, let cgImage = uiImage.cgImage else { return }
+    
+    func processPhotoAndSave (image: UIImage?, modelContext: ModelContext, users: [UserModel] ) async { guard let uiImage = image, let cgImage = uiImage.cgImage else { return }
         
         isLoading = true
         defer { isLoading = false }
@@ -45,18 +40,30 @@ final class BiotypePhotoSave {
             modelContext.insert(currentUser)
         }
         
-        // 4. Executa o serviço de análise para criar o modelo estruturado
+        // 4. Cria o objeto de especificações de tamanho (Medidas extraídas da foto)
+        let sizeSpecs = SizeSpecifications(
+            shoulderSize: measurements.shoulder,
+            waistSize: measurements.waist,
+            hipSize: measurements.hip,
+            user: currentUser
+        )
+        modelContext.insert(sizeSpecs)
+        
+        // 5. Executa o serviço de análise para criar o modelo estruturado
         let newAnalysis = AnalysisService.performNewAnalysis(
             measurements: measurements,
-            colorSamples: [:],
+            colorSamples: [:], // Caso já tenha as cores da paleta, passe aqui, ou mantenha vazio se for fluxo separado
             user: currentUser
         )
         
-        // 5. Salva no SwiftData
+        // Associa as especificações de tamanho à análise
+        newAnalysis.sizeSpecifications = sizeSpecs
+        
+        // 6. Salva no SwiftData
         modelContext.insert(newAnalysis)
         try? modelContext.save()
         
-        // 6. Autoriza a navegação para a tela de resultado
+        // 7. Autoriza a navegação para a tela de resultado
         self.createdAnalysis = newAnalysis
         showResult = true
     }
