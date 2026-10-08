@@ -9,7 +9,7 @@ import Foundation
 
 enum PrivacyPolicy {
 
-    static let lastUpdated = "Última atualização: 5 de outubro de 2026"
+    static let lastUpdated = "Última atualização: 8 de outubro de 2026"
 
     // E-mail de contato (usado nos dois textos e transformado em link no LegalText)
     static let contactEmail = "lushestilopessoal@gmail.com"
@@ -33,11 +33,15 @@ enum PrivacyPolicy {
 
         \(prefix)3. Onde os dados ficam
 
-        Todas as informações ficam armazenadas apenas no seu aparelho. As análises das fotos são feitas no próprio iPhone, com recursos do sistema da Apple. O Lush não possui servidores próprios, não cria contas e não envia as suas fotos, medidas ou resultados para a equipe do Lush nem para terceiros. Caso você utilize o backup do iCloud, as informações do aplicativo podem fazer parte desse backup, que segue as regras de privacidade da Apple.
+        As suas fotos, medidas, cores, resultados, roupas e favoritos ficam armazenados apenas no seu aparelho. As análises das fotos são feitas no próprio iPhone, com recursos do sistema da Apple. O Lush não cria contas e não envia essas informações para a equipe do Lush nem para terceiros. Caso você utilize o backup do iCloud, as informações do aplicativo podem fazer parte desse backup, que segue as regras de privacidade da Apple.
 
-        \(prefix)4. Compartilhamento
+        Para mostrar as sugestões de looks, o aplicativo consulta um serviço do Lush hospedado em nuvem. Nessa consulta, são enviados apenas o nome da sua paleta de cores (por exemplo, "Outono Profundo") e o estilo escolhido no filtro (por exemplo, "Trabalho"). Nenhuma foto, medida, nome ou outro dado pessoal é enviado. Como em qualquer acesso à internet, o serviço pode registrar informações técnicas da conexão, como o endereço IP, apenas para o seu funcionamento e segurança.
+
+        \(prefix)4. Compartilhamento e imagens de terceiros
 
         Não vendemos, não alugamos e não compartilhamos os seus dados com terceiros. O Lush não exibe anúncios e não utiliza ferramentas de rastreamento.
+
+        As imagens das sugestões de looks são fornecidas pelo Pexels (pexels.com), com crédito aos fotógrafos. Essas imagens são carregadas diretamente dos servidores do Pexels, que, como qualquer site, recebe informações técnicas da conexão, como o endereço IP. Esse tratamento segue a política de privacidade do próprio Pexels.
 
         \(prefix)5. Câmera e fotos
 
