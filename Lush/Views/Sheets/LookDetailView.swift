@@ -108,3 +108,4 @@ struct LookDetailView: View {
             LookDetailView(look: Look.samples[0], isFavorite: false, onFavorite: {})
         }
 }
+
