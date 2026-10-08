@@ -105,14 +105,17 @@ struct ClothingDetailView: View {
         return "A modelagem \(cutDescription.lowercased()) interage com o seu biotipo \(userBodyShapeText.lowercased()), valorizando a silhueta."
     }
 
-    // Exemplo de cores da peça
     private var garmentColors: [GarmentColor] {
-        [
-            GarmentColor(color: .yellow, matchesPalette: true),
-            GarmentColor(color: .orange, matchesPalette: true),
-            GarmentColor(color: .pink, matchesPalette: true),
-            GarmentColor(color: .indigo, matchesPalette: false)
-        ]
+        clothingItem.predominantColors.compactMap { hex in
+            guard let uiColor = UIColor(hex: hex) else {
+                return nil
+            }
+
+            return GarmentColor(
+                color: Color(uiColor: uiColor),
+                matchesPalette: true
+            )
+        }
     }
 
     var body: some View {

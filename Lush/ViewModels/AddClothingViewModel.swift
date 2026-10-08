@@ -17,10 +17,7 @@ final class AddClothingViewModel: ObservableObject {
     @Published var processedImage: UIImage?
 
 
-    func analyzeClothing(
-        image: UIImage,
-        category: GarmentCategory
-    ) {
+    func analyzeClothing(image: UIImage,category: GarmentCategory) {
         guard let modelName = category.classifierModelName else {
             errorMessage = "Essa categoria ainda não possui um modelo de análise."
             return
@@ -30,8 +27,7 @@ final class AddClothingViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let imageWithoutBackground =
-                try GarmentBackgroundRemovalService.removeBackground(from: image)
+            let imageWithoutBackground = try GarmentBackgroundRemovalService.removeBackground(from: image)
 
             processedImage = imageWithoutBackground
 
@@ -46,6 +42,12 @@ final class AddClothingViewModel: ObservableObject {
             }
         }
 
+    
+    private func predominantColorHexes(from image: UIImage) -> [String] {
+        let colors = GarmentColorAnalysisService.predominantColors(from: image)
+
+        return colors.map { $0.hexString }
+    }
 
     func makeAnalyzedClothing(
         name: String,
@@ -59,6 +61,7 @@ final class AddClothingViewModel: ObservableObject {
         let cutTop = cutTop(for: category)
         let cutBottom = cutBottom(for: category)
         let cutOnePiece = cutOnePiece(for: category)
+        let predominantColors = predominantColorHexes(from: processedImage ?? image)
 
         return ClothesModel(
             id: UUID(),
@@ -68,14 +71,13 @@ final class AddClothingViewModel: ObservableObject {
             garmentPosition: category.position,
             cutTop: cutTop,
             cutBottom: cutBottom,
-            cutOnePiece: cutOnePiece
+            cutOnePiece: cutOnePiece,
+            predominantColors: predominantColors,
         )
     }
 
 
-    private func cutTop(
-        for category: GarmentCategory
-    ) -> GarmentCutTop? {
+    private func cutTop(for category: GarmentCategory) -> GarmentCutTop? {
 
         guard let label = analysis?.best?.label else {
             return nil
@@ -173,9 +175,7 @@ final class AddClothingViewModel: ObservableObject {
     }
 
 
-    private func cutBottom(
-        for category: GarmentCategory
-    ) -> GarmentCutBottom? {
+    private func cutBottom(for category: GarmentCategory) -> GarmentCutBottom? {
 
         guard let label = analysis?.best?.label else {
             return nil
@@ -255,9 +255,7 @@ final class AddClothingViewModel: ObservableObject {
     }
 
 
-    private func cutOnePiece(
-        for category: GarmentCategory
-    ) -> GarmentCutOnePiece? {
+    private func cutOnePiece(for category: GarmentCategory) -> GarmentCutOnePiece? {
 
         guard let label = analysis?.best?.label else {
             return nil
