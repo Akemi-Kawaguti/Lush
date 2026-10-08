@@ -7,19 +7,13 @@
 
 import Foundation
 
-// Lê a chave do Info.plist (que vem do Secrets.xcconfig)
-enum APIKeys {
-    static var pexels: String {
-        Bundle.main.object(forInfoDictionaryKey: "PEXELS_API_KEY") as? String ?? ""
-    }
+// Resposta da API Lush (/looks): mesmo formato do Pexels, de onde as fotos vêm
+struct LooksResponse: Decodable {
+    let photos: [LookPhoto]
 }
 
-// Resposta da busca do Pexels
-struct PexelsResponse: Decodable {
-    let photos: [PexelsPhoto]
-}
-
-struct PexelsPhoto: Decodable, Identifiable {
+// Uma foto sugerida (os links e o fotógrafo são do Pexels)
+struct LookPhoto: Decodable, Identifiable {
     let id: Int
     let url: URL              // página da foto no Pexels (para o crédito)
     let photographer: String
@@ -33,30 +27,29 @@ struct PexelsPhoto: Decodable, Identifiable {
 }
 
 enum RequestAPI {
+    // Endereço da API Lush (Supabase)
+    static let lushAPI = URL(string: "https://cvfamnyvnvknnjyglqjz.supabase.co/functions/v1")!
 
-    // Busca fotos no Pexels. Ex.: searchPhotos(query: "casual outfit")
-    static func searchPhotos(query: String, color: String? = nil, perPage: Int = 20, page: Int = 1) async throws -> [PexelsPhoto] {
-        var components = URLComponents(string: "https://api.pexels.com/v1/search")!
+    // Busca sugestões de looks na API Lush.
+    // Ex.: fetchLooks(palette: .autumnDeep, style: .work)
+    static func fetchLooks(palette: PaleteSeason, style: LookStyle?, limit: Int = 20) async throws -> [LookPhoto] {
+        // 1. Monta a URL: .../looks?palette=autumnDeep&style=work&limit=20
+        var components = URLComponents(url: lushAPI.appending(path: "looks"), resolvingAgainstBaseURL: false)!
         components.queryItems = [
-            URLQueryItem(name: "query", value: query),
-            URLQueryItem(name: "orientation", value: "portrait"),
-            URLQueryItem(name: "per_page", value: "\(perPage)"),
-            URLQueryItem(name: "page", value: "\(page)")
+            URLQueryItem(name: "palette", value: String(describing: palette)),
+            URLQueryItem(name: "style", value: style?.apiKey ?? "all"),
+            URLQueryItem(name: "limit", value: "\(limit)")
         ]
 
-        if let color {
-            components.queryItems?.append(URLQueryItem(name: "color", value: color))
-        }
-        
-        var request = URLRequest(url: components.url!)
-        request.setValue(APIKeys.pexels, forHTTPHeaderField: "Authorization")
+        // 2. Faz o pedido (sem chave nenhuma: a chave do Pexels fica só no servidor)
+        let (data, response) = try await URLSession.shared.data(from: components.url!)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-
+        // 3. Só aceita resposta de sucesso
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
 
-        return try JSONDecoder().decode(PexelsResponse.self, from: data).photos
+        // 4. Converte o JSON nas structs que já existem
+        return try JSONDecoder().decode(LooksResponse.self, from: data).photos
     }
 }

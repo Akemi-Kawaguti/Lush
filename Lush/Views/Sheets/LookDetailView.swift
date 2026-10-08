@@ -20,11 +20,7 @@ struct LookDetailView: View {
     var body: some View {
         NavigationStack {
             Color.clear
-                // Foto ocupando a tela
-                .background {
-                    LookImage(imageName: look.imageName, url: look.largeImageURL ?? look.imageURL)
-                        .ignoresSafeArea()
-                }
+                
                 // Card de informações
                 .overlay(alignment: .bottom) {
                     infoCard
@@ -53,6 +49,9 @@ struct LookDetailView: View {
                         .accessibilityLabel(isFavorite ? "Remover dos favoritos" : "Favoritar")
                     }
                 }
+        }
+        .presentationBackground {
+            LookImage(imageName: look.imageName, url: look.highResImageURL, fallbackURL: look.largeImageURL)
         }
         .presentationDragIndicator(.visible)
     }

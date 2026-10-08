@@ -135,7 +135,7 @@ struct HomeView: View {
                     .ignoresSafeArea()
             }
             .navigationDestination(isPresented: $showLookSuggestions) {
-                LookSuggestionsView()
+                LookSuggestionsView(palette: paleteSeason)
             }
             .navigationDestination(isPresented: $showMyClothes) {
                 MyClothesView()
