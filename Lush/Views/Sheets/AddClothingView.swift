@@ -15,16 +15,21 @@ struct AddClothingView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
+    
     var clothingToEdit: ClothesModel?
     
     // Parte de cima, de baixo e peça única
     private let positions = GarmentPosition.allCases
     private let isEditMode: Bool
     
+    @StateObject private var viewModel = AddClothingViewModel()
+    
     @State private var image: UIImage?
     @State private var name: String
     @State private var position: GarmentPosition?
     @State private var category: GarmentCategory?
+    @State private var analyzedClothing: ClothesModel?
+    
     
     init(
         isEditMode: Bool = false,
@@ -63,6 +68,10 @@ struct AddClothingView: View {
         && !name.trimmingCharacters(in: .whitespaces).isEmpty
         && category != nil
         && position != nil
+    }
+    
+    private var hasAnalysis: Bool {
+        viewModel.analysis != nil
     }
     
     var body: some View {
@@ -150,16 +159,15 @@ struct AddClothingView: View {
                     isActionEnabled: isFormComplete,
                     onBackClick: { dismiss() },
                     onActionClick: {
-                        if let category, let position {
-                            ClothingService.saveClothing(
-                                name: name,
-                                image: image,
-                                category: category,
-                                position: position,
-                                in: modelContext
-                            )
+                        guard let image,
+                              let category else {
+                            return
                         }
-                        dismiss()
+
+                        viewModel.analyzeClothing(
+                            image: image,
+                            category: category
+                        )
                     }
                 )
             }
@@ -170,6 +178,25 @@ struct AddClothingView: View {
             if category?.position != position {
                 category = nil
             }
+        }
+        
+        .onChange(of: viewModel.analysis?.best?.label) {
+            guard let image,
+                  let category else {
+                return
+            }
+
+            analyzedClothing = viewModel.makeAnalyzedClothing(
+                name: name,
+                image: image,
+                category: category
+            )
+        }
+        
+        .navigationDestination(item: $analyzedClothing) { clothing in
+            ClothingDetailView(
+                clothingItem: clothing
+            )
         }
     }
 }

@@ -31,15 +31,59 @@ struct ClothingDetailView: View {
     // Helper para extrair o texto descritivo do corte, independente se é Top, Bottom ou OnePiece
     private var cutDescription: String {
         if let cutTop = clothingItem.cutTop {
-            return cutTop.rawValue
+            return formattedCutName(cutTop.rawValue)
         } else if let cutBottom = clothingItem.cutBottom {
-            return cutBottom.rawValue
+            return formattedCutName(cutBottom.rawValue)
         } else if let cutOnePiece = clothingItem.cutOnePiece {
-            return cutOnePiece.rawValue
+            return formattedCutName(cutOnePiece.rawValue)
         }
+
         return "Não especificado"
     }
 
+    private func formattedCutName(_ rawValue: String) -> String {
+        let specialNames: [String: String] = [
+            "traditional": "Tradicional",
+            "fitted": "Justa",
+            "oversized": "Oversized",
+            "cropped": "Cropped",
+            "flowy": "Fluida",
+            "slim": "Slim",
+            "boxy": "Boxy",
+            "longline": "Longline",
+            "baby_look": "Baby look",
+            "raglan": "Raglan",
+            "peplum": "Peplum",
+            "asymmetric": "Assimétrica",
+            "ultra_cropped": "Ultra cropped",
+            "tube": "Tubinho/Faixa",
+            "halter": "Frente única",
+            "tie": "Amarração/Nó",
+            "high_cut": "Cavado",
+            "wrap": "Transpassado",
+            "flare": "Flare",
+            "jogger": "Jogger",
+            "straight": "Reta",
+            "skinny": "Skinny",
+            "wide_leg": "Wide Leg",
+            "tailored": "Alfaiataria",
+            "godet": "Godê",
+            "pencil": "Lápis",
+            "pleated": "Plissada",
+            "cargo": "Cargo",
+            "a_line": "Evasê",
+            "bodycon": "Ajustado",
+            "pantalona": "Pantalona"
+        ]
+
+        let suffix = rawValue.split(separator: "_", maxSplits: 1)
+            .dropFirst()
+            .joined(separator: "_")
+
+        return specialNames[suffix] ?? suffix
+            .replacingOccurrences(of: "_", with: " ")
+            .capitalized
+    }
     // Dados dinâmicos baseados no perfil do usuário e na análise mais recente
     private var userBodyShapeText: String {
         currentUser?.analysis.first?.userSilhouette ?? "Não definido"
@@ -189,7 +233,6 @@ struct ClothingDetailView: View {
         .accessibilityLabel("\(garmentColors.count) cores na peça")
     }
 }
-
 
 #Preview {
     // Banco temporário, só para o Preview (não depende do LushApp)
