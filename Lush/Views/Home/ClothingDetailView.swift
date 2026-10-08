@@ -237,37 +237,3 @@ struct ClothingDetailView: View {
     }
 }
 
-#Preview {
-    // Banco temporário, só para o Preview (não depende do LushApp)
-    let container = try! ModelContainer(
-        for: UserModel.self, AnalysisModel.self, ClothesModel.self,
-        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-    )
-
-    // Usuária de exemplo, com uma análise
-    let user = UserModel(name: "Agatha")
-    container.mainContext.insert(user)
-
-    let analysis = AnalysisModel(
-        userSilhouette: BodyShape.hourglass.rawValue,
-        userPalette: [PaleteSeason.autumnDeep.rawValue],
-        user: user
-    )
-    container.mainContext.insert(analysis)
-
-    // Peça de exemplo
-    let clothing = ClothesModel(
-        id: UUID(),
-        name: "Camiseta básica",
-        garmentCategory: .tShirt,
-        garmentPosition: .top,
-        cutTop: .tShirtTraditional,
-        user: user
-    )
-    container.mainContext.insert(clothing)
-
-    return NavigationStack {
-        ClothingDetailView(clothingItem: clothing)
-    }
-    .modelContainer(container)
-}
