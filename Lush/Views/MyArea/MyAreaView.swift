@@ -17,6 +17,7 @@ struct MyAreaView: View {
         @Query private var users: [UserModel]
 
         @State private var showAnalysis = false
+        @State private var showAnalysisHistory = false
 
         // Computa o usuário atual (pega o primeiro ou nulo se não houver)
         private var currentUser: UserModel? {
@@ -64,8 +65,7 @@ struct MyAreaView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 30) {
 
                     Text("Minha área")
                         .font(.AppTypography.largeTitle)
@@ -115,10 +115,24 @@ struct MyAreaView: View {
                     PrimaryButton(title: "Refazer análise") {
                         showAnalysis = true
                     }
+                    
+                    Button {
+                        showAnalysisHistory = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("Ver minhas avaliações")
+
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Color("button"))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, -8)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
-            }
+            
             .scrollIndicators(.hidden)
             .background {
                 Image("backgroundLush")
@@ -148,6 +162,13 @@ struct MyAreaView: View {
                 .environment(\.finishAnalysis) {
                     showAnalysis = false
                 }
+            }
+            
+            .sheet(isPresented: $showAnalysisHistory) {
+                AnalysisHistoryView()
+                    .presentationDetents([.fraction(0.88)])
+                    .presentationDragIndicator(.hidden)
+                    .presentationCornerRadius(32)
             }
         }
     }
