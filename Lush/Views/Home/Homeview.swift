@@ -51,7 +51,7 @@ struct HomeView: View {
     
     // Looks de exemplo (os 3 primeiros)
     let looks = Array(Look.samples.prefix(3))
-    @State private var favoriteIDs: Set<UUID> = []
+    @Environment(FavoritesStore.self) private var favorites
     
     // Navegação
     var onShowMyArea: () -> Void = {}
@@ -91,7 +91,7 @@ struct HomeView: View {
                                     LookCard(
                                         imageName: look.imageName,
                                         credit: look.credit,
-                                        isFavorite: favoriteIDs.contains(look.id),
+                                        isFavorite: favorites.contains(look),
                                         onFavorite: { toggleFavorite(look) }
                                     )
                                     .frame(width: 170)
@@ -149,7 +149,7 @@ struct HomeView: View {
             .sheet(item: $selectedLook) { look in
                 LookDetailView(
                     look: look,
-                    isFavorite: favoriteIDs.contains(look.id),
+                    isFavorite: favorites.contains(look),
                     onFavorite: { toggleFavorite(look) }
                 )
             }
@@ -213,17 +213,11 @@ struct HomeView: View {
     }
     
     func toggleFavorite(_ look: Look) {
-        if favoriteIDs.contains(look.id) {
-            favoriteIDs.remove(look.id)
-        } else {
-            favoriteIDs.insert(look.id)
-        }
-        
-        currentUser?.favorites = favoriteIDs.map { $0.uuidString }
-        try? modelContext.save()
+        favorites.toggle(look)
     }
 }
 
 #Preview {
     HomeView()
+        .environment(FavoritesStore())
 }
