@@ -24,63 +24,29 @@ final class BiotypeMeasurementsViewModel: ObservableObject {
         Double(text.replacingOccurrences(of: ",", with: "."))
     }
     
-    // Valida se as 3 medidas estão preenchidas e com valores possíveis
+    // Valida se as 3 medidas estão preenchidas e com valores possíveis (contornos em cm)
     var isFormValid: Bool {
         [shoulder, waist, hip].allSatisfy { text in
             guard let value = number(text) else { return false }
-            return value >= 70 && value <= 250
+            return value >= 40 && value <= 250
         }
     }
     
-    // Calcula o biotipo com as funções do projeto (BodyConversion.swift e BodyMath.swift)
-    var bodyShape: BodyShape {
-        let measure = processBodyData(from: .manual(
-            shoulderCm: number(shoulder) ?? 0,
-            waistCm: number(waist) ?? 0,
-            hipCm: number(hip) ?? 0
-        ))
-        return mathBodyShape(measurements: measure)
-    }
-    
-    // Salva os dados no banco de dados (SwiftData) e prepara a navegação
+    // Etapa 2 da análise: completa a análise da colorimetria com o biotipo e salva
     func saveAndAnalyze(using modelContext: ModelContext, users: [UserModel]) {
         guard let sVal = number(shoulder),
               let wVal = number(waist),
               let hVal = number(hip) else { return }
 
-        // 1. Recupera ou cria uma usuária padrão caso ainda não exista no banco
-        let currentUser = users.first ?? {
-            let newUser = UserModel(name: "Usuária Lush")
-            modelContext.insert(newUser)
-            return newUser
-        }()
-         
-        // 2. Busca uma análise pendente ou inicializa uma nova de forma segura
-        let analysisToUse: AnalysisModel
-        if let pendingAnalysis = currentUser.analysis.sorted(by: { $0.date > $1.date }).first, pendingAnalysis.userSilhouette.isEmpty {
-            analysisToUse = pendingAnalysis
-        } else {
-            let freshAnalysis = AnalysisModel(userSilhouette: "", userPalette: [], user: currentUser)
-            modelContext.insert(freshAnalysis)
-            analysisToUse = freshAnalysis
-        }
-             
-        analysisToUse.userSilhouette = bodyShape.rawValue
+        let currentUser = users.first ?? UserModel.current(in: modelContext)
 
-        // 3. Cria o objeto de especificações de tamanho
-        let sizeSpecs = SizeSpecifications(
-            shoulderSize: sVal,
-            waistSize: wVal,
-            hipSize: hVal,
-            user: currentUser
-        )
-        modelContext.insert(sizeSpecs)
-        analysisToUse.sizeSpecifications = sizeSpecs
+        let measurements = processBodyData(from: .manual(shoulderCm: sVal, waistCm: wVal, hipCm: hVal))
+        let analysis = AnalysisService.finishAnalysis(measurements: measurements, user: currentUser, in: modelContext)
 
         do {
             try modelContext.save()
-            self.currentAnalysis = analysisToUse
-            self.showResult = true // Dispara a navegação
+            self.currentAnalysis = analysis
+            self.showResult = true // Dispara a navegação para o resultado
         } catch {
             print("Erro ao salvar dados no SwiftData: \(error.localizedDescription)")
         }

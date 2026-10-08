@@ -21,8 +21,9 @@ struct HomeView: View {
         users.first
     }
     
+    // Análise escolhida em "Minhas avaliações" (ou a mais recente)
     var latestAnalysis: AnalysisModel? {
-        currentUser?.analysis.sorted(by: { $0.date > $1.date }).first
+        currentUser?.currentAnalysis
     }
     
     // Biotipo integrado com o BodyShape

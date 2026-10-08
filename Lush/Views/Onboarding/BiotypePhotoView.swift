@@ -67,7 +67,8 @@ struct BiotypePhotoView: View {
                         image: image,
                         modelContext: modelContext,
                         users: users
-                    )                            }
+                    )
+                }
             }
             .disabled(image == nil || viewModel.isLoading )
             .opacity(image == nil || viewModel.isLoading  ? 0.5 : 1)
@@ -87,9 +88,22 @@ struct BiotypePhotoView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $viewModel.showResult) {
-            
             if let analysis = viewModel.createdAnalysis {
-                ResultView(analysis: analysis)        }}
+                ResultView(analysis: analysis)
+            }
+        }
+        // Aviso quando o Vision não encontra o corpo na foto
+        .alert(
+            "Não foi possível analisar a foto",
+            isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
     }
 }
 

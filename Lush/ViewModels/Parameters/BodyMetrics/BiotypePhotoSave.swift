@@ -5,6 +5,13 @@
 //  Created by Tais Akemi Kawaguti on 07/10/26.
 //
 
+//
+//  BiotypePhotoSave.swift
+//  Lush
+//
+//  Created by Tais Akemi Kawaguti on 07/10/26.
+//
+
 import SwiftUI
 import SwiftData
 import UIKit
@@ -12,59 +19,31 @@ import UIKit
 @Observable
 final class BiotypePhotoSave {
     var isLoading = false
-    var detectedBodyShape: BodyShape = .rectangle
     var showResult = false
     var createdAnalysis: AnalysisModel?
+    var errorMessage: String?          // aviso quando o Vision não encontra o corpo na foto
     
-    func processPhotoAndSave (image: UIImage?, modelContext: ModelContext, users: [UserModel] ) async { guard let uiImage = image, let cgImage = uiImage.cgImage else { return }
+    // Etapa 2 da análise (pela foto): mede o corpo com o Vision e completa a análise
+    func processPhotoAndSave(image: UIImage?, modelContext: ModelContext, users: [UserModel]) async {
+        // Corrige a orientação: fotos da câmera vêm "deitadas" nos pixels
+        guard let uiImage = image?.fixedOrientation(), let cgImage = uiImage.cgImage else { return }
         
         isLoading = true
         defer { isLoading = false }
         
         // 1. Executa a análise do Vision na foto
         guard let measurements = await analyzeBodyProportions(in: cgImage, userRealHeightCm: 170.0) else {
-            print("Não foi possível extrair as proporções corporais da foto.")
+            errorMessage = "Não conseguimos identificar seu corpo na foto. Tente uma foto de corpo inteiro, de frente e com boa iluminação, ou informe suas medidas."
             return
         }
         
-        // 2. Calcula o formato corporal utilizando a função matemática
-        let bodyShape = mathBodyShape(measurements: measurements)
-        detectedBodyShape = bodyShape
+        // 2. Completa a análise da colorimetria com o biotipo
+        let currentUser = users.first ?? UserModel.current(in: modelContext)
+        let analysis = AnalysisService.finishAnalysis(measurements: measurements, user: currentUser, in: modelContext)
         
-        // 3. Recupera o usuário atual do banco de dados (ou cria um padrão se não existir)
-        let currentUser: UserModel
-        if let existingUser = users.first {
-            currentUser = existingUser
-        } else {
-            currentUser = UserModel(name: "Usuário Padrão")
-            modelContext.insert(currentUser)
-        }
-        
-        // 4. Cria o objeto de especificações de tamanho (Medidas extraídas da foto)
-        let sizeSpecs = SizeSpecifications(
-            shoulderSize: measurements.shoulder,
-            waistSize: measurements.waist,
-            hipSize: measurements.hip,
-            user: currentUser
-        )
-        modelContext.insert(sizeSpecs)
-        
-        // 5. Executa o serviço de análise para criar o modelo estruturado
-        let newAnalysis = AnalysisService.performNewAnalysis(
-            measurements: measurements,
-            colorSamples: [:], // Caso já tenha as cores da paleta, passe aqui, ou mantenha vazio se for fluxo separado
-            user: currentUser
-        )
-        
-        // Associa as especificações de tamanho à análise
-        newAnalysis.sizeSpecifications = sizeSpecs
-        
-        // 6. Salva no SwiftData
-        modelContext.insert(newAnalysis)
+        // 3. Salva e navega para o resultado
         try? modelContext.save()
-        
-        // 7. Autoriza a navegação para a tela de resultado
-        self.createdAnalysis = newAnalysis
+        createdAnalysis = analysis
         showResult = true
     }
 }

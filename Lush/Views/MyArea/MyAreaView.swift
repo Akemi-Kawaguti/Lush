@@ -5,6 +5,13 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 
+//
+//  MyAreaView.swift
+//  Lush
+//
+//  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
+//
+
 import SwiftUI
 import SwiftData
 
@@ -24,8 +31,9 @@ struct MyAreaView: View {
         }
 
         // Computa a análise mais recente do usuário
+        // Análise escolhida em "Minhas avaliações" (ou a mais recente)
         private var latestAnalysis: AnalysisModel? {
-            currentUser?.analysis.sorted(by: { $0.date > $1.date }).first
+            currentUser?.currentAnalysis
         }
 
         // Converte a string do biotipo salva no banco para o enum BodyShape

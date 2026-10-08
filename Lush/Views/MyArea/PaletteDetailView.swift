@@ -5,6 +5,7 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 
+
 import SwiftUI
 import SwiftData
 
@@ -12,13 +13,12 @@ struct PaletteDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    // Busca a análise mais recente salva no SwiftData
-        @Query(sort: \AnalysisModel.date, order: .reverse) private var analyses: [AnalysisModel]
-        
-        // Propriedade computada para pegar a análise atual (ou cair em um fallback se vazio)
-        private var currentAnalysis: AnalysisModel? {
-            analyses.first
-        }
+    // Usuária do app e a análise escolhida em "Minhas avaliações" (ou a mais recente)
+    @Query private var users: [UserModel]
+
+    private var currentAnalysis: AnalysisModel? {
+        users.first?.currentAnalysis
+    }
 
     var body: some View {
         
