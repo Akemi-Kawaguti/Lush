@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum LookStyle: String, CaseIterable {
+enum LookStyle: String, CaseIterable, Codable {
     case casual = "Casual"
     case work = "Trabalho"
     case gym = "Academia"
@@ -24,8 +24,9 @@ enum LookStyle: String, CaseIterable {
     }
 }
 
-struct Look: Identifiable {
-    let id = UUID()
+struct Look: Identifiable, Codable {
+    var id = UUID()
+    var photoID: Int? = nil
     var imageName: String = ""     // nome da imagem no Assets (looks de exemplo)
     let photographer: String
     let style: LookStyle
@@ -57,6 +58,7 @@ extension Look {
     // Cria um look a partir de uma foto do Pexels
     init(photo: LookPhoto, style: LookStyle) {
         self.init(
+            photoID: photo.id,
             photographer: photo.photographer,
             style: style,
             pexelsURL: photo.url,
