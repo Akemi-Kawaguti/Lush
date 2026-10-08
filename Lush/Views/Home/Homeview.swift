@@ -50,7 +50,9 @@ struct HomeView: View {
     }
     
     // Looks de exemplo (os 3 primeiros)
-    let looks = Array(Look.samples.prefix(3))
+    @State private var looks: [Look] = []
+    @State private var isLoadingLooks = true
+    @State private var loadedPalette: PaleteSeason? //paleta de looks
     @Environment(FavoritesStore.self) private var favorites
     
     // Navegação
@@ -87,21 +89,61 @@ struct HomeView: View {
                         
                         ScrollView(.horizontal) {
                             HStack(spacing: 12) {
-                                ForEach(looks) { look in
-                                    LookCard(
-                                        imageName: look.imageName,
-                                        credit: look.credit,
-                                        isFavorite: favorites.contains(look),
-                                        onFavorite: { toggleFavorite(look) }
-                                    )
-                                    .frame(width: 170)
-                                    // Toque no card abre os detalhes
-                                    .onTapGesture { selectedLook = look }
+                                if looks.isEmpty {
+                                    // Carregando: 3 cards cinza com o indicador
+                                    // Sem conexão: 3 cards cinza com o ícone de wi-fi
+                                    ForEach(0..<3, id: \.self) { _ in
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(Color.gray.opacity(0.2))
+                                            .frame(width: 170, height: 220)
+                                            .overlay {
+                                                if isLoadingLooks {
+                                                    ProgressView()
+                                                } else {
+                                                    Image(systemName: "wifi.exclamationmark")
+                                                        .font(.title2)
+                                                        .foregroundStyle(.secondary)
+                                                }
+                                            }
+                                    }
+                                } else {
+                                    ForEach(looks) { look in
+                                        LookCard(
+                                            imageName: look.imageName,
+                                            imageURL: look.imageURL,
+                                            fallbackURL: look.largeImageURL,
+                                            credit: look.credit,
+                                            isFavorite: favorites.contains(look),
+                                            onFavorite: { toggleFavorite(look) }
+                                        )
+                                        .frame(width: 170)
+                                        // Toque no card abre os detalhes
+                                        .onTapGesture { selectedLook = look }
+                                    }
                                 }
                             }
                             .padding(.horizontal, 24)
                         }
                         .scrollIndicators(.hidden)
+                        
+                        // Aviso quando não foi possível carregar as sugestões
+                        if looks.isEmpty && !isLoadingLooks {
+                            HStack(spacing: 8) {
+                                Text("Não foi possível carregar as sugestões. Verifique sua conexão.")
+                                    .font(.footnote)
+                                    .foregroundStyle(Color("quartenary"))
+                                    .fixedSize(horizontal: false, vertical: true)
+
+                                Spacer()
+
+                                Button("Tentar de novo") {
+                                    Task { await loadHomeLooks() }
+                                }
+                                .font(.footnote.weight(.semibold))
+                                .tint(Color("button"))
+                            }
+                            .padding(.horizontal, 24)
+                        }
                     }
                     
                     // Minhas roupas conectadas ao SwiftData (`currentUser?.userClothes`)
@@ -152,6 +194,9 @@ struct HomeView: View {
                     isFavorite: favorites.contains(look),
                     onFavorite: { toggleFavorite(look) }
                 )
+            }
+            .task(id: paleteSeason) {
+                await loadHomeLooks()
             }
         }
     }
@@ -214,6 +259,21 @@ struct HomeView: View {
     
     func toggleFavorite(_ look: Look) {
         favorites.toggle(look)
+    }
+    
+    func loadHomeLooks() async {
+        //já tem looks desta paleta: n busca dnv
+        if loadedPalette == paleteSeason, !looks.isEmpty { return }
+        
+        isLoadingLooks = true
+        do {
+            let photos = try await RequestAPI.fetchLooks(palette: paleteSeason, style: nil, limit: 6)
+            looks = photos.map { Look(photo: $0, style: .casual) }
+            loadedPalette = paleteSeason
+        } catch {
+            if Task.isCancelled { return }   // saiu da tela no meio da busca
+        }
+        isLoadingLooks = false
     }
 }
 
