@@ -14,6 +14,7 @@ final class AddClothingViewModel: ObservableObject {
     @Published var isAnalyzing = false
     @Published var analysis: GarmentAnalysis?
     @Published var errorMessage: String?
+    @Published var processedImage: UIImage?
 
 
     func analyzeClothing(
@@ -29,26 +30,27 @@ final class AddClothingViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let result = try GarmentAnalysisService.analyze(
-                image: image,
-                modelName: modelName
-            )
+            let imageWithoutBackground =
+                try GarmentBackgroundRemovalService.removeBackground(from: image)
 
-            analysis = result
-            isAnalyzing = false
+            processedImage = imageWithoutBackground
 
-        } catch {
-            errorMessage = error.localizedDescription
-            isAnalyzing = false
+            let result = try GarmentAnalysisService.analyze(image: imageWithoutBackground,modelName: modelName)
+
+                analysis = result
+                isAnalyzing = false
+
+            } catch {
+                errorMessage = error.localizedDescription
+                isAnalyzing = false
+            }
         }
-    }
 
 
     func makeAnalyzedClothing(
         name: String,
         image: UIImage,
-        category: GarmentCategory
-    ) -> ClothesModel? {
+        category: GarmentCategory) -> ClothesModel? {
 
         guard analysis?.best != nil else {
             return nil
@@ -61,7 +63,7 @@ final class AddClothingViewModel: ObservableObject {
         return ClothesModel(
             id: UUID(),
             name: name,
-            photo: image.jpegData(compressionQuality: 0.8),
+            photo: (processedImage ?? image).jpegData(compressionQuality: 0.8),
             garmentCategory: category,
             garmentPosition: category.position,
             cutTop: cutTop,
