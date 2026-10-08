@@ -10,32 +10,32 @@ import SwiftData
 import _PhotosUI_SwiftUI
 
 struct UserIntroView: View {
-
+    
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-
+    
     @State private var viewModel = UserIntroViewModel()
     @FocusState private var isKeyboardOpen: Bool
-
+    
     // Chamado ao continuar ou pular (nome e foto podem vir vazios)
     var onFinish: (_ name: String?, _ photo: UIImage?) -> Void = { _, _ in }
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 32) {
-
+                
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Como podemos te chamar?")
                         .fontWeight(.bold)
                         .foregroundStyle(Color("textAttention"))
-
+                    
                     Text("Adicione seu nome e, se preferir, uma foto. Eles ficam salvos só no seu iPhone e você pode mudar depois em Configurações.")
                         .foregroundStyle(Color("quartenary"))
                         .lineSpacing(6)
                 }
                 .font(.callout)
                 .padding(.top, 20)
-
+                
                 // Foto (toque para escolher da galeria)
                 PhotosPicker(selection: $viewModel.photoItem, matching: .images) {
                     UserPhoto(image: viewModel.photo, size: 160)
@@ -50,7 +50,7 @@ struct UserIntroView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .accessibilityLabel(viewModel.photo == nil ? "Adicionar foto" : "Trocar foto")
-
+                
                 LushTextField(
                     title: "Seu nome",
                     placeholder: "Digite seu nome",
@@ -75,14 +75,14 @@ struct UserIntroView: View {
                 PrimaryButton(title: "Continuar") {
                     isKeyboardOpen = false
                     viewModel.saveUser(modelContext: modelContext, isSkipped: false, onFinish: onFinish)
-                                    }
-                                    .disabled(!viewModel.hasName)
-                                    .opacity(viewModel.hasName ? 1 : 0.5)
-
+                }
+                .disabled(!viewModel.hasName)
+                .opacity(viewModel.hasName ? 1 : 0.5)
+                
                 Button("Pular por enquanto") {
                     isKeyboardOpen = false
                     viewModel.saveUser(modelContext: modelContext, isSkipped: true, onFinish: onFinish)
-                                    }
+                }
                 .font(.callout.weight(.semibold))
                 .foregroundStyle(Color("button"))
                 .frame(height: 44)
@@ -103,12 +103,12 @@ struct UserIntroView: View {
         .navigationBarBackButtonHidden(true)
         // Carrega a foto escolhida na galeria
         .onChange(of: viewModel.photoItem) {
-                    Task {
-                        await viewModel.loadPhoto()
-                    }
+            Task {
+                await viewModel.loadPhoto()
             }
         }
     }
+}
 
 #Preview {
     NavigationStack {

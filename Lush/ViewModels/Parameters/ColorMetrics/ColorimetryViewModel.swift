@@ -29,28 +29,38 @@ final class ColorimetryViewModel {
     }
     
     func saveAnalysisAndProceed(modelContext: ModelContext) {
-        var colorSamples: [String: UIColor] = [:]
-        if let skinColor = skinColor { colorSamples["skin"] = UIColor(skinColor) }
-        if let hairColor = hairColor { colorSamples["hair"] = UIColor(hairColor) }
-        if let eyeColor = eyeColor { colorSamples["eyes"] = UIColor(eyeColor) }
-        
-        // Medidas padrão (substitua conforme sua tela de medidas reais)
-        let dummyMeasurements = BodyMeasure(shoulder: 0, waist: 0, hip: 0)
-        
-        let newAnalysis = AnalysisService.performNewAnalysis(
-            measurements: dummyMeasurements,
-            colorSamples: colorSamples,
-            user: user
-        )
-        
-        modelContext.insert(newAnalysis)
-        
-        if let user = user {
-            user.analysis.append(newAnalysis)
+            var colorSamples: [String: UIColor] = [:]
+            if let skinColor = skinColor { colorSamples["pele"] = UIColor(skinColor) }
+            if let hairColor = hairColor { colorSamples["cabelo"] = UIColor(hairColor) }
+            if let eyeColor = eyeColor {
+                colorSamples["olhoEsquerdo"] = UIColor(eyeColor)
+                colorSamples["olhoDireito"] = UIColor(eyeColor)
+            }
+            
+            let descriptor = FetchDescriptor<UserModel>()
+            let currentUser = try? modelContext.fetch(descriptor).first ?? {
+                let newUser = UserModel(name: "Usuária Lush")
+                modelContext.insert(newUser)
+                return newUser
+            }()
+            
+            guard let user = currentUser else { return }
+
+            // Exemplo: se você usa o AnalysisService para gerar a análise com base nas cores:
+            let measurements = BodyMeasure(shoulder: 0, waist: 0, hip: 0)
+            let newAnalysis = AnalysisService.performNewAnalysis(
+                measurements: measurements,
+                colorSamples: colorSamples,
+                user: user
+            )
+            
+            modelContext.insert(newAnalysis)
+            
+            do {
+                try modelContext.save()
+                showBiotypeMethod = true // Avança para a próxima tela
+            } catch {
+                print("Erro ao salvar colorimetria: \(error.localizedDescription)")
+            }
         }
-        
-        try? modelContext.save()
-        
-        showBiotypeMethod = true
-    }
 }

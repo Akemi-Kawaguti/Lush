@@ -5,6 +5,7 @@
 //  Created by Tais Akemi Kawaguti on 11/09/26.
 //
 
+
 import SwiftUI
 import SwiftData
 
@@ -12,7 +13,10 @@ import SwiftData
 struct LushApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+                    UserModel.self,
+                    AnalysisModel.self,
+                    SizeSpecifications.self,
+                    ClothesModel.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

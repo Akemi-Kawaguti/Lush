@@ -10,7 +10,6 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct ColorimetryPhotoView: View {
     

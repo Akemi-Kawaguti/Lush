@@ -59,8 +59,7 @@ struct ColorimetryView: View {
             Spacer()
             
             
-            PrimaryButton(title: "Continuar") {
-                viewModel.saveAnalysisAndProceed(modelContext: modelContext)            }
+            PrimaryButton(title: "Continuar") {viewModel.saveAnalysisAndProceed(modelContext: modelContext)}
             .disabled(!viewModel.hasAllColors)
             .opacity(viewModel.hasAllColors ? 1 : 0.5)
             .padding(.horizontal, 32)
