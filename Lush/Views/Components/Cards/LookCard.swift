@@ -13,6 +13,7 @@ struct LookCard: View {
 
     let imageName: String          // nome da imagem no Assets
     var imageURL: URL? = nil
+    var fallbackURL: URL? = nil 
     let credit: String
     let isFavorite: Bool
     var height: CGFloat = 220
@@ -24,7 +25,7 @@ struct LookCard: View {
             .frame(height: height)
             // Foto
             .overlay(alignment: .top) {
-                LookImage(imageName: imageName, url: imageURL)
+                LookImage(imageName: imageName, url: imageURL, fallbackURL: fallbackURL)
             }
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color("borderLines"), lineWidth: 0.5))
             // Botão de favoritar
@@ -47,15 +48,8 @@ struct LookCard: View {
                     .foregroundStyle(.white)
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.black.opacity(0.7))
-                    .overlay(alignment: .bottom) {
-                        Text(credit)
-                            .font(.caption)
-                            .foregroundStyle(.white)
-                            .padding(12)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .glassEffect(.regular.tint(.black.opacity(0.5)), in: Rectangle())
-                    }
+                    .background(.ultraThinMaterial)
+                    .environment(\.colorScheme, .dark)
             }
             .clipShape(RoundedRectangle(cornerRadius: 20))
     }

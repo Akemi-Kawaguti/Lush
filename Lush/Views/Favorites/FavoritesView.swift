@@ -83,7 +83,7 @@ struct FavoritesView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: heights[item.offset % heights.count])
                     .overlay {
-                        LookImage(imageName: look.imageName, url: look.imageURL)
+                        LookImage(imageName: look.imageName, url: look.imageURL, fallbackURL: look.largeImageURL)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .contentShape(RoundedRectangle(cornerRadius: 16))

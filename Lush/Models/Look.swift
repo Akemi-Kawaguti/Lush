@@ -11,17 +11,15 @@ enum LookStyle: String, CaseIterable {
     case casual = "Casual"
     case work = "Trabalho"
     case gym = "Academia"
-    case summer = "Verão"
     case party = "Festa"
-
-    // Termo de busca no Pexels (em inglês, que traz mais resultados)
-    var searchQuery: String {
+    
+    // Chave do estilo na API Lush (/looks?style=...)
+    var apiKey: String {
         switch self {
-        case .casual: "casual women outfit"
-        case .work: "women office outfit"
-        case .gym: "women gym outfit"
-        case .summer: "summer women outfit"
-        case .party: "women party dress"
+        case .casual: "casual"
+        case .work: "work"
+        case .gym: "gym"
+        case .party: "party"
         }
     }
 }
@@ -40,11 +38,24 @@ struct Look: Identifiable {
     var credit: String {
         "Foto de \(photographer) no Pexels"
     }
+
+    // Foto em pé com o dobro de resolução (dpr=2), para a sheet em tela cheia
+    var highResImageURL: URL? {
+        guard let imageURL,
+              var components = URLComponents(url: imageURL, resolvingAgainstBaseURL: false) else {
+            return imageURL
+        }
+        var items = (components.queryItems ?? []).filter { $0.name != "dpr" }
+        items.append(URLQueryItem(name: "dpr", value: "2"))
+        components.queryItems = items
+        return components.url ?? imageURL
+    }
+    
 }
 
 extension Look {
     // Cria um look a partir de uma foto do Pexels
-    init(photo: PexelsPhoto, style: LookStyle) {
+    init(photo: LookPhoto, style: LookStyle) {
         self.init(
             photographer: photo.photographer,
             style: style,
@@ -58,7 +69,6 @@ extension Look {
     // Dados de exemplo
     static let samples: [Look] = [
         Look(imageName: "look1", photographer: "Nome do Fotógrafo", style: .casual),
-        Look(imageName: "look2", photographer: "Nome do Fotógrafo", style: .summer),
         Look(imageName: "look3", photographer: "Nome do Fotógrafo", style: .work),
         Look(imageName: "look4", photographer: "Nome do Fotógrafo", style: .party),
         Look(imageName: "look5", photographer: "Nome do Fotógrafo", style: .casual),

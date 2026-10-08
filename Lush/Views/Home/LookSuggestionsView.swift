@@ -118,6 +118,7 @@ struct LookSuggestionsView: View {
                     LookCard(
                         imageName: look.imageName,
                         imageURL: look.imageURL,
+                        fallbackURL: look.largeImageURL,
                         credit: look.credit,
                         isFavorite: favorites.contains(look),
                         height: 260,
@@ -126,6 +127,11 @@ struct LookSuggestionsView: View {
                     .onTapGesture { selectedLook = look }
                 }
             }
+            
+            // Exigido pelas diretrizes da API do Pexels
+            Link("Fotos fornecidas pelo Pexels", destination: URL(string: "https://www.pexels.com")!)
+                .font(.footnote)
+                .tint(Color("button"))
         }
     }
 
@@ -138,50 +144,17 @@ struct LookSuggestionsView: View {
         isLoading = true
         errorMessage = nil
 
-        let query = selectedStyle?.searchQuery ?? "women fashion outfit"
-        let colors = palette.fashionColors
-        let style = selectedStyle ?? .casual
-        let currentPage = page
+        do {
+           // 1 pedido à API Lush (ela já filtra, remove repetidas e sorteia)
+           let photos = try await RequestAPI.fetchLooks(palette: palette, style: selectedStyle)
 
-        // Uma busca por cor da paleta, todas ao mesmo tempo (3 fotos cada)
-        var photos: [PexelsPhoto] = []
-        await withTaskGroup(of: [PexelsPhoto].self) { group in
-            for color in colors {
-                group.addTask {
-                    // Nome da cor no texto da busca: foca na roupa, não no fundo
-                    let photos = (try? await RequestAPI.searchPhotos(
-                        query: "\(color.name) \(query)",
-                        color: color.hex,
-                        perPage: 8,
-                        page: currentPage
-                    )) ?? []
-
-                    // Prefere fotos cuja descrição cita a cor ("woman in burgundy dress")
-                    let matching = photos.filter { photo in
-                        let description = (photo.alt ?? "").lowercased()
-                        return color.keywords.contains { description.contains($0) }
-                    }
-
-                    // Até 3 fotos por cor; se nenhuma descrição citar a cor, usa as outras
-                    return Array((matching.isEmpty ? photos : matching).prefix(3))
-                }
-            }
-            for await result in group {
-                photos += result
-            }
-        }
-
-        if Task.isCancelled { return }
-
-        // A mesma foto pode aparecer em duas cores: mantém só uma vez
-        var seenIDs: Set<Int> = []
-        let uniquePhotos = photos.filter { seenIDs.insert($0.id).inserted }
-
-        if uniquePhotos.isEmpty {
-            errorMessage = "Verifique sua conexão com a internet e tente novamente."
-        } else {
-            looks = uniquePhotos.shuffled().map { Look(photo: $0, style: style) }
-        }
+           // Converte cada foto em Look, usando o init(photo:style:) do Look.swift
+           looks = photos.map { Look(photo: $0, style: selectedStyle ?? .casual) }
+       } catch {
+           // Saiu da tela ou trocou o filtro no meio do caminho: não mostra erro
+           if Task.isCancelled { return }
+           errorMessage = "Verifique sua conexão com a internet e tente novamente."
+       }
 
         isLoading = false
     }
