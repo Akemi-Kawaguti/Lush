@@ -63,3 +63,8 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 .DS_Store
+
+# Supabase (arquivos locais da CLI)
+lush-supabase/supabase/.temp/
+lush-supabase/supabase/.branches/
+.env
