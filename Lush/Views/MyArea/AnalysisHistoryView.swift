@@ -5,344 +5,250 @@
 //  Created by Mariana Fracaroli Lopes on 08/10/26.
 //
 
+
 import SwiftUI
+import SwiftData
 
 struct AnalysisHistoryView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Query private var users: [UserModel]
 
-    @State private var selectedAnalysisID: UUID?
+    // Chamado ao tocar em "Refazer análise": a Minha área fecha a sheet e abre o fluxo
+    var onNewAnalysis: () -> Void = {}
 
-    private let analyses = [
-        MockAnalysis(
-            title: "Avaliação 1",
-            date: "28/09/2026",
-            palette: "Outono Profundo",
-            bodyShape: "Ampulheta",
-            bodyShapeImage: "ampulheta"
-        ),
-        MockAnalysis(
-            title: "Avaliação 2",
-            date: "12/04/2026",
-            palette: "Primavera Clara",
-            bodyShape: "Triângulo Invertido",
-            bodyShapeImage: "trianguloinvertido"
-        )
-    ]
+    // Análise marcada na tela (só é salva ao tocar no ✓)
+    @State private var selectedID: UUID?
+
+    private var user: UserModel? { users.first }
+
+    private var analyses: [AnalysisModel] {
+        user?.completedAnalyses ?? []
+    }
 
     var body: some View {
-        VStack(spacing: 0) {
-
-            header
-                .padding(.horizontal, 24)
-                .padding(.top, 16)
-                .padding(.bottom, 16)
-
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(analyses) { analysis in
-                        analysisCard(analysis)
+        ScrollView {
+            VStack(spacing: 20) {
+                if analyses.isEmpty {
+                    ContentUnavailableView(
+                        "Nenhuma avaliação ainda",
+                        systemImage: "sparkles",
+                        description: Text("Faça sua primeira avaliação para ver sua paleta e seu biotipo aqui.")
+                    )
+                    .padding(.top, 60)
+                } else {
+                    // Avaliação 1 = a mais recente
+                    ForEach(Array(analyses.enumerated()), id: \.element.id) { index, analysis in
+                        AnalysisHistoryCard(
+                            number: index + 1,
+                            analysis: analysis,
+                            isSelected: analysis.id == selectedID,
+                            onSelect: { selectedID = analysis.id },
+                            onNewAnalysis: {
+                                dismiss()
+                                onNewAnalysis()
+                            }
+                        )
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 32)
             }
-            .scrollIndicators(.hidden)
+            .padding(.horizontal, 24)
+            .padding(.top, 8)
+            .padding(.bottom, 24)
         }
+        .scrollIndicators(.hidden)
         .background {
             Image("backgroundLush")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
         }
-        .toolbar(.hidden, for: .navigationBar)
-        .onAppear {
-            if selectedAnalysisID == nil {
-                selectedAnalysisID = analyses.first?.id
-            }
-        }
-    }
-
-    private var header: some View {
-        HStack(spacing: 0) {
-
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(Color("titles"))
-                    .frame(width: 48, height: 48)
-                    .background(.white.opacity(0.85))
-                    .clipShape(Circle())
-                    .overlay {
-                        Circle()
-                            .stroke(
-                                Color("borderLines"),
-                                lineWidth: 0.5
-                            )
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            SheetToolbar(
+                title: "Minhas Avaliações",
+                isConfirmEnabled: selectedID != nil,
+                onClose: { dismiss() },
+                onConfirm: {
+                    if let user,
+                       let chosen = analyses.first(where: { $0.id == selectedID }) {
+                        AnalysisService.select(chosen, for: user, in: modelContext)
                     }
-            }
-            .buttonStyle(.plain)
-
-            Spacer()
-
-            Text("Minhas Avaliações")
-                .font(.AppTypography.title3)
-                .foregroundStyle(Color("titles"))
-
-            Spacer()
-
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 21, weight: .medium))
-                    .foregroundStyle(.white)
-                    .frame(width: 48, height: 48)
-                    .background(Color("button"))
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    // MARK: - Analysis Card
-
-    private func analysisCard(
-        _ analysis: MockAnalysis
-    ) -> some View {
-
-        let isSelected = selectedAnalysisID == analysis.id
-
-        return VStack(spacing: 12) {
-
-            // Título + data
-            HStack(spacing: 8) {
-
-                Button {
-                    selectedAnalysisID = analysis.id
-                } label: {
-                    Image(
-                        systemName: isSelected
-                        ? "checkmark.circle.fill"
-                        : "circle"
-                    )
-                    .font(.system(size: 22))
-                    .foregroundStyle(.black)
+                    dismiss()
                 }
-                .buttonStyle(.plain)
-
-                Text(analysis.title)
-                    .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(Color("titles"))
-
-                Spacer()
-
-                Text(analysis.date)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(Color("titles"))
-            }
-
-            // Resultados
-            HStack(spacing: 9) {
-
-                paletteResultCard(
-                    palette: analysis.palette
-                )
-
-                bodyShapeResultCard(
-                    bodyShape: analysis.bodyShape,
-                    imageName: analysis.bodyShapeImage
-                )
-            }
-
-            // Refazer
-            PrimaryButton(title: "Refazer análise") {
-                // Por enquanto é apenas visual.
-                // O fluxo será conectado quando a persistência
-                // estiver implementada.
-            }
+            )
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 12)
-        .padding(.bottom, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(.white.opacity(0.48))
-        )
-        .overlay {
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(
-                    Color("borderLines"),
-                    lineWidth: 0.5
-                )
+        // Começa com a análise que o app já usa
+        .onAppear {
+            if selectedID == nil {
+                selectedID = user?.currentAnalysis?.id
+            }
         }
     }
+}
 
-    // MARK: - Palette Card
+// MARK: - Card de uma avaliação
 
-    private func paletteResultCard(
-        palette: String
-    ) -> some View {
+private struct AnalysisHistoryCard: View {
 
-        VStack(alignment: .leading, spacing: 8) {
+    let number: Int
+    let analysis: AnalysisModel
+    let isSelected: Bool
+    let onSelect: () -> Void
+    let onNewAnalysis: () -> Void
 
-            Text("Sua paleta:")
-                .font(.system(size: 15))
-                .foregroundStyle(
-                    Color("textAttention").opacity(0.7)
+    private var palette: PaleteSeason {
+        PaleteSeason.allCases.first { $0.rawValue == analysis.userPalette.first } ?? .autumnDeep
+    }
+
+    private var bodyShape: BodyShape {
+        BodyShape(rawValue: analysis.userSilhouette) ?? .hourglass
+    }
+
+    var body: some View {
+        VStack(spacing: 16) {
+
+            // Seleção, número e data
+            Button(action: onSelect) {
+                HStack(spacing: 10) {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .font(.title3)
+                        .foregroundStyle(Color("titles"))
+
+                    Text("Avaliação \(number)")
+                        .font(.body)
+
+                    Spacer()
+
+                    Text(analysis.date.formatted(.dateTime.day(.twoDigits).month(.twoDigits).year()))
+                        .font(.callout)
+                        .padding(.horizontal, 10)
+        
+                }
+                .foregroundStyle(Color("titles"))
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Avaliação \(number), \(palette.rawValue), \(bodyShape.rawValue)")
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
+
+            // Paleta e biotipo (mesma altura)
+            HStack(spacing: 12) {
+                paletteCard
+                bodyShapeCard
+            }
+            .fixedSize(horizontal: false, vertical: true)
+
+            PrimaryButton(title: "Refazer análise", action: onNewAnalysis)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 32)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color("button").opacity(isSelected ? 0.30 : 0.16),
+                            Color("tertiary").opacity(isSelected ? 0.40 : 0.22)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                 )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 32)
+                .stroke(isSelected ? Color("button").opacity(0.5) : Color("borderLines"), lineWidth: isSelected ? 1.5 : 0.5)
+        )
+        .shadow(color: .black.opacity(0.08), radius: 10, y: 4)
+        .contentShape(RoundedRectangle(cornerRadius: 32))
+        .onTapGesture(perform: onSelect)   // tocar em qualquer parte do card também seleciona
+        .animation(.easeInOut(duration: 0.2), value: isSelected)
+    }
 
-            Text(palette)
+    // Card da paleta
+    private var paletteCard: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Sua paleta:")
+                .font(.footnote)
+                .foregroundStyle(Color("quartenary"))
+
+            Text(palette.rawValue)
                 .font(.AppTypography.title3)
                 .foregroundStyle(Color("titles"))
-                .fixedSize(
-                    horizontal: false,
-                    vertical: true
-                )
+                .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 8)
 
-            paletteWheel(for: palette)
+            PaletteRing(colors: palette.colorPaletes.map { Color($0) })
                 .frame(maxWidth: .infinity)
+
+            Spacer(minLength: 8)
         }
         .padding(14)
-        .frame(maxWidth: .infinity)
-        .frame(height: 250)
-        .background(.white)
-        .clipShape(
-            RoundedRectangle(cornerRadius: 20)
-        )
-        .overlay {
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(
-                    Color("borderLines"),
-                    lineWidth: 0.5
-                )
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 24).fill(.white))
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
     }
 
-    // MARK: - Body Shape Card
-
-    private func bodyShapeResultCard(
-        bodyShape: String,
-        imageName: String
-    ) -> some View {
-
-        VStack(alignment: .leading, spacing: 8) {
-
+    // Card do biotipo
+    private var bodyShapeCard: some View {
+        VStack(alignment: .leading, spacing: 4) {
             Text("Seu biotipo:")
-                .font(.system(size: 15))
-                .foregroundStyle(
-                    Color("textAttention").opacity(0.7)
-                )
+                .font(.footnote)
+                .foregroundStyle(Color("quartenary"))
 
-            Text(bodyShape)
+            Text(bodyShape.rawValue)
                 .font(.AppTypography.title3)
                 .foregroundStyle(Color("titles"))
-                .fixedSize(
-                    horizontal: false,
-                    vertical: true
-                )
+                .fixedSize(horizontal: false, vertical: true)
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 8)
 
-            Image(imageName)
+            Image(bodyShape.resultImageName)
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: .infinity)
-                .frame(height: 168)
+                .frame(height: 128)
+                .accessibilityHidden(true)
+
+            Spacer(minLength: 8)
         }
         .padding(14)
-        .frame(maxWidth: .infinity)
-        .frame(height: 250)
-        .background(.white)
-        .clipShape(
-            RoundedRectangle(cornerRadius: 20)
-        )
-        .overlay {
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(
-                    Color("borderLines"),
-                    lineWidth: 0.5
-                )
-        }
-    }
-
-    // MARK: - Color Wheel
-
-    private func paletteWheel(
-        for paletteName: String
-    ) -> some View {
-
-        let paletteColors: [Color] = {
-
-            guard let season = PaleteSeason.allCases.first(
-                where: { $0.rawValue == paletteName }
-            ) else {
-                return PaleteSeason.autumnDeep.colorPaletes.map {
-                    Color($0)
-                }
-            }
-
-            return season.colorPaletes.map {
-                Color($0)
-            }
-        }()
-
-        return ZStack {
-
-            ForEach(
-                paletteColors.indices,
-                id: \.self
-            ) { index in
-
-                Circle()
-                    .trim(
-                        from: CGFloat(index) /
-                            CGFloat(paletteColors.count),
-
-                        to: CGFloat(index + 1) /
-                            CGFloat(paletteColors.count)
-                    )
-                    .stroke(
-                        paletteColors[index],
-                        lineWidth: 28
-                    )
-            }
-
-            Circle()
-                .fill(.white)
-                .frame(
-                    width: 72,
-                    height: 72
-                )
-        }
-        .rotationEffect(.degrees(-90))
-        .frame(
-            width: 105,
-            height: 105
-        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 24).fill(.white))
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
     }
 }
 
-// MARK: - Mock Data
+// MARK: - Anel com as cores da paleta
 
-private struct MockAnalysis: Identifiable {
+private struct PaletteRing: View {
+    let colors: [Color]
+    var size: CGFloat = 92
+    var lineWidth: CGFloat = 20
 
-    let id = UUID()
-
-    let title: String
-    let date: String
-    let palette: String
-    let bodyShape: String
-    let bodyShapeImage: String
+    var body: some View {
+        ZStack {
+            ForEach(colors.indices, id: \.self) { index in
+                Circle()
+                    .trim(
+                        from: CGFloat(index) / CGFloat(colors.count),
+                        to: CGFloat(index + 1) / CGFloat(colors.count)
+                    )
+                    .stroke(colors[index], lineWidth: lineWidth)
+            }
+        }
+        .rotationEffect(.degrees(-90))
+        .frame(width: size, height: size)
+        .padding(lineWidth / 2)
+        .accessibilityHidden(true)
+    }
 }
 
 #Preview {
-    AnalysisHistoryView()
-        .presentationDetents([.fraction(0.88)])
-        .presentationDragIndicator(.hidden)
-        .presentationCornerRadius(32)
+    NavigationStack {
+        AnalysisHistoryView()
+    }
+    .modelContainer(for: [UserModel.self, AnalysisModel.self], inMemory: true)
 }

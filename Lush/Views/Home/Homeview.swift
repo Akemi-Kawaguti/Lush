@@ -171,12 +171,7 @@ struct HomeView: View {
                 .padding(.vertical, 24)
             }
             .scrollIndicators(.hidden)
-            .background {
-                Image("backgroundLush")
-                    .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea()
-            }
+            .lushBackground()
             .navigationDestination(isPresented: $showLookSuggestions) {
                 LookSuggestionsView(palette: paleteSeason)
             }

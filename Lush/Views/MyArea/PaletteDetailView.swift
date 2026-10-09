@@ -81,11 +81,13 @@ struct PaletteDetailView: View {
                         .frame(width: 120)
                         .padding(.vertical, 4)
 
-                    HStack(spacing: 10) {
+                    // As bolinhas encolhem se não couberem (até 40 de diâmetro)
+                    HStack(spacing: 8) {
                         ForEach(paletteColors, id: \.self) { color in
                             Circle()
                                 .fill(color)
-                                .frame(width: 40, height: 40)
+                                .frame(maxWidth: 40)
+                                .aspectRatio(1, contentMode: .fit)
                         }
                     }
                     .padding(.bottom, 4)
