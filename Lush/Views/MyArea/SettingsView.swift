@@ -9,6 +9,7 @@
 import SwiftUI
 import SwiftData
 import PhotosUI
+import UIKit
 
 struct SettingsView: View {
 
@@ -22,7 +23,13 @@ struct SettingsView: View {
     @State private var isEditing = false
     @State private var photoItem: PhotosPickerItem?
     @State private var pickedPhoto: UIImage?
+    @State private var shouldRemovePhoto = false
     @FocusState private var isNameFocused: Bool
+    
+    @State private var showPhotoOptions = false
+    @State private var showGalleryPicker = false
+    @State private var showCamera = false
+    
 
     // Foto salva no UserModel
     var savedPhoto: UIImage? {
@@ -116,23 +123,72 @@ struct SettingsView: View {
             Task {
                 if let data = try? await photoItem?.loadTransferable(type: Data.self) {
                     pickedPhoto = UIImage(data: data)
+                    shouldRemovePhoto = false
                 }
             }
         }
+        .confirmationDialog(
+            "Foto do perfil",
+            isPresented: $showPhotoOptions,
+            titleVisibility: .visible
+        ) {
+            Button("Tirar foto") {
+                if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                    showCamera = true
+                }
+            }
+
+            Button("Escolher da galeria") {
+                showGalleryPicker = true
+            }
+
+            if pickedPhoto != nil || savedPhoto != nil {
+                Button("Remover foto", role: .destructive) {
+                    pickedPhoto = nil
+                    photoItem = nil
+                    shouldRemovePhoto = true
+                }
+
+            }
+
+            Button("Cancelar", role: .cancel) {}
+        }
+        .photosPicker(
+            isPresented: $showGalleryPicker,
+            selection: $photoItem,
+            matching: .images
+        )
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraPicker(image: $pickedPhoto)
+        }
+        .onChange(of: pickedPhoto) {
+            if pickedPhoto != nil {
+                shouldRemovePhoto = false
+            }
+        }
+
     }
 
     // Salva nome e foto no UserModel
     func saveChanges() {
         let user = UserModel.current(in: modelContext)
         user.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let pickedPhoto, let data = compressedPhotoData(pickedPhoto) {
+
+        if shouldRemovePhoto {
+            user.photoData = nil
+        } else if let pickedPhoto,
+                  let data = compressedPhotoData(pickedPhoto) {
             user.photoData = data
         }
 
         try? modelContext.save()
+
         pickedPhoto = nil
         photoItem = nil
+        shouldRemovePhoto = false
     }
+
+
 
     // Diminui a foto antes de salvar (foto da câmera tem vários MB)
     func compressedPhotoData(_ image: UIImage) -> Data? {
@@ -148,12 +204,18 @@ struct SettingsView: View {
     }
 
     // Foto: no modo edição ganha o selo de câmera e abre a galeria
+    
     var photo: some View {
-        PhotosPicker(selection: $photoItem, matching: .images) {
+        Button {
+            guard isEditing else { return }
+            showPhotoOptions = true
+        } label: {
             UserPhoto(
-                image: pickedPhoto ?? savedPhoto,
+                image: shouldRemovePhoto ? nil : (pickedPhoto ?? savedPhoto),
                 size: 160,
-                borderColor: isEditing ? Color("button") : Color("tertiary").opacity(0.75)
+                borderColor: isEditing
+                    ? Color("button")
+                    : Color("tertiary").opacity(0.75)
             )
             .overlay(alignment: .bottomTrailing) {
                 if isEditing {
@@ -163,13 +225,14 @@ struct SettingsView: View {
                         .frame(width: 44, height: 44)
                         .background(Circle().fill(Color("button")))
                         .overlay(Circle().stroke(.white, lineWidth: 3))
-                        .transition(.scale)
                 }
             }
         }
+        .buttonStyle(.plain)
         .disabled(!isEditing)
-        .accessibilityLabel(isEditing ? "Trocar foto" : "Sua foto")
+        .accessibilityLabel(isEditing ? "Editar foto do perfil" : "Foto do perfil")
     }
+
 
     // Nome: no modo edição vira campo com lápis e borda rosa
     var nameField: some View {
