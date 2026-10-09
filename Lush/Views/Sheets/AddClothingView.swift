@@ -153,27 +153,28 @@ struct AddClothingView: View {
                     }
                 )
             } else {
-                // Cadastro
                 Toolbar(
                     action: .confirm,
                     isActionEnabled: isFormComplete,
                     onBackClick: { dismiss() },
                     onActionClick: {
+                        analyzedClothing = nil
+                        viewModel.analysis = nil
+                        viewModel.processedImage = nil
                         guard let image,
                               let category else {
                             return
                         }
-
                         viewModel.analyzeClothing(
                             image: image,
                             category: category
                         )
                     }
                 )
+            
             }
         }
         .navigationBarBackButtonHidden(true)
-        // Trocou o tipo → limpa a categoria se ela não pertence ao novo tipo
         .onChange(of: position) {
             if category?.position != position {
                 category = nil

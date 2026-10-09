@@ -4,8 +4,11 @@
 //
 //  Created by Mariana Fracaroli Lopes on 08/10/26.
 //
+
 import UIKit
 import Vision
+import CoreImage
+import ImageIO
 
 enum GarmentBackgroundRemovalError: LocalizedError {
     case invalidImage
@@ -38,29 +41,45 @@ struct GarmentBackgroundRemovalService {
 
         try handler.perform([request])
 
-        guard let observation = request.results?.first else {
+        guard let observation = request.results?.first,
+              !observation.allInstances.isEmpty else {
             throw GarmentBackgroundRemovalError.noForegroundFound
         }
 
         let instances = observation.allInstances
-
-        guard !instances.isEmpty else {
-            throw GarmentBackgroundRemovalError.noForegroundFound
-        }
-
-        let maskedPixelBuffer = try observation.generateMaskedImage(
-            ofInstances: instances,
-            from: handler,
-            croppedToInstancesExtent: false
+        
+        let maskPixelBuffer = try observation.generateScaledMaskForImage(
+            forInstances: instances,
+            from: handler
         )
 
-        let ciImage = CIImage(cvPixelBuffer: maskedPixelBuffer)
+        let originalCIImage = CIImage(cgImage: cgImage)
+        let maskCIImage = CIImage(cvPixelBuffer: maskPixelBuffer)
+
+        let scaledMask = maskCIImage.transformed(
+            by: CGAffineTransform(
+                scaleX: originalCIImage.extent.width / maskCIImage.extent.width,
+                y: originalCIImage.extent.height / maskCIImage.extent.height
+            )
+        )
+
+        let transparentBackground = CIImage(
+            color: CIColor.clear
+        ).cropped(to: originalCIImage.extent)
+
+        let outputImage = originalCIImage.applyingFilter(
+            "CIBlendWithMask",
+            parameters: [
+                kCIInputBackgroundImageKey: transparentBackground,
+                kCIInputMaskImageKey: scaledMask
+            ]
+        )
 
         let context = CIContext()
 
         guard let outputCGImage = context.createCGImage(
-            ciImage,
-            from: ciImage.extent
+            outputImage,
+            from: originalCIImage.extent
         ) else {
             throw GarmentBackgroundRemovalError.invalidImage
         }
@@ -70,5 +89,7 @@ struct GarmentBackgroundRemovalService {
             scale: image.scale,
             orientation: image.imageOrientation
         )
+
     }
 }
+

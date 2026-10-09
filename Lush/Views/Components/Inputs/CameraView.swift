@@ -77,7 +77,13 @@ extension CameraViewController: UIImagePickerControllerDelegate,
     ) {
         
         if let image = info[.originalImage] as? UIImage {
-            onImageCaptured?(image)
+            let renderer = UIGraphicsImageRenderer(size: image.size)
+
+            let normalizedImage = renderer.image { _ in
+                image.draw(in: CGRect(origin: .zero, size: image.size))
+            }
+
+            onImageCaptured?(normalizedImage)
         }
         
         picker.dismiss(
