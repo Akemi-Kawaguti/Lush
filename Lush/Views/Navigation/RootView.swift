@@ -35,7 +35,7 @@ struct RootView: View {
 
             if isShowingSplash {
                 SplashView {
-                    withAnimation(.easeOut(duration: 0.4)) {
+                    withAnimation(.easeOut(duration: 0.2)) {
                         isShowingSplash = false
                     }
                 }
