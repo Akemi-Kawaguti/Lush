@@ -82,6 +82,13 @@ struct AnalysisService {
         try? context.save()
     }
 
+    /// Renomeia uma análise. Nome vazio volta para o padrão ("Avaliação N").
+    static func rename(_ analysis: AnalysisModel, to name: String, in context: ModelContext) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        analysis.customName = trimmed.isEmpty ? nil : String(trimmed.prefix(30))
+        try? context.save()
+    }
+
     /// Apaga uma análise. Se era a escolhida, o app passa a usar a mais recente.
     static func delete(_ analysis: AnalysisModel, from user: UserModel, in context: ModelContext) {
         if user.selectedAnalysisID == analysis.id {

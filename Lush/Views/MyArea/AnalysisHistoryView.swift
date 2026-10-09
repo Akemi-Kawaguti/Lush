@@ -6,6 +6,15 @@
 //
 
 
+//  "Minhas avaliações": lista as avaliações da usuária.
+//  - A avaliação "Em uso" define a paleta e o biotipo usados no app inteiro
+//  - "Usar esta avaliação" troca na hora (sem botão de confirmar)
+//  - Menu "..." de cada card: Renomear e Excluir
+//  - Numeração pela ordem de criação: a primeira feita é a "Avaliação 1"
+//  - "+" na barra abre uma nova avaliação
+//  Tela empurrada a partir da Minha área (não é sheet).
+//
+
 import SwiftUI
 import SwiftData
 
@@ -15,21 +24,52 @@ struct AnalysisHistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var users: [UserModel]
 
-    // Chamado ao tocar em "Refazer análise": a Minha área fecha a sheet e abre o fluxo
+    // Chamado ao tocar em "+": a Minha área abre o fluxo de avaliação por cima desta tela
     var onNewAnalysis: () -> Void = {}
 
-    // Análise marcada na tela (só é salva ao tocar no ✓)
-    @State private var selectedID: UUID?
+    // Alertas de renomear e excluir
+    @State private var analysisToRename: AnalysisModel?
+    @State private var newName = ""
+    @State private var analysisToDelete: AnalysisModel?
 
     private var user: UserModel? { users.first }
 
+    // Lista: da mais recente para a mais antiga
     private var analyses: [AnalysisModel] {
         user?.completedAnalyses ?? []
     }
 
+    // Avaliação usada no app agora
+    private var activeID: UUID? {
+        user?.currentAnalysis?.id
+    }
+
+    // Número de cada avaliação pela ordem de criação (a mais antiga é a 1)
+    private var numbers: [UUID: Int] {
+        let oldestFirst = analyses.sorted { $0.date < $1.date }
+        var result: [UUID: Int] = [:]
+        for (index, analysis) in oldestFirst.enumerated() {
+            result[analysis.id] = index + 1
+        }
+        return result
+    }
+
+    private func displayName(of analysis: AnalysisModel) -> String {
+        if let name = analysis.customName, !name.isEmpty {
+            return name
+        }
+        return "Avaliação \(numbers[analysis.id] ?? 1)"
+    }
+
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(alignment: .leading, spacing: 20) {
+
+                ScreenHeader(
+                    title: "Minhas avaliações",
+                    subtitle: "Escolha qual avaliação o Lush usa para você"
+                )
+
                 if analyses.isEmpty {
                     ContentUnavailableView(
                         "Nenhuma avaliação ainda",
@@ -38,17 +78,20 @@ struct AnalysisHistoryView: View {
                     )
                     .padding(.top, 60)
                 } else {
-                    // Avaliação 1 = a mais recente
-                    ForEach(Array(analyses.enumerated()), id: \.element.id) { index, analysis in
+                    explanation
+
+                    ForEach(analyses) { analysis in
                         AnalysisHistoryCard(
-                            number: index + 1,
+                            name: displayName(of: analysis),
                             analysis: analysis,
-                            isSelected: analysis.id == selectedID,
-                            onSelect: { selectedID = analysis.id },
-                            onNewAnalysis: {
-                                dismiss()
-                                onNewAnalysis()
-                            }
+                            isActive: analysis.id == activeID,
+                            canDelete: analyses.count > 1,
+                            onUse: { use(analysis) },
+                            onRename: {
+                                newName = analysis.customName ?? ""
+                                analysisToRename = analysis
+                            },
+                            onDelete: { analysisToDelete = analysis }
                         )
                     }
                 }
@@ -56,35 +99,96 @@ struct AnalysisHistoryView: View {
             .padding(.horizontal, 24)
             .padding(.top, 8)
             .padding(.bottom, 24)
+            .animation(.easeInOut(duration: 0.25), value: activeID)
         }
         .scrollIndicators(.hidden)
-        .background {
-            Image("backgroundLush")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-        }
+        .lushBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            SheetToolbar(
-                title: "Minhas Avaliações",
-                isConfirmEnabled: selectedID != nil,
-                onClose: { dismiss() },
-                onConfirm: {
-                    if let user,
-                       let chosen = analyses.first(where: { $0.id == selectedID }) {
-                        AnalysisService.select(chosen, for: user, in: modelContext)
-                    }
-                    dismiss()
-                }
+            // Voltar e "+" (nova avaliação), como nas outras telas
+            Toolbar(
+                action: .add,
+                onBackClick: { dismiss() },
+                onActionClick: onNewAnalysis
             )
         }
-        // Começa com a análise que o app já usa
-        .onAppear {
-            if selectedID == nil {
-                selectedID = user?.currentAnalysis?.id
+        .navigationBarBackButtonHidden(true)
+        // Vibração leve ao trocar a avaliação em uso
+        .sensoryFeedback(.selection, trigger: activeID)
+
+        // Renomear
+        .alert("Renomear avaliação", isPresented: isRenaming) {
+            TextField("Nome da avaliação", text: $newName)
+            Button("Cancelar", role: .cancel) {}
+            Button("Salvar") {
+                if let analysis = analysisToRename {
+                    AnalysisService.rename(analysis, to: newName, in: modelContext)
+                }
+            }
+        } message: {
+            Text("Deixe em branco para voltar ao nome padrão.")
+        }
+
+        // Excluir (com confirmação)
+        .alert(
+            "Excluir \(analysisToDelete.map { displayName(of: $0) } ?? "avaliação")?",
+            isPresented: isDeleting
+        ) {
+            Button("Cancelar", role: .cancel) {}
+            Button("Excluir", role: .destructive) {
+                if let user, let analysis = analysisToDelete {
+                    AnalysisService.delete(analysis, from: user, in: modelContext)
+                }
+            }
+        } message: {
+            if analysisToDelete?.id == activeID {
+                Text("Esta é a avaliação em uso. O app passará a usar a avaliação mais recente. Essa ação não pode ser desfeita.")
+            } else {
+                Text("Essa ação não pode ser desfeita.")
             }
         }
+    }
+
+    // MARK: - Explicação no topo
+
+    private var explanation: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "sparkles")
+                .font(.title3)
+                .foregroundStyle(Color("button"))
+                .accessibilityHidden(true)
+
+            Text("A avaliação **em uso** define a paleta, o biotipo, as sugestões de looks e a compatibilidade das suas roupas em todo o app.")
+                .font(.subheadline)
+                .foregroundStyle(Color("textAttention"))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 20).fill(.white.opacity(0.7)))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color("borderLines"), lineWidth: 0.5))
+    }
+
+    // MARK: - Ações
+
+    private func use(_ analysis: AnalysisModel) {
+        guard let user else { return }
+        AnalysisService.select(analysis, for: user, in: modelContext)
+    }
+
+    // Bindings dos alertas
+    private var isRenaming: Binding<Bool> {
+        Binding(
+            get: { analysisToRename != nil },
+            set: { if !$0 { analysisToRename = nil } }
+        )
+    }
+
+    private var isDeleting: Binding<Bool> {
+        Binding(
+            get: { analysisToDelete != nil },
+            set: { if !$0 { analysisToDelete = nil } }
+        )
     }
 }
 
@@ -92,11 +196,13 @@ struct AnalysisHistoryView: View {
 
 private struct AnalysisHistoryCard: View {
 
-    let number: Int
+    let name: String
     let analysis: AnalysisModel
-    let isSelected: Bool
-    let onSelect: () -> Void
-    let onNewAnalysis: () -> Void
+    let isActive: Bool
+    let canDelete: Bool
+    let onUse: () -> Void
+    let onRename: () -> Void
+    let onDelete: () -> Void
 
     private var palette: PaleteSeason {
         PaleteSeason.allCases.first { $0.rawValue == analysis.userPalette.first } ?? .autumnDeep
@@ -106,32 +212,51 @@ private struct AnalysisHistoryCard: View {
         BodyShape(rawValue: analysis.userSilhouette) ?? .hourglass
     }
 
-    var body: some View {
-        VStack(spacing: 16) {
+    private var dateText: String {
+        analysis.date.formatted(.dateTime.day(.twoDigits).month(.twoDigits).year())
+    }
 
-            // Seleção, número e data
-            Button(action: onSelect) {
-                HStack(spacing: 10) {
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+
+            // Nome, selo "Em uso", data e menu
+            HStack(alignment: .top, spacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text(name)
+                            .font(.AppTypography.title3)
+                            .foregroundStyle(Color("titles"))
+                            .lineLimit(1)
+
+                        if isActive {
+                            activeBadge
+                        }
+                    }
+
+                    Text("Feita em \(dateText)")
+                        .font(.footnote)
+                        .foregroundStyle(Color("quartenary"))
+                }
+
+                Spacer(minLength: 0)
+
+                Menu {
+                    Button(action: onRename) {
+                        Label("Renomear", systemImage: "pencil")
+                    }
+                    Button(role: .destructive, action: onDelete) {
+                        Label("Excluir", systemImage: "trash")
+                    }
+                    .disabled(!canDelete)
+                } label: {
+                    Image(systemName: "ellipsis")
                         .font(.title3)
                         .foregroundStyle(Color("titles"))
-
-                    Text("Avaliação \(number)")
-                        .font(.body)
-
-                    Spacer()
-
-                    Text(analysis.date.formatted(.dateTime.day(.twoDigits).month(.twoDigits).year()))
-                        .font(.callout)
-                        .padding(.horizontal, 10)
-        
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
-                .foregroundStyle(Color("titles"))
-                .contentShape(Rectangle())
+                .accessibilityLabel("Opções de \(name)")
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Avaliação \(number), \(palette.rawValue), \(bodyShape.rawValue)")
-            .accessibilityAddTraits(isSelected ? .isSelected : [])
 
             // Paleta e biotipo (mesma altura)
             HStack(spacing: 12) {
@@ -140,7 +265,26 @@ private struct AnalysisHistoryCard: View {
             }
             .fixedSize(horizontal: false, vertical: true)
 
-            PrimaryButton(title: "Refazer análise", action: onNewAnalysis)
+            // Rodapé: em uso ou botão para usar
+            if isActive {
+                Text("Sua paleta e seu biotipo no app vêm desta avaliação.")
+                    .font(.footnote)
+                    .foregroundStyle(Color("textAttention").opacity(0.7))
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+            } else {
+                Button(action: onUse) {
+                    Text("Usar esta avaliação")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Color("button"))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Capsule().fill(.white))
+                        .overlay(Capsule().stroke(Color("button"), lineWidth: 1.5))
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("A paleta e o biotipo do app passam a ser os desta avaliação")
+            }
         }
         .padding(16)
         .background(
@@ -148,8 +292,8 @@ private struct AnalysisHistoryCard: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color("button").opacity(isSelected ? 0.30 : 0.16),
-                            Color("tertiary").opacity(isSelected ? 0.40 : 0.22)
+                            Color("button").opacity(isActive ? 0.30 : 0.10),
+                            Color("tertiary").opacity(isActive ? 0.40 : 0.15)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -158,18 +302,31 @@ private struct AnalysisHistoryCard: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 32)
-                .stroke(isSelected ? Color("button").opacity(0.5) : Color("borderLines"), lineWidth: isSelected ? 1.5 : 0.5)
+                .stroke(isActive ? Color("button") : Color("borderLines"), lineWidth: isActive ? 2 : 0.5)
         )
         .shadow(color: .black.opacity(0.08), radius: 10, y: 4)
-        .contentShape(RoundedRectangle(cornerRadius: 32))
-        .onTapGesture(perform: onSelect)   // tocar em qualquer parte do card também seleciona
-        .animation(.easeInOut(duration: 0.2), value: isSelected)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("\(name), \(isActive ? "em uso, " : "")\(palette.rawValue), \(bodyShape.rawValue)")
+    }
+
+    // Selo "Em uso"
+    private var activeBadge: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "checkmark")
+                .font(.caption2.weight(.bold))
+            Text("Em uso")
+                .font(.caption.weight(.semibold))
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(Color("button")))
     }
 
     // Card da paleta
     private var paletteCard: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Sua paleta:")
+            Text("Paleta:")
                 .font(.footnote)
                 .foregroundStyle(Color("quartenary"))
 
@@ -194,7 +351,7 @@ private struct AnalysisHistoryCard: View {
     // Card do biotipo
     private var bodyShapeCard: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Seu biotipo:")
+            Text("Biotipo:")
                 .font(.footnote)
                 .foregroundStyle(Color("quartenary"))
 
