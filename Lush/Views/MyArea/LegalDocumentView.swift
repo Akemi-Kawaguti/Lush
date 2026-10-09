@@ -10,6 +10,8 @@ import SwiftUI
 struct LegalDocumentView: View {
 
     @Environment(\.dismiss) private var dismiss
+    
+    @State private var pendingURL: URL?
 
     let title: String
     let lastUpdated: String
@@ -22,7 +24,7 @@ struct LegalDocumentView: View {
                     .font(.footnote)
                     .foregroundStyle(Color("quartenary"))
 
-                LegalText(content: content)
+                LegalText(content: content,pendingURL: $pendingURL)
             }
             .padding(.horizontal, 24)
             .padding(.top, 10)
@@ -39,6 +41,10 @@ struct LegalDocumentView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
+        .confirmExternalLinks(
+            pendingURL: $pendingURL,
+            destinationName: "seu aplicativo de e-mail"
+        )
     }
 }
 

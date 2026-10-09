@@ -108,22 +108,11 @@ struct TermsView: View {
         .navigationDestination(isPresented: $showColorimetryPhoto) {
             ColorimetryPhotoView()
         }
-        .alert(
-            "Abrir app de e-mail?",
-            isPresented: Binding(
-                get: { pendingURL != nil },
-                set: { if !$0 { pendingURL = nil } }
-            )
-        ) {
-            Button("Cancelar", role: .cancel) {}
-            Button("Abrir") {
-                if let pendingURL {
-                    openURL(pendingURL)
-                }
-            }
-        } message: {
-            Text("Você vai sair do Lush para enviar um e-mail para \(PrivacyPolicy.contactEmail).")
-        }
+        
+        .confirmExternalLinks(
+            pendingURL: $pendingURL,
+            destinationName: "seu aplicativo de e-mail"
+        )
         .toolbar {
             Toolbar(title: "Termo de Uso", action: nil, onBackClick: { dismiss() })
         }

@@ -12,6 +12,8 @@ import SwiftUI
 struct LookDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
+    
+    @State private var pendingURL: URL?
 
     let look: Look
     let isFavorite: Bool
@@ -54,6 +56,10 @@ struct LookDetailView: View {
             LookImage(imageName: look.imageName, url: look.highResImageURL, fallbackURL: look.largeImageURL)
         }
         .presentationDragIndicator(.visible)
+        .confirmExternalLinks(
+            pendingURL: $pendingURL,
+            destinationName: "o site do Pexels"
+        )
     }
 
     var infoCard: some View {
@@ -86,7 +92,9 @@ struct LookDetailView: View {
                     Text("Foto fornecida pelo Pexels")
                         .font(.caption)
                     if let url = look.pexelsURL {
-                        Link(destination: url) {
+                        Button {
+                            pendingURL = url
+                        } label: {
                             Text("Ver no Pexels")
                                 .font(.caption)
                                 .underline()
