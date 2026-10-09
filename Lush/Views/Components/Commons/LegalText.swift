@@ -10,6 +10,8 @@ import SwiftUI
 struct LegalText: View {
 
     let content: String
+    
+    @Binding var pendingURL: URL?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -25,6 +27,10 @@ struct LegalText: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .tint(Color("button"))   // cor do link
+        .environment(\.openURL, OpenURLAction { url in
+            pendingURL = url
+            return .handled
+        })
     }
 
     // Transforma o e-mail de contato em link: toque abre o app de e-mail
@@ -40,7 +46,10 @@ struct LegalText: View {
 
 #Preview {
     ScrollView {
-        LegalText(content: PrivacyPolicy.content)
-            .padding(24)
+        LegalText(
+            content: PrivacyPolicy.content,
+            pendingURL: .constant(nil)
+        )
+        .padding(24)
     }
 }
