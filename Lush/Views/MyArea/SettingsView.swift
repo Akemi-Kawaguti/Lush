@@ -7,19 +7,28 @@
 //
 
 import SwiftUI
+import SwiftData
 import PhotosUI
 
 struct SettingsView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
-    @State private var name = "Priscila"
+    @Query private var users: [UserModel]
+    var currentUser: UserModel? { users.first }
+
+    @State private var name = ""
     @State private var isEditing = false
     @State private var photoItem: PhotosPickerItem?
     @State private var pickedPhoto: UIImage?
     @FocusState private var isNameFocused: Bool
 
-    let photoName: String? = "userTest"   // foto de teste (Assets)
+    // Foto salva no UserModel
+    var savedPhoto: UIImage? {
+        guard let data = currentUser?.photoData else { return nil }
+        return UIImage(data: data)
+    }
 
     var body: some View {
         ScrollView {
@@ -60,7 +69,7 @@ struct SettingsView: View {
                         Rectangle()
                             .fill(Color("borderLines"))
                             .frame(height: 0.5)
-                    
+
                         NavigationLink {
                             LegalDocumentView(
                                 title: "Política de Privacidade",
@@ -81,12 +90,7 @@ struct SettingsView: View {
             .animation(.easeInOut, value: isEditing)
         }
         .scrollIndicators(.hidden)
-        .background {
-            Image("backgroundLush")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-        }
+        .lushBackground()
         .toolbar {
             Toolbar(
                 title: "Configurações",
@@ -94,15 +98,19 @@ struct SettingsView: View {
                 isActionEnabled: !name.trimmingCharacters(in: .whitespaces).isEmpty,
                 onBackClick: { dismiss() },
                 onActionClick: {
-                    // TODO: ao confirmar, salvar nome e foto no UserModel
                     isNameFocused = false
+                    if isEditing { saveChanges() }
                     isEditing.toggle()
                 }
             )
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
-        // Carrega a foto escolhida na galeria
+        // Ao abrir a tela, mostra o nome salvo
+        .onAppear {
+            name = currentUser?.name ?? ""
+        }
+        // Carrega a foto escolhida na galeria (só aparece; é salva ao confirmar)
         .onChange(of: photoItem) {
             Task {
                 if let data = try? await photoItem?.loadTransferable(type: Data.self) {
@@ -112,12 +120,39 @@ struct SettingsView: View {
         }
     }
 
+    // Salva nome e foto no UserModel
+    func saveChanges() {
+        let user = UserModel.current(in: modelContext)
+        user.name = name.trimmingCharacters(in: .whitespaces)
+
+        if let pickedPhoto, let data = compressedPhotoData(pickedPhoto) {
+            user.photoData = data
+        }
+
+        try? modelContext.save()
+        pickedPhoto = nil
+        photoItem = nil
+    }
+
+    // Diminui a foto antes de salvar (foto da câmera tem vários MB)
+    func compressedPhotoData(_ image: UIImage) -> Data? {
+        let maxSide: CGFloat = 800
+        let largestSide = max(image.size.width, image.size.height)
+        let scale = min(1, maxSide / largestSide)
+        let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+
+        let resized = UIGraphicsImageRenderer(size: newSize).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+        return resized.jpegData(compressionQuality: 0.8)
+    }
+
     // Foto: no modo edição ganha o selo de câmera e abre a galeria
     var photo: some View {
         PhotosPicker(selection: $photoItem, matching: .images) {
             UserPhoto(
                 imageName: "user",
-                image: pickedPhoto,
+                image: pickedPhoto ?? savedPhoto,
                 size: 160,
                 borderColor: isEditing ? Color("button") : Color("tertiary").opacity(0.75)
             )
@@ -151,7 +186,7 @@ struct SettingsView: View {
                             .foregroundStyle(Color("button"))
                     }
             } else {
-                Text(name)
+                Text(name.isEmpty ? "Convidado(a)" : name)
             }
         }
         .foregroundStyle(Color("textAttention"))
@@ -194,4 +229,5 @@ struct SettingsView: View {
     NavigationStack {
         SettingsView()
     }
+    .modelContainer(for: UserModel.self, inMemory: true)
 }

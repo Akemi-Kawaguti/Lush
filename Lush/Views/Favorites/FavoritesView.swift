@@ -54,12 +54,7 @@ struct FavoritesView: View {
             .padding(.bottom, 24)
         }
         .scrollIndicators(.hidden)
-        .background {
-            Image("backgroundLush")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-        }
+        .lushBackground()
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedLook) { look in
             LookDetailView(

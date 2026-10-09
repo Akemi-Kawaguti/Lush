@@ -35,6 +35,23 @@ struct MainTabView: View {
         }
         .tint(Color("button"))
         .environment(favorites)
+        
+    }
+}
+
+// Fundo padrão do Lush: cobre a tela inteira, inclusive embaixo da tab bar
+extension View {
+    func lushBackground() -> some View {
+        self
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background {
+                Image("backgroundLush")
+                    .resizable()
+                    .scaledToFill()
+                    
+                    .scaleEffect(1.05, anchor: .top)
+                    .ignoresSafeArea()
+            }
     }
 }
 

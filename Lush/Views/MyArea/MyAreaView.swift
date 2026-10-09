@@ -5,99 +5,99 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 
-//
-//  MyAreaView.swift
-//  Lush
-//
-//  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
-//
-
 import SwiftUI
 import SwiftData
 
 struct MyAreaView: View {
 
-    // Injeta o contexto do SwiftData para buscar os dados salvos
-        @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) private var modelContext
 
-        // Busca o UserModel cadastrado no banco (considerando que há um usuário principal)
-        @Query private var users: [UserModel]
+    // Usuária do app (o app tem uma usuária só)
+    @Query private var users: [UserModel]
 
-        @State private var showAnalysis = false
-        @State private var showAnalysisHistory = false
+    @State private var showAnalysis = false
+    @State private var showAnalysisHistory = false
+    @State private var startNewAnalysisAfterHistory = false   // "Refazer análise" tocado na sheet
 
-        // Computa o usuário atual (pega o primeiro ou nulo se não houver)
-        private var currentUser: UserModel? {
-            users.first
+    private var currentUser: UserModel? {
+        users.first
+    }
+
+    // Análise escolhida em "Minhas avaliações" (ou a mais recente)
+    private var latestAnalysis: AnalysisModel? {
+        currentUser?.currentAnalysis
+    }
+
+    private var bodyShape: BodyShape {
+        currentUser?.currentBodyShape ?? .hourglass
+    }
+
+    private var palette: PaleteSeason {
+        currentUser?.currentPalette ?? .autumnDeep
+    }
+
+    // Nome salvo ou "Convidado(a)" se a usuária pulou essa etapa
+    private var userName: String {
+        if let name = currentUser?.name, !name.trimmingCharacters(in: .whitespaces).isEmpty {
+            return name
         }
+        return "Convidado(a)"
+    }
 
-        // Computa a análise mais recente do usuário
-        // Análise escolhida em "Minhas avaliações" (ou a mais recente)
-        private var latestAnalysis: AnalysisModel? {
-            currentUser?.currentAnalysis
-        }
+    // Nome da paleta ou "Não definida" se ainda não houver análise
+    private var paletteName: String {
+        latestAnalysis == nil ? "Não definida" : palette.rawValue
+    }
 
-        // Converte a string do biotipo salva no banco para o enum BodyShape
-        private var bodyShape: BodyShape {
-            guard let silhouetteString = latestAnalysis?.userSilhouette else { return .hourglass }
-            return BodyShape.allCases.first { $0.rawValue == silhouetteString } ?? .hourglass
-        }
-
-    // Nome do usuário salvo ou fallback dinâmico (se a string estiver vazia ou nula)
-        private var userName: String {
-            if let name = currentUser?.name, !name.trimmingCharacters(in: .whitespaces).isEmpty {
-                return name
-            }
-            return "Convidado(a)" // Ou deixe vazio se preferir ocultar
-        }
-
-        // Nome da paleta salva (valida se o array existe e tem elementos válidos)
-        private var paletteName: String {
-            if let firstPalette = latestAnalysis?.userPalette.first, !firstPalette.isEmpty {
-                return firstPalette
-            }
-            return "Não definida"
-        }
-
-        // Cores da paleta com base na estação detectada
-        private var paletteColors: [Color] {
-            guard let seasonName = latestAnalysis?.userPalette.first,
-                  let seasonEnum = PaleteSeason.allCases.first(where: { $0.rawValue == seasonName }) else {
-                // Fallback de cores caso não encontre
-                return PaleteSeason.autumnDeep.colorPaletes.map { Color($0) }
-            }
-            
-            // Mapeia os nomes dos assets da paleta para Cores do SwiftUI (ou Assets)
-            return seasonEnum.colorPaletes.map { Color($0) }
-        }
+    private var paletteColors: [Color] {
+        palette.colorPaletes.map { Color($0) }
+    }
 
     var body: some View {
         NavigationStack {
-                VStack(spacing: 30) {
+            ScrollView {
+                VStack(spacing: 20) {
 
-                    Text("Minha área")
-                        .font(.AppTypography.largeTitle)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(Color("titles"))
+                    // Título e botão de configurações na mesma linha
+                    HStack {
+                        Text("Minha área")
+                            .font(.AppTypography.largeTitle)
+                            .foregroundStyle(Color("titles"))
+                            .padding(.horizontal, 24)
 
-                    VStack(spacing: 12) {
-                        // Se o usuário tiver foto em Data, converte para Image, senão usa o padrão
-                                                if let photoData = currentUser?.photoData, let uiImage = UIImage(data: photoData) {
-                                                    Image(uiImage: uiImage)
-                                                        .resizable()
-                                                        .scaledToFill()
-                                                        .frame(width: 160, height: 160)
-                                                        .clipShape(Circle())
-                                                } else {
-                                                    UserPhoto(imageName: "user", size: 160)
-                                                }
-                                                
-                                                Text(userName)
-                                                    .font(.AppTypography.title)
-                                                    .foregroundStyle(Color("titles"))
-                                            }
+                        Spacer()
 
-                    // Cards da paleta e do biotipo
+                        NavigationLink {
+                            SettingsView()
+                        } label: {
+                            // O estilo do botão acrescenta margem em volta do ícone
+                            Image(systemName: "gearshape.fill")
+                                .font(.title2)
+                                .frame(width: 30, height: 30)   // largura = altura: círculo perfeito
+                        }
+                        .buttonStyle(.glassProminent)
+                        .buttonBorderShape(.circle)
+                        .tint(Color("button"))
+                        .accessibilityLabel("Configurações")
+                        .padding(.horizontal, 18)
+                    }
+                    .padding(.top, 20)
+                    
+
+                    // Foto e nome
+                    VStack(spacing: 8) {
+                        if let data = currentUser?.photoData, let uiImage = UIImage(data: data) {
+                            UserPhoto(image: uiImage, size: 160)
+                        } else {
+                            UserPhoto(imageName: "user", size: 160)
+                        }
+
+                        Text(userName)
+                            .font(.AppTypography.title2)
+                            .foregroundStyle(Color("titles"))
+                    }
+
+                    // Cards da paleta e do biotipo (mesma altura)
                     HStack(spacing: 12) {
                         NavigationLink {
                             PaletteDetailView()
@@ -106,63 +106,50 @@ struct MyAreaView: View {
                         }
 
                         NavigationLink {
-                            // Passa a análise real encontrada no banco para a tela de detalhes do biotipo
                             if let analysis = latestAnalysis {
                                 BodyShapeDetailView(analysis: analysis)
                             } else {
-                                // Fallback caso não tenha análise salva ainda
-                                BodyShapeDetailView(analysis: AnalysisModel(userSilhouette: "Ampulheta", userPalette: ["Outono Profundo"]))
+                                BodyShapeDetailView(analysis: AnalysisModel(userSilhouette: bodyShape.rawValue, userPalette: [palette.rawValue]))
                             }
                         } label: {
                             bodyShapeCard
                         }
                     }
+                    .padding(.horizontal, 24)
                     .buttonStyle(.plain)
                     .fixedSize(horizontal: false, vertical: true)
 
-                    PrimaryButton(title: "Refazer análise") {
-                        showAnalysis = true
-                    }
-                    
-                    Button {
-                        showAnalysisHistory = true
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text("Ver minhas avaliações")
-
-                            Image(systemName: "chevron.right")
+                    // Ações
+                    VStack(spacing: 12) {
+                        PrimaryButton(title: "Fazer uma nova avaliação") {
+                            showAnalysis = true
                         }
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(Color("button"))
+                        .padding(.top, 8)
+
+                        Button {
+                            showAnalysisHistory = true
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text("Ver minhas avaliações")
+                                Image(systemName: "chevron.right")
+                                    .imageScale(.small)
+                            }
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Color("button"))
+                            .padding(.top, 10)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                    .padding(.top, -8)
                 }
-                .padding(.horizontal, 24)
                 .padding(.bottom, 24)
-            
+            }
             .scrollIndicators(.hidden)
-            .background {
-                Image("backgroundLush")
-                    .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea()
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 16))
-                    }
-                    .buttonStyle(.glassProminent)
-                    .tint(Color("button"))
-                    .buttonBorderShape(.circle)
-                    .accessibilityLabel("Configurações")
-                }
-            }
-            // Refazer análise: abre o fluxo por cima e fecha no final
+            .scrollBounceBehavior(.basedOnSize)   // só rola se não couber na tela
+            .lushBackground()
+            // O título e o botão de configurações ficam no conteúdo, não na barra de navegação
+            .toolbar(.hidden, for: .navigationBar)
+            // Nova avaliação: abre o fluxo por cima e fecha no final
             .fullScreenCover(isPresented: $showAnalysis) {
                 NavigationStack {
                     ColorimetryPhotoView()
@@ -171,80 +158,114 @@ struct MyAreaView: View {
                     showAnalysis = false
                 }
             }
-            
-            .sheet(isPresented: $showAnalysisHistory) {
-                AnalysisHistoryView()
-                    .presentationDetents([.fraction(0.88)])
-                    .presentationDragIndicator(.hidden)
-                    .presentationCornerRadius(32)
+            // Histórico de avaliações (mesmo esquema das outras sheets: NavigationStack + SheetToolbar)
+            .sheet(isPresented: $showAnalysisHistory, onDismiss: {
+                // "Refazer análise" na sheet: abre o fluxo depois que a sheet terminar de fechar
+                if startNewAnalysisAfterHistory {
+                    startNewAnalysisAfterHistory = false
+                    showAnalysis = true
+                }
+            }) {
+                NavigationStack {
+                    AnalysisHistoryView(onNewAnalysis: {
+                        startNewAnalysisAfterHistory = true
+                    })
+                }
             }
         }
     }
 
-    // Card da paleta
+    // MARK: - Card da paleta
+
     var paletteCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Sua paleta")
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Sua paleta:")
                 .font(.subheadline)
-                .foregroundStyle(Color("textAttention").opacity(0.7))
+                .foregroundStyle(Color("quartenary"))
+
             Text(paletteName)
                 .font(.AppTypography.title3)
                 .foregroundStyle(Color("titles"))
+                .fixedSize(horizontal: false, vertical: true)
 
-            // Cores em 2 linhas de 3
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
-                ForEach(paletteColors, id: \.self) { color in
-                    Circle()
-                        .fill(color)
-                        .frame(width: 36, height: 36)
-                }
-            }
-            .padding(.vertical, 8)
+            paletteRing
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
 
             Spacer(minLength: 0)
             seeDetails
         }
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
+        .background(RoundedRectangle(cornerRadius: 28).fill(.white))
+        .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color("borderLines"), lineWidth: 0.5))
     }
 
-    // Card do biotipo
+    // Anel com as cores da paleta (uma fatia por cor)
+    var paletteRing: some View {
+        let lineWidth: CGFloat = 20
+
+        return ZStack {
+            ForEach(paletteColors.indices, id: \.self) { index in
+                Circle()
+                    .trim(
+                        from: CGFloat(index) / CGFloat(paletteColors.count),
+                        to: CGFloat(index + 1) / CGFloat(paletteColors.count)
+                    )
+                    .stroke(paletteColors[index], lineWidth: lineWidth)
+            }
+        }
+        .rotationEffect(.degrees(-90))
+        .frame(width: 92, height: 92)
+        .padding(lineWidth / 2)   // a borda do anel fica metade para fora do círculo
+        .accessibilityLabel("Cores da paleta \(paletteName)")
+    }
+
+    // MARK: - Card do biotipo
+
     var bodyShapeCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Seu biotipo")
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Seu biotipo:")
                 .font(.subheadline)
-                .foregroundStyle(Color("textAttention").opacity(0.7))
+                .foregroundStyle(Color("quartenary"))
+
             Text(bodyShape.rawValue)
                 .font(.AppTypography.title3)
                 .foregroundStyle(Color("titles"))
+                .fixedSize(horizontal: false, vertical: true)
 
-            Image(bodyShape.imageName)
+            Image(bodyShape.resultImageName)
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: .infinity)
-                .frame(height: 100)
+                .frame(height: 128)
+                .padding(.vertical, 10)
+                .accessibilityHidden(true)
 
             Spacer(minLength: 0)
             seeDetails
         }
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
+        .background(RoundedRectangle(cornerRadius: 28).fill(.white))
+        .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color("borderLines"), lineWidth: 0.5))
     }
+
+    // MARK: - "Ver detalhes >"
 
     var seeDetails: some View {
         HStack(spacing: 4) {
             Text("Ver detalhes")
             Image(systemName: "chevron.right")
+                .imageScale(.small)
         }
-        .font(.footnote.weight(.semibold))
+        .font(.footnote)
+        .fontWeight(.regular)
         .foregroundStyle(Color("button"))
     }
 }
 
 #Preview {
     MyAreaView()
+        .modelContainer(for: [UserModel.self, AnalysisModel.self], inMemory: true)
 }
