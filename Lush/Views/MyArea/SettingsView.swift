@@ -95,7 +95,7 @@ struct SettingsView: View {
             Toolbar(
                 title: "Configurações",
                 action: isEditing ? .confirm : .edit,
-                isActionEnabled: !name.trimmingCharacters(in: .whitespaces).isEmpty,
+                isActionEnabled: true,
                 onBackClick: { dismiss() },
                 onActionClick: {
                     isNameFocused = false
@@ -104,6 +104,7 @@ struct SettingsView: View {
                 }
             )
         }
+
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
         // Ao abrir a tela, mostra o nome salvo
@@ -123,8 +124,7 @@ struct SettingsView: View {
     // Salva nome e foto no UserModel
     func saveChanges() {
         let user = UserModel.current(in: modelContext)
-        user.name = name.trimmingCharacters(in: .whitespaces)
-
+        user.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         if let pickedPhoto, let data = compressedPhotoData(pickedPhoto) {
             user.photoData = data
         }
@@ -151,7 +151,6 @@ struct SettingsView: View {
     var photo: some View {
         PhotosPicker(selection: $photoItem, matching: .images) {
             UserPhoto(
-                imageName: "user",
                 image: pickedPhoto ?? savedPhoto,
                 size: 160,
                 borderColor: isEditing ? Color("button") : Color("tertiary").opacity(0.75)
