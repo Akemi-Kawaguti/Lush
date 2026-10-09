@@ -30,7 +30,7 @@ final class AddClothingViewModel: ObservableObject {
             let imageWithoutBackground = try GarmentBackgroundRemovalService.removeBackground(from: image)
 
             processedImage = imageWithoutBackground
-
+            
             let result = try GarmentAnalysisService.analyze(image: imageWithoutBackground,modelName: modelName)
 
                 analysis = result
