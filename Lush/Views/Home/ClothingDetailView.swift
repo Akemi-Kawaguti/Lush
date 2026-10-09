@@ -96,26 +96,26 @@ struct ClothingDetailView: View {
         return "Não definida"
     }
 
-    // Exemplo de lógica de compatibilidade de biotipo
-    private var calculatedBodyCompatibility: CompatibilityLevel {
-        return .high
+    // Biotipo e paleta da análise atual (nil se ainda não houver análise)
+    private var userBodyShape: BodyShape? {
+        currentUser?.currentAnalysis == nil ? nil : currentUser?.currentBodyShape
     }
-    
-    private var bodyTipText: String {
-        return "A modelagem \(cutDescription.lowercased()) interage com o seu biotipo \(userBodyShapeText.lowercased()), valorizando a silhueta."
+
+    private var userPalette: PaleteSeason? {
+        currentUser?.currentAnalysis == nil ? nil : currentUser?.currentPalette
+    }
+
+    // Compatibilidade calculada pelo CompatibilityService
+    private var bodyResult: CompatibilityService.BodyResult {
+        CompatibilityService.bodyCompatibility(of: clothingItem, with: userBodyShape)
+    }
+
+    private var paletteResult: CompatibilityService.PaletteResult {
+        CompatibilityService.paletteCompatibility(of: clothingItem, with: userPalette)
     }
 
     private var garmentColors: [GarmentColor] {
-        clothingItem.predominantColors.compactMap { hex in
-            guard let uiColor = UIColor(hex: hex) else {
-                return nil
-            }
-
-            return GarmentColor(
-                color: Color(uiColor: uiColor),
-                matchesPalette: true
-            )
-        }
+        paletteResult.colors
     }
 
     var body: some View {
@@ -134,10 +134,11 @@ struct ClothingDetailView: View {
                     .padding(.top, 8)
 
                 // Biotipo
+                let bodyCompat = bodyResult
                 CompatibilitySection(
                     title: "Biotipo",
-                    level: calculatedBodyCompatibility,
-                    footer: bodyTipText
+                    level: bodyCompat.level,
+                    footer: bodyCompat.explanation
                 ) {
                     DetailRow(label: "Modelagem da peça", value: cutDescription)
                     Divider().padding(.horizontal, 16)
@@ -145,10 +146,11 @@ struct ClothingDetailView: View {
                 }
 
                 // Paleta
+                let paletteCompat = paletteResult
                 CompatibilitySection(
                     title: "Paleta",
-                    level: calculatedBodyCompatibility,
-                    footer: bodyTipText
+                    level: paletteCompat.level,
+                    footer: paletteCompat.explanation
                 ) {
                     DetailRow(label: "Cores da peça") {
                         colorDots
@@ -166,12 +168,7 @@ struct ClothingDetailView: View {
             .padding(.bottom, 32)
         }
         .scrollIndicators(.hidden)
-        .background {
-            Image("backgroundLush")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-        }
+        .lushBackground()
         .toolbar {
             Toolbar(
                 action: .edit,
