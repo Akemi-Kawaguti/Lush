@@ -5,10 +5,6 @@
 //  Created by Tais Akemi Kawaguti on 01/10/26.
 //
 
-// ID e data
-// silhueta RESULTADO
-// Paleta do usuario RESULTADO
-
 import Foundation
 import SwiftData
 
@@ -16,6 +12,7 @@ import SwiftData
 final class AnalysisModel {
     var id: UUID
     var date: Date //registrar quando foi feita a avaliação
+    var customName: String? = nil   // nome dado pela usuária em "Minhas avaliações" (nil = "Avaliação N")
     
     // Resultados da Avaliação
     var userSilhouette: String
@@ -40,5 +37,3 @@ final class AnalysisModel {
         self.user = user
     }
 }
-
-

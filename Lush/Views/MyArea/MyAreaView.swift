@@ -5,6 +5,13 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 
+//
+//  MyAreaView.swift
+//  Lush
+//
+//  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
+//
+
 import SwiftUI
 import SwiftData
 
@@ -17,7 +24,6 @@ struct MyAreaView: View {
 
     @State private var showAnalysis = false
     @State private var showAnalysisHistory = false
-    @State private var startNewAnalysisAfterHistory = false   // "Refazer análise" tocado na sheet
 
     private var currentUser: UserModel? {
         users.first
@@ -89,7 +95,7 @@ struct MyAreaView: View {
                         if let data = currentUser?.photoData, let uiImage = UIImage(data: data) {
                             UserPhoto(image: uiImage, size: 160)
                         } else {
-                            UserPhoto(size: 160)
+                            UserPhoto(imageName: "user", size: 160)
                         }
 
                         Text(userName)
@@ -158,19 +164,11 @@ struct MyAreaView: View {
                     showAnalysis = false
                 }
             }
-            // Histórico de avaliações (mesmo esquema das outras sheets: NavigationStack + SheetToolbar)
-            .sheet(isPresented: $showAnalysisHistory, onDismiss: {
-                // "Refazer análise" na sheet: abre o fluxo depois que a sheet terminar de fechar
-                if startNewAnalysisAfterHistory {
-                    startNewAnalysisAfterHistory = false
+            // Minhas avaliações: tela empurrada; o "+" de lá abre o fluxo de nova avaliação
+            .navigationDestination(isPresented: $showAnalysisHistory) {
+                AnalysisHistoryView(onNewAnalysis: {
                     showAnalysis = true
-                }
-            }) {
-                NavigationStack {
-                    AnalysisHistoryView(onNewAnalysis: {
-                        startNewAnalysisAfterHistory = true
-                    })
-                }
+                })
             }
         }
     }
