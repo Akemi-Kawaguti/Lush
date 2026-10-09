@@ -56,7 +56,7 @@ struct VideoPlayerView: UIViewRepresentable {
             onFinish()
         }
 
-        player.play()
+        player.playImmediately(atRate: 2.5)
         return view
     }
 

@@ -14,10 +14,10 @@ struct SplashView: View {
 
     var onFinish: () -> Void = {}
     
-    private let duration: Double = 3.5
+    private let duration: Double = 3.0
     
-    private let textDelay: Double = 1.0
-    private let textDuration: Double = 1.2
+    private let textDelay: Double = 0.6
+    private let textDuration: Double = 0.8
     
     @State private var showText = false
     @State private var hasFinished = false
