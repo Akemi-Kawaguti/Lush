@@ -89,7 +89,7 @@ struct MyAreaView: View {
                         if let data = currentUser?.photoData, let uiImage = UIImage(data: data) {
                             UserPhoto(image: uiImage, size: 160)
                         } else {
-                            UserPhoto(imageName: "user", size: 160)
+                            UserPhoto(size: 160)
                         }
 
                         Text(userName)
