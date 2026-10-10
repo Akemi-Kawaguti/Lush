@@ -48,6 +48,24 @@ final class AddClothingViewModel: ObservableObject {
 
         return colors.map { $0.hexString }
     }
+    
+    // Foto salva da peça: fundo branco e no máximo 1200 px, para não pesar no armazenamento
+    private func savedPhotoData(from image: UIImage) -> Data? {
+        let maxSide: CGFloat = 1200
+        let scale = min(1, maxSide / max(image.size.width, image.size.height))
+        let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+
+        let flattened = UIGraphicsImageRenderer(size: newSize, format: format).image { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(origin: .zero, size: newSize))
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+        return flattened.jpegData(compressionQuality: 0.85)
+    }
 
     func makeAnalyzedClothing(
         name: String,
@@ -66,7 +84,7 @@ final class AddClothingViewModel: ObservableObject {
         return ClothesModel(
             id: UUID(),
             name: name,
-            photo: (processedImage ?? image).jpegData(compressionQuality: 0.8),
+            photo: savedPhotoData(from: processedImage ?? image),
             garmentCategory: category,
             garmentPosition: category.position,
             cutTop: cutTop,
