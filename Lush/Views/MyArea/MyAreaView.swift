@@ -5,13 +5,6 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 
-//
-//  MyAreaView.swift
-//  Lush
-//
-//  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -95,7 +88,7 @@ struct MyAreaView: View {
                         if let data = currentUser?.photoData, let uiImage = UIImage(data: data) {
                             UserPhoto(image: uiImage, size: 160)
                         } else {
-                            UserPhoto(imageName: "user", size: 160)
+                            UserPhoto(size: 160)
                         }
 
                         Text(userName)
