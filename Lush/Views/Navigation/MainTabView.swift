@@ -21,18 +21,23 @@ struct MainTabView: View {
             Tab("Lush", image: "LushTabBar", value: .home) {
                 // "Mais informações" na Home leva para a aba Minha área
                 HomeView(onShowMyArea: { selectedTab = .myArea })
+                    .tint(Color("textAttention"))
             }
 
             Tab("Favoritos", systemImage: "heart.fill", value: .favorites) {
                 NavigationStack {
                     FavoritesView()
                 }
+                .tint(Color("textAttention"))
             }
 
             Tab("Minha área", systemImage: "person.fill", value: .myArea) {
                 MyAreaView()
+                    .tint(Color("textAttention"))
             }
         }
+        // Rosa só na tab bar (aba selecionada). Dentro de cada aba, a cor padrão é escura,
+        // para menus, alertas e opções como "Tirar foto" não ficarem rosa.
         .tint(Color("button"))
         .environment(favorites)
         
