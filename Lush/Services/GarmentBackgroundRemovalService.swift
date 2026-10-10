@@ -28,16 +28,14 @@ struct GarmentBackgroundRemovalService {
 
     static func removeBackground(from image: UIImage) throws -> UIImage {
 
-        guard let cgImage = image.cgImage else {
+        guard let uprightImage = image.fixedOrientation(),
+              let cgImage = uprightImage.cgImage else {
             throw GarmentBackgroundRemovalError.invalidImage
         }
 
         let request = VNGenerateForegroundInstanceMaskRequest()
 
-        let handler = VNImageRequestHandler(
-            cgImage: cgImage,
-            orientation: CGImagePropertyOrientation(image.imageOrientation)
-        )
+        let handler = VNImageRequestHandler(cgImage: cgImage)   // já está em pé
 
         try handler.perform([request])
 
@@ -86,8 +84,8 @@ struct GarmentBackgroundRemovalService {
 
         return UIImage(
             cgImage: outputCGImage,
-            scale: image.scale,
-            orientation: image.imageOrientation
+            scale: uprightImage.scale,
+            orientation: .up   
         )
 
     }
