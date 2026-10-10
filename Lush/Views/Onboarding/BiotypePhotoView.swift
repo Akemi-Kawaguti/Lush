@@ -36,9 +36,14 @@ struct BiotypePhotoView: View {
                     .foregroundStyle(Color("textAttention"))
                 
                 Text("Para uma análise mais precisa:")
-                
-                BulletText(text: "Prefira uma foto de frente, com corpo visível e sem roupas muito largas")
-                    .lineSpacing(6)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    BulletText(text: "Corpo inteiro, de frente e em pé")
+                    BulletText(text: "Braços afastados do corpo")
+                    BulletText(text: "Roupa justa, como de academia")
+                    BulletText(text: "Fundo liso, sem outras pessoas na foto")
+                }
+                .lineSpacing(6)
                 
             }
             .font(.callout)
@@ -55,7 +60,7 @@ struct BiotypePhotoView: View {
                 image: $image,
                 title: "Adicione uma foto",
                 width: 326,
-                height: 410
+                height: 360
             )
             .padding(.top, 20)
             

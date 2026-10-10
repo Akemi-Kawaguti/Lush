@@ -5,9 +5,7 @@
 //  Created by Mariana Fracaroli Lopes on 30/09/26.
 //
 //
-//  ColorimetryPhotoView.swift
-//  Lush
-//
+
 
 import SwiftUI
 
@@ -33,9 +31,10 @@ struct ColorimetryPhotoView: View {
                     .foregroundStyle(Color("textAttention"))
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    BulletText(text: "Use uma foto com boa iluminação")
-                    BulletText(text: "Evite filtros, sombra fortes e luzes coloridas")
                     BulletText(text: "Mantenha pele, cabelo e olhos visíveis")
+                    BulletText(text: "Use uma foto com boa iluminação")
+                    BulletText(text: "Evite filtros e luzes coloridas")
+                    BulletText(text: "Use uma foto sem sombras")
                 }
             }
             .font(.callout)
