@@ -229,7 +229,9 @@ struct SettingsView: View {
             }
         }
         .buttonStyle(.plain)
-        .disabled(!isEditing)
+        // Fora do modo edição a foto só não responde ao toque.
+        // (.disabled deixava a foto acinzentada)
+        .allowsHitTesting(isEditing)
         .accessibilityLabel(isEditing ? "Editar foto do perfil" : "Foto do perfil")
     }
 

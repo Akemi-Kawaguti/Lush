@@ -5,13 +5,6 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 04/10/26.
 //
 
-//
-//  FavoritesView.swift
-//  Lush
-//
-//  Created by Agatha Barbosa Marinho dos Santos on 04/10/26.
-//
-
 import SwiftUI
 
 struct FavoritesView: View {
@@ -51,6 +44,7 @@ struct FavoritesView: View {
                 }
             }
             .padding(.horizontal, 24)
+            .padding(.top, 24)      // mesmo espaço da Home
             .padding(.bottom, 24)
         }
         .scrollIndicators(.hidden)
