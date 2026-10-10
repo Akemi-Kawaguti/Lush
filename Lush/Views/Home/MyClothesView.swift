@@ -223,6 +223,7 @@ struct MyClothesView: View {
                     Text("Nenhuma roupa encontrada.")
                         .font(.AppTypography.body)
                         .foregroundStyle(Color("titles"))
+                        .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.top, 40)

@@ -7,13 +7,6 @@
 
 //  Foto da usuária, redonda com borda rosa.
 
-//
-//  UserPhoto.swift
-//  Lush
-//
-//  Foto da usuária, redonda com borda rosa.
-//
-
 import SwiftUI
 
 struct UserPhoto: View {
@@ -38,9 +31,9 @@ struct UserPhoto: View {
                 Image(systemName: "person.fill")
                     .resizable()
                     .scaledToFit()
-                    .padding(size * 0.25)
+                    .padding(size * 0.28)
                     .foregroundStyle(.white)
-                    .background(Color("tertiary"))
+                    .background(Color("tertiary").opacity(0.55))
             }
         }
         .frame(width: size, height: size)

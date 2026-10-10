@@ -58,7 +58,7 @@ struct PaletteDetailView: View {
                                                 .frame(width: 128, height: 128)
                                                 .clipShape(Circle())
                                         } else {
-                                            UserPhoto(imageName: "user", size: 128, showsBorder: false)
+                                            UserPhoto(size: 128, showsBorder: false)
                                         }
                 }
                 .frame(width: 150, height: 150)

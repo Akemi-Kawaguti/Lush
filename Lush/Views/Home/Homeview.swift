@@ -129,13 +129,12 @@ struct HomeView: View {
                         
                         // Aviso quando não foi possível carregar as sugestões
                         if looks.isEmpty && !isLoadingLooks {
-                            HStack(spacing: 8) {
+                            VStack(spacing: 8) {
                                 Text("Não foi possível carregar as sugestões. Verifique sua conexão.")
                                     .font(.footnote)
                                     .foregroundStyle(Color("quartenary"))
+                                    .multilineTextAlignment(.center)
                                     .fixedSize(horizontal: false, vertical: true)
-
-                                Spacer()
 
                                 Button("Tentar de novo") {
                                     Task { await loadHomeLooks() }
@@ -143,6 +142,7 @@ struct HomeView: View {
                                 .font(.footnote.weight(.semibold))
                                 .tint(Color("button"))
                             }
+                            .frame(maxWidth: .infinity)   // centralizado, como os avisos de Favoritos
                             .padding(.horizontal, 24)
                         }
                     }
