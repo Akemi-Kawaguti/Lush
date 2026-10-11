@@ -6,13 +6,13 @@
 //
 
 enum PaleteSeason: String, CaseIterable {
-    case springClear = "Primavera Clara"
+    case springClear = "Primavera Brilhante"
     case springWarn = "Primavera Quente"
-    case springLight = "Primavera Brilhante"
+    case springLight = "Primavera Clara"
     
     case summerSoft = "Verão Suave"
     case summerCool = "Verão Frio"
-    case summerLight = "Verão Brilhante"
+    case summerLight = "Verão Claro"
     
     case autumnSoft = "Outono Suave"
     case autumnWarn = "Outono Quente"
