@@ -73,9 +73,9 @@ class PalleteMapper {
     private static func mapToSeason(isWarm: Bool, brightnessVal: CGFloat, saturationVal: CGFloat) -> PaleteSeason {
         if isWarm {
             if brightnessVal > Thresholds.brightnessLight {
-                if saturationVal > 0.50 { return .springLight }
+                if saturationVal > 0.50 { return .springClear }
                 else if saturationVal < 0.30 { return .autumnSoft }
-                else { return .springClear }
+                else { return .springLight }              
             } else if brightnessVal > Thresholds.brightnessMedium {
                 if saturationVal > 0.45 { return .springWarn }
                 else if saturationVal < 0.28 { return .autumnSoft }

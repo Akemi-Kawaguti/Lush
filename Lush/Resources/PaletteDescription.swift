@@ -28,11 +28,11 @@ struct PaletteDescriptionProvider {
         // MARK: - Primavera
         case .springClear:
             return PaletteDetails(
-                description: "A paleta Primavera Clara é fresca e luminosa, com cores claras e vivas que refletem leveza.",
-                temperature: "Quente", temperatureDesc: "Tons quentes e luminosos harmonizam melhor com você.",
-                brightness: "Alta", brightnessDesc: "Cores claras e iluminadas destacam seus traços.",
-                saturation: "Alta", saturationDesc: "Tons vibrantes e vivos trazem vivacidade.",
-                contrast: "Médio-Alto", contrastDesc: "Combinações com contraste moderado funcionam muito bem."
+                description: "A paleta Primavera Brilhante (ou viva) destaca-se por cores intensas, alegres e de alto brilho.",
+                temperature: "Quente", temperatureDesc: "Tons quentes e vibrantes trazem harmonia.",
+                brightness: "Alta", brightnessDesc: "Cores luminosas e claras abrem o visual.",
+                saturation: "Muito Alta", saturationDesc: "Tons saturados e marcantes realçam sua energia.",
+                contrast: "Alto", contrastDesc: "Contrastes marcantes criam um visual impactante."
             )
         case .springWarn:
             return PaletteDetails(
@@ -44,11 +44,11 @@ struct PaletteDescriptionProvider {
             )
         case .springLight:
             return PaletteDetails(
-                description: "A paleta Primavera Brilhante (ou viva) destaca-se por cores intensas, alegres e de alto brilho.",
-                temperature: "Quente", temperatureDesc: "Tons quentes e vibrantes trazem harmonia.",
-                brightness: "Alta", brightnessDesc: "Cores luminosas e claras abrem o visual.",
-                saturation: "Muito Alta", saturationDesc: "Tons saturados e marcantes realçam sua energia.",
-                contrast: "Alto", contrastDesc: "Contrastes marcantes criam um visual impactante."
+                description: "A paleta Primavera Clara é fresca e luminosa, com cores claras, quentes e delicadas que refletem leveza.",
+                temperature: "Quente", temperatureDesc: "Tons quentes e luminosos harmonizam melhor com você.",
+                brightness: "Alta", brightnessDesc: "Cores claras e iluminadas destacam seus traços.",
+                saturation: "Média", saturationDesc: "Tons suaves e delicados, nem apagados nem intensos demais.",
+                contrast: "Baixo", contrastDesc: "Combinações leves e próximas funcionam muito bem."
             )
             
         // MARK: - Verão
@@ -70,7 +70,7 @@ struct PaletteDescriptionProvider {
             )
         case .summerLight:
             return PaletteDetails(
-                description: "A paleta Verão Brilhante/Claro une frescor frio com uma leveza delicada e diáfana.",
+                description: "A paleta Verão Claro une frescor frio com uma leveza delicada e diáfana.",
                 temperature: "Frio", temperatureDesc: "Tons frios e delicados suavizam os traços.",
                 brightness: "Alta", brightnessDesc: "Cores claras iluminam e suavizam o rosto.",
                 saturation: "Média", saturationDesc: "Tons nem muito apagados nem muito vibrantes.",
