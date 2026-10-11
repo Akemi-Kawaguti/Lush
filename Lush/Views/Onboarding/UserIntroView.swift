@@ -16,6 +16,11 @@ struct UserIntroView: View {
     
     @State private var viewModel = UserIntroViewModel()
     @FocusState private var isKeyboardOpen: Bool
+
+    // Opções da foto: câmera ou galeria
+    @State private var showPhotoOptions = false
+    @State private var showGallery = false
+    @State private var showCamera = false
     
     // Chamado ao continuar ou pular (nome e foto podem vir vazios)
     var onFinish: (_ name: String?, _ photo: UIImage?) -> Void = { _, _ in }
@@ -36,8 +41,11 @@ struct UserIntroView: View {
                 .font(.callout)
                 .padding(.top, 20)
                 
-                // Foto (toque para escolher da galeria)
-                PhotosPicker(selection: $viewModel.photoItem, matching: .images) {
+                // Foto: toque para tirar uma foto ou escolher da galeria
+                Button {
+                    isKeyboardOpen = false
+                    showPhotoOptions = true
+                } label: {
                     UserPhoto(image: viewModel.photo, size: 160)
                         .overlay(alignment: .bottomTrailing) {
                             Image(systemName: viewModel.photo == nil ? "camera.fill" : "pencil")
@@ -48,6 +56,7 @@ struct UserIntroView: View {
                                 .overlay(Circle().stroke(.white, lineWidth: 3))
                         }
                 }
+                .buttonStyle(.plain)
                 .frame(maxWidth: .infinity)
                 .accessibilityLabel(viewModel.photo == nil ? "Adicionar foto" : "Trocar foto")
                 
@@ -101,6 +110,26 @@ struct UserIntroView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
+        // Câmera ou galeria (mesmo esquema da tela de Configurações)
+        .confirmationDialog("Foto do perfil", isPresented: $showPhotoOptions, titleVisibility: .visible) {
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                Button("Tirar foto") { showCamera = true }
+            }
+            Button("Escolher da galeria") { showGallery = true }
+            if viewModel.photo != nil {
+                Button("Remover foto", role: .destructive) {
+                    viewModel.photo = nil
+                    viewModel.photoItem = nil
+                }
+            }
+            Button("Cancelar", role: .cancel) {}
+        }
+        .tint(Color("textAttention"))   // opções do menu em cor escura, não rosa
+        .photosPicker(isPresented: $showGallery, selection: $viewModel.photoItem, matching: .images)
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraPicker(image: $viewModel.photo)
+                .ignoresSafeArea()
+        }
         // Carrega a foto escolhida na galeria
         .onChange(of: viewModel.photoItem) {
             Task {
