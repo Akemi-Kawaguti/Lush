@@ -34,7 +34,7 @@ final class UserIntroViewModel {
         if !isSkipped {
             user.name = name.trimmingCharacters(in: .whitespaces)
             if let photo {
-                user.photoData = photo.jpegData(compressionQuality: 0.8)
+                user.photoData = compressedPhotoData(photo)
             }
         }
 
@@ -42,5 +42,17 @@ final class UserIntroViewModel {
 
         // Chama o callback passando os dados reais ou nulos caso tenha pulado
         onFinish(isSkipped ? nil : user.name, photo)
+    }
+
+    /// Diminui a foto antes de salvar (foto da câmera tem vários MB), igual à Configurações
+    private func compressedPhotoData(_ image: UIImage) -> Data? {
+        let maxSide: CGFloat = 800
+        let scale = min(1, maxSide / max(image.size.width, image.size.height))
+        let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+
+        let resized = UIGraphicsImageRenderer(size: newSize).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+        return resized.jpegData(compressionQuality: 0.8)
     }
 }
