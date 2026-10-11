@@ -38,9 +38,9 @@ struct MeasurementField: View {
 
                 HStack {
                     TextField(
-                        "Ex: 48 cm",
+                        "Ex: 48",
                         text: $value,
-                        prompt: Text("Ex: 48 cm").foregroundStyle(Color("placeholders"))
+                        prompt: Text("Ex: 48").foregroundStyle(Color("placeholders"))
                     )
                     .foregroundStyle(Color("textAttention"))
                     .keyboardType(.decimalPad)

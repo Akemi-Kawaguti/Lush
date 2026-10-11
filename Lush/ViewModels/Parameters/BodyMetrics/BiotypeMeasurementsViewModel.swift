@@ -25,10 +25,13 @@ final class BiotypeMeasurementsViewModel: ObservableObject {
     }
     
     // Valida se as 3 medidas estão preenchidas e com valores possíveis (contornos em cm)
+    static let validRange: ClosedRange<Double> = 15...100
+
+    // Valida se as 3 medidas estão preenchidas e dentro da faixa
     var isFormValid: Bool {
         [shoulder, waist, hip].allSatisfy { text in
             guard let value = number(text) else { return false }
-            return value >= 40 && value <= 250
+            return Self.validRange.contains(value)
         }
     }
     

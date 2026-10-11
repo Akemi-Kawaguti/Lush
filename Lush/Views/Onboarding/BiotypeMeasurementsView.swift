@@ -46,19 +46,19 @@ struct BiotypeMeasurementsView: View {
                     MeasurementField(
                         imageName: "ombros",
                         title: "Ombros",
-                        description: "Meça o contorno na altura dos ombros",
+                        description: "De uma ponta à outra dos ombros",
                         value: $viewModel.shoulder
                     )
                     MeasurementField(
                         imageName: "cintura",
                         title: "Cintura",
-                        description: "Meça o contorno da parte mais fina da cintura",
+                        description: "Em linha reta, na parte mais fina",
                         value: $viewModel.waist
                     )
                     MeasurementField(
                         imageName: "quadril",
                         title: "Quadril",
-                        description: "Meça o contorno da parte mais larga do quadril",
+                        description: "Em linha reta, na parte mais larga",
                         value: $viewModel.hip
                     )
                 }
@@ -111,7 +111,7 @@ struct BiotypeMeasurementsView: View {
                 Image(systemName: "lightbulb.max")
                     .foregroundStyle(Color("button"))
             }
-            Text("Utilize uma fita métrica e evite esticar a fita")
+            Text("Meça de frente, em linha reta, com fita métrica ou régua")
                 .font(.subheadline)
                 .foregroundStyle(Color("quartenary"))
         }

@@ -20,6 +20,8 @@ struct SheetToolbar: ToolbarContent {
             Button(action: onClose) {
                 Image(systemName: "xmark")
                     .fontWeight(.semibold)
+                    .frame(width: 32, height: 32)
+                    .contentShape(Circle())
             }
             .tint(Color("textAttention"))
             .accessibilityLabel("Fechar")
@@ -37,6 +39,8 @@ struct SheetToolbar: ToolbarContent {
             Button(action: onConfirm) {
                 Image(systemName: "checkmark")
                     .fontWeight(.semibold)
+                    .frame(width: 32, height: 32)
+                    .contentShape(Circle())
             }
             .buttonStyle(.glassProminent)
             .tint(Color("button"))
