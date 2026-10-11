@@ -28,12 +28,16 @@ struct ColorSelectionCard: View {
     @Binding var eyeColor: Color?
 
     @State private var zoomScale: CGFloat = 1.0
+    @State private var lastZoomScale: CGFloat = 1.0   // zoom no começo da pinça
+    private static let maxZoom: CGFloat = 3.0
 
     // Arrastar a foto depois do zoom
     @State private var panOffset: CGSize = .zero
     @State private var lastPanOffset: CGSize = .zero
 
-    private let sampler = ColorSamplerService()
+    // @State: a foto é preparada uma vez e fica guardada enquanto a tela existir
+    // (com "let", o serviço era recriado a cada cor escolhida e preparava a foto de novo)
+    @State private var sampler = ColorSamplerService()
 
     var body: some View {
         HStack(spacing: 0) {
@@ -67,6 +71,22 @@ struct ColorSelectionCard: View {
                                 },
                             isEnabled: zoomScale > 1
                         )
+                        // Pinça para dar zoom na foto (junto com os botões + e −)
+                        .simultaneousGesture(
+                            MagnifyGesture()
+                                .onChanged { value in
+                                    zoomScale = min(max(lastZoomScale * value.magnification, 1), Self.maxZoom)
+                                    panOffset = clampedOffset(panOffset)
+                                }
+                                .onEnded { _ in
+                                    lastZoomScale = zoomScale
+                                    lastPanOffset = panOffset
+                                    // A foto mudou embaixo do conta-gotas: atualiza a cor
+                                    if hasSelectedColor {
+                                        sampleColor(at: dropperPosition, image: image)
+                                    }
+                                }
+                        )
 
                     // Conta-gotas
                     Circle()
@@ -98,6 +118,7 @@ struct ColorSelectionCard: View {
 
                         Button {
                             zoomScale = max(1.0, zoomScale - 0.25)
+                            lastZoomScale = zoomScale
                             // Com menos zoom, a foto não pode ficar fora do card
                             panOffset = clampedOffset(panOffset)
                             lastPanOffset = panOffset
@@ -113,7 +134,8 @@ struct ColorSelectionCard: View {
                             .frame(width: 1, height: 40)
 
                         Button {
-                            zoomScale = min(3.0, zoomScale + 0.25)
+                            zoomScale = min(Self.maxZoom, zoomScale + 0.25)
+                            lastZoomScale = zoomScale
                         } label: {
                             Image(systemName: "plus")
                                 .font(.system(size: 20, weight: .medium))
@@ -129,6 +151,8 @@ struct ColorSelectionCard: View {
                 .frame(width: Self.photoWidth, height: Self.photoHeight)
                 .clipped()
                 .coordinateSpace(name: "photo")
+                // Prepara a foto para o conta-gotas assim que a tela abre
+                .onAppear { sampler.prepare(image) }
 
             } else {
                 Color.gray.opacity(0.2)
