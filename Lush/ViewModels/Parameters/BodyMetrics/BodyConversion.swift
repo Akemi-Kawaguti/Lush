@@ -21,7 +21,11 @@ func processBodyData(from source: BodyInputSource) -> BodyMeasure{
         return BodyMeasure(shoulder: shoulderCm, waist: estimatedWaistCm, hip: hipCm)
         
     case .manual(let shoulderCm, let waistCm, let hipCm):
-        return BodyMeasure(shoulder: shoulderCm, waist: waistCm, hip: hipCm)
+        return BodyMeasure(
+            shoulder: shoulderCm * PhotoBodyMeasurer.shoulderWidthToCircumference,
+            waist: waistCm * PhotoBodyMeasurer.waistWidthToCircumference,
+            hip: hipCm * PhotoBodyMeasurer.hipWidthToCircumference
+        )
     }
 }
 

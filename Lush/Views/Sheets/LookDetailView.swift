@@ -35,6 +35,8 @@ struct LookDetailView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .fontWeight(.semibold)
+                                .frame(width: 32, height: 32)
+                                .contentShape(Circle())
                         }
                         .tint(Color("textAttention"))
                         .accessibilityLabel("Fechar")
@@ -44,6 +46,8 @@ struct LookDetailView: View {
                         Button(action: onFavorite) {
                             Image(systemName: isFavorite ? "heart.fill" : "heart")
                                 .fontWeight(.semibold)
+                                .frame(width: 32, height: 32)   
+                                .contentShape(Circle())
                         }
                         .buttonStyle(.glassProminent)
                         .buttonBorderShape(.circle)
@@ -116,4 +120,3 @@ struct LookDetailView: View {
             LookDetailView(look: Look.samples[0], isFavorite: false, onFavorite: {})
         }
 }
-

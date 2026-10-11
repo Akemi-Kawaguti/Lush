@@ -46,12 +46,14 @@ struct Toolbar: ToolbarContent {
             Button(action: onBackClick) {
                 Image(systemName: "chevron.left")
                     .fontWeight(.semibold)
+                    .frame(width: 32, height: 32)
+                    .contentShape(Circle())
             }
             .tint(Color("textAttention"))
             .accessibilityLabel("Voltar")
         }
         
-        if let title {              
+        if let title {
             ToolbarItem(placement: .principal) {
                 Text(title)
                     .font(.AppTypography.title3)
@@ -65,6 +67,8 @@ struct Toolbar: ToolbarContent {
                 Button(action: onActionClick) {
                     Image(systemName: action.systemImage)
                         .fontWeight(.semibold)
+                        .frame(width: 32, height: 32)
+                        .contentShape(Circle())
                 }
                 .buttonStyle(.glassProminent)
                 .tint(Color("button"))
