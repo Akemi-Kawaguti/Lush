@@ -62,7 +62,7 @@ struct PaletteDescriptionProvider {
             )
         case .summerCool:
             return PaletteDetails(
-                description: "A paleta Verão Frio possui subtom predominantemente frio, com cores elegantes e suavemente abafadas.",
+                description: "A paleta Verão Fresco possui subtom predominantemente frio, com cores elegantes e suavemente abafadas.",
                 temperature: "Frio", temperatureDesc: "Tons frios e limpos trazem frescor à aparência.",
                 brightness: "Média", brightnessDesc: "Intensidade luminosa intermediária.",
                 saturation: "Média-Baixa", saturationDesc: "Cores discretas, porém com presença.",
@@ -106,7 +106,7 @@ struct PaletteDescriptionProvider {
         // MARK: - Inverno
         case .winterClear:
             return PaletteDetails(
-                description: "A paleta Inverno Brilhante destaca-se por cores frias, intensas, limpas e de alto contraste.",
+                description: "A paleta Inverno Claro destaca-se por cores frias, intensas, limpas e de alto contraste.",
                 temperature: "Frio", temperatureDesc: "Tons frios e marcantes criam contraste.",
                 brightness: "Alta", brightnessDesc: "Cores luminosas e vibrantes.",
                 saturation: "Muito Alta", saturationDesc: "Tons extremamente vivos e puros.",
@@ -114,7 +114,7 @@ struct PaletteDescriptionProvider {
             )
         case .winterCool:
             return PaletteDetails(
-                description: "A paleta Inverno Frio é a mais fria de todas, com cores intensas e sofisticadas.",
+                description: "A paleta Inverno Escuro é a mais fria de todas, com cores intensas e sofisticadas.",
                 temperature: "Frio", temperatureDesc: "Subtom frios evidentes valorizam sua pele.",
                 brightness: "Média-Baixa", brightnessDesc: "Cores com boa profundidade.",
                 saturation: "Alta", saturationDesc: "Tons limpos e marcantes.",

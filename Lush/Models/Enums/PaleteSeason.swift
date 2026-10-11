@@ -11,15 +11,15 @@ enum PaleteSeason: String, CaseIterable {
     case springLight = "Primavera Clara"
     
     case summerSoft = "Verão Suave"
-    case summerCool = "Verão Frio"
+    case summerCool = "Verão Fresco"
     case summerLight = "Verão Claro"
     
     case autumnSoft = "Outono Suave"
     case autumnWarn = "Outono Quente"
     case autumnDeep = "Outono Profundo"
     
-    case winterClear = "Inverno Brilhante"
-    case winterCool = "Inverno Frio"
+    case winterClear = "Inverno Claro"
+    case winterCool = "Inverno Escuro"
     case winterDeep = "Inverno Profundo"
     
     var colorPaletes: [String]{
