@@ -31,7 +31,7 @@ struct Look: Identifiable, Codable {
     let photographer: String
     let style: LookStyle
     var pexelsURL: URL? = nil      // página da foto no Pexels
-    var reason = "Cores e modelagens alinhadas ao seu perfil"
+    var reason = "Cores que harmonizam com a sua paleta"   // a sugestão vem só da paleta de cor
     var imageURL: URL? = nil       // foto do card (vinda do Pexels)
     var largeImageURL: URL? = nil  // foto maior, para a tela de detalhe
     var altText: String? = nil     // descrição da foto, para o VoiceOver

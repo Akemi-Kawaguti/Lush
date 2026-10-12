@@ -35,10 +35,15 @@ struct LookDetailView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .fontWeight(.semibold)
+                                .foregroundStyle(Color("titles"))
                                 .frame(width: 32, height: 32)
                                 .contentShape(Circle())
                         }
-                        .tint(Color("textAttention"))
+                        // Círculo branco: aparece bem em fotos escuras e claras
+                        .buttonStyle(.glassProminent)
+                        .buttonBorderShape(.circle)
+                        .tint(.white.opacity(0.9))
+                        .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
                         .accessibilityLabel("Fechar")
                     }
 
@@ -46,12 +51,15 @@ struct LookDetailView: View {
                         Button(action: onFavorite) {
                             Image(systemName: isFavorite ? "heart.fill" : "heart")
                                 .fontWeight(.semibold)
-                                .frame(width: 32, height: 32)   
+                                .foregroundStyle(isFavorite ? Color("button") : Color("titles"))
+                                .frame(width: 32, height: 32)
                                 .contentShape(Circle())
                         }
+                        // Mesmo círculo branco do fechar; coração rosa quando favoritado
                         .buttonStyle(.glassProminent)
                         .buttonBorderShape(.circle)
-                        .tint(.black.opacity(0.75))
+                        .tint(.white.opacity(0.9))
+                        .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
                         .accessibilityLabel(isFavorite ? "Remover dos favoritos" : "Favoritar")
                     }
                 }
