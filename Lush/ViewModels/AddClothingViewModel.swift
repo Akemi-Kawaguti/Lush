@@ -7,6 +7,12 @@
 import Foundation
 import UIKit
 import Combine
+import SwiftData
+
+// Embrulho para levar a foto para a análise fora da thread principal
+nonisolated struct SendableUIImage: @unchecked Sendable {
+    let image: UIImage
+}
 
 @MainActor
 final class AddClothingViewModel: ObservableObject {
@@ -17,30 +23,46 @@ final class AddClothingViewModel: ObservableObject {
     @Published var processedImage: UIImage?
 
 
-    func analyzeClothing(image: UIImage,category: GarmentCategory) {
+    /// Tempo mínimo da tela "Analisando…", para a animação não piscar quando a análise é rápida
+    private let minimumLoadingTime: Duration = .seconds(1.5)
+
+    /// Tira o fundo da foto e roda o classificador fora da thread principal
+    /// (assim a tela de carregamento anima). O resultado chega em `analysis`.
+    func analyzeClothing(image: UIImage, category: GarmentCategory) {
         guard let modelName = category.classifierModelName else {
             errorMessage = "Essa categoria ainda não possui um modelo de análise."
             return
         }
+        guard !isAnalyzing else { return }
 
         isAnalyzing = true
         errorMessage = nil
 
-        do {
-            let imageWithoutBackground = try GarmentBackgroundRemovalService.removeBackground(from: image)
+        let input = SendableUIImage(image: image)
+        let minimumLoadingTime = minimumLoadingTime
 
-            processedImage = imageWithoutBackground
-            
-            let result = try GarmentAnalysisService.analyze(image: imageWithoutBackground,modelName: modelName)
+        Task {
+            let start = ContinuousClock.now
+            do {
+                let (withoutBackground, result) = try await Task.detached(priority: .userInitiated) {
+                    let processed = try GarmentBackgroundRemovalService.removeBackground(from: input.image)
+                    let result = try GarmentAnalysisService.analyze(image: processed, modelName: modelName)
+                    return (SendableUIImage(image: processed), result)
+                }.value
 
+                let elapsed = ContinuousClock.now - start
+                if elapsed < minimumLoadingTime {
+                    try? await Task.sleep(for: minimumLoadingTime - elapsed)
+                }
+
+                processedImage = withoutBackground.image
                 analysis = result
-                isAnalyzing = false
-
             } catch {
                 errorMessage = error.localizedDescription
-                isAnalyzing = false
             }
+            isAnalyzing = false
         }
+    }
 
     
     private func predominantColorHexes(from image: UIImage) -> [String] {
@@ -49,49 +71,62 @@ final class AddClothingViewModel: ObservableObject {
         return colors.map { $0.hexString }
     }
     
-    // Foto salva da peça: fundo branco e no máximo 1200 px, para não pesar no armazenamento
-    private func savedPhotoData(from image: UIImage) -> Data? {
-        let maxSide: CGFloat = 1200
-        let scale = min(1, maxSide / max(image.size.width, image.size.height))
-        let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
-
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1
-        format.opaque = true
-
-        let flattened = UIGraphicsImageRenderer(size: newSize, format: format).image { context in
-            UIColor.white.setFill()
-            context.fill(CGRect(origin: .zero, size: newSize))
-            image.draw(in: CGRect(origin: .zero, size: newSize))
-        }
-        return flattened.jpegData(compressionQuality: 0.85)
-    }
-
-    func makeAnalyzedClothing(
+    /// Salva a peça analisada no SwiftData (com modelagem e cores) e devolve a peça salva
+    func saveAnalyzedClothing(
         name: String,
         image: UIImage,
-        category: GarmentCategory) -> ClothesModel? {
+        category: GarmentCategory,
+        in context: ModelContext
+    ) -> ClothesModel? {
 
         guard analysis?.best != nil else {
             return nil
         }
 
-        let cutTop = cutTop(for: category)
-        let cutBottom = cutBottom(for: category)
-        let cutOnePiece = cutOnePiece(for: category)
-        let predominantColors = predominantColorHexes(from: processedImage ?? image)
+        let photo = processedImage ?? image
 
-        return ClothesModel(
-            id: UUID(),
+        return ClothingService.addClothing(
             name: name,
-            photo: savedPhotoData(from: processedImage ?? image),
-            garmentCategory: category,
-            garmentPosition: category.position,
-            cutTop: cutTop,
-            cutBottom: cutBottom,
-            cutOnePiece: cutOnePiece,
-            predominantColors: predominantColors,
+            image: photo,
+            category: category,
+            position: category.position,
+            cutTop: cutTop(for: category),
+            cutBottom: cutBottom(for: category),
+            cutOnePiece: cutOnePiece(for: category),
+            predominantColors: predominantColorHexes(from: photo),
+            in: context
         )
+    }
+
+
+    /// Atualiza uma peça já salva com a nova análise (edição com troca de foto ou categoria)
+    func updateAnalyzedClothing(
+        _ clothing: ClothesModel,
+        name: String,
+        image: UIImage,
+        category: GarmentCategory,
+        in context: ModelContext
+    ) -> Bool {
+
+        guard analysis?.best != nil else {
+            return false
+        }
+
+        let photo = processedImage ?? image
+
+        ClothingService.updateClothing(
+            clothing,
+            name: name,
+            image: photo,
+            category: category,
+            position: category.position,
+            cutTop: cutTop(for: category),
+            cutBottom: cutBottom(for: category),
+            cutOnePiece: cutOnePiece(for: category),
+            predominantColors: predominantColorHexes(from: photo),
+            in: context
+        )
+        return true
     }
 
 

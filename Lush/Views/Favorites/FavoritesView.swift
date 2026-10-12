@@ -32,7 +32,7 @@ struct FavoritesView: View {
                         systemImage: "heart",
                         description: Text("Toque no coração das sugestões de looks para salvar aqui.")
                     )
-                    .padding(.top, 40)
+                    .centeredEmptyState()
                 } else {
                     // Duas colunas: índices pares na esquerda, ímpares na direita
                     let items = Array(favorites.enumerated())

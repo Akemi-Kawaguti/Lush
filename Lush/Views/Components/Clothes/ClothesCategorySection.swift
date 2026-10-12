@@ -11,9 +11,10 @@
 //  Uso:
 //  ClothesCategorySection(
 //      title: "Camisas",
-//      photos: fotosDasCamisas,          // [UIImage?] — nil mostra um placeholder
+//      photos: fotosDasCamisas,          // [UIImage?] — nil mostra o cabide (peça sem foto)
 //      onSeeAllClick: { ... },           // toque no título
-//      onItemClick: { index in ... }     // toque em uma peça
+//      onItemClick: { index in ... },    // toque em uma peça
+//      onAddClick: { ... }               // opcional: sem peças, mostra o card "Adicionar"
 //  )
 //
 
@@ -25,6 +26,8 @@ struct ClothesCategorySection: View {
     let photos: [UIImage?]
     var onSeeAllClick: () -> Void = {}
     var onItemClick: (Int) -> Void = { _ in }
+    var onAddClick: (() -> Void)? = nil
+    var emptyMessage: String = "Cadastre sua primeira peça de roupa e descubra se ela combina com você."
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -43,24 +46,51 @@ struct ClothesCategorySection: View {
             .padding(.horizontal, 24)
             .accessibilityHint("Ver todas as peças de \(title)")
 
-            // Carrossel de peças
-            ScrollView(.horizontal) {
-                HStack(spacing: 12) {
-                    ForEach(photos.indices, id: \.self) { index in
-                        Button {
-                            onItemClick(index)
-                        } label: {
-                            ClothingCard(photo: photos[index])
-                        }
-                        .buttonStyle(.plain)
+            // Sem peças: card "Adicionar" + mensagem
+            if photos.isEmpty, let onAddClick {
+                HStack(spacing: 16) {
+                    Button(action: onAddClick) {
+                        AddClothingCard()
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Cadastrar roupa")
+
+                    Text(emptyMessage)
+                        .font(.subheadline)
+                        .foregroundStyle(Color("textAttention"))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(.vertical, 6) // espaço para a sombra não ser cortada
+                .padding(12)
+                .background(RoundedRectangle(cornerRadius: 24).fill(.white.opacity(0.7)))
+                .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
+                .padding(.horizontal, 24)
+                .padding(.vertical, 6)
+                .padding(.bottom, 24)
+            } else {
+                carousel
             }
-            .padding(.bottom, 24)
-            .scrollIndicators(.hidden)
-            .contentMargins(.horizontal, 24, for: .scrollContent)
         }
+    }
+
+    // Carrossel de peças
+    private var carousel: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 12) {
+                ForEach(photos.indices, id: \.self) { index in
+                    Button {
+                        onItemClick(index)
+                    } label: {
+                        ClothingCard(photo: photos[index])
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.vertical, 6) // espaço para a sombra não ser cortada
+        }
+        .padding(.bottom, 24)
+        .scrollIndicators(.hidden)
+        .contentMargins(.horizontal, 24, for: .scrollContent)
     }
 }
 
@@ -86,6 +116,28 @@ private struct ClothingCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
             .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color("borderLines"), lineWidth: 0.5))
+    }
+}
+
+// Card "Adicionar" (aparece quando ainda não há peças)
+private struct AddClothingCard: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(.white.opacity(0.6))
+            .frame(width: 90, height: 120)
+            .overlay {
+                VStack(spacing: 8) {
+                    Image(systemName: "plus")
+                        .font(.title2.weight(.semibold))
+                    Text("Adicionar")
+                        .font(.caption)
+                }
+                .foregroundStyle(Color("button"))
+            }
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color("button"), style: StrokeStyle(lineWidth: 1, dash: [5]))
+            )
     }
 }
 

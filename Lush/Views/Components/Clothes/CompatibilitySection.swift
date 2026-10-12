@@ -33,16 +33,16 @@ struct CompatibilitySection<Content: View>: View {
 
                 // 1º nível: resultado (cápsula cinza em destaque)
                 HStack(spacing: 12) {
-                    Text("\(Text("\(title):").font(.AppTypography.title3)) \(Text(level.title))")
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                    // Tamanhos fixos (sem encolher), para "Biotipo" e "Paleta" ficarem iguais e numa linha só
+                    Text("\(Text("\(title):").font(.AppTypography.subheadline)) \(Text(level.title).font(.subheadline))")
+                        .lineLimit(2)
                         .foregroundColor(Color("titles"))
                     Spacer(minLength: 8)
                     CompatibilityIndicator(level: level)
                         
                 }
-                .padding(.horizontal, 24)
-                .frame(minHeight: 56)
+                .padding(.horizontal, 20)
+                .frame(minHeight: 52)
                 .background(Capsule().fill(Color("textAttention").opacity(0.1)))
                 .padding(12)
                 .accessibilityElement(children: .ignore)

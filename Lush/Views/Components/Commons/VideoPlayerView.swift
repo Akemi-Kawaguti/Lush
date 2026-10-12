@@ -5,10 +5,6 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.
 //
 
-//
-//  VideoPlayerView.swift
-//  Lush
-//
 //  Toca um vídeo do app uma vez, sem controles, com fundo transparente
 //  (suporta vídeo com canal alfa — HEVC com transparência).
 //  Chama `onFinish` quando o vídeo termina — ou na hora, se o arquivo não existir.
@@ -18,6 +14,9 @@
 //      // vídeo terminou
 //  }
 //
+//  Em loop (ex.: carregamento):
+//  VideoPlayerView(fileName: "analyzing", loops: true, rate: 1)
+//
 
 import AVFoundation
 import SwiftUI
@@ -26,6 +25,8 @@ struct VideoPlayerView: UIViewRepresentable {
 
     let fileName: String
     var fileExtension: String = "mov"
+    var loops: Bool = false
+    var rate: Float = 2.5
     var onFinish: () -> Void = {}
 
     func makeCoordinator() -> Coordinator {
@@ -52,11 +53,16 @@ struct VideoPlayerView: UIViewRepresentable {
             forName: .AVPlayerItemDidPlayToEndTime,
             object: item,
             queue: .main
-        ) { _ in
-            onFinish()
+        ) { [weak player] _ in
+            if loops {
+                player?.seek(to: .zero)
+                player?.playImmediately(atRate: rate)
+            } else {
+                onFinish()
+            }
         }
 
-        player.playImmediately(atRate: 2.5)
+        player.playImmediately(atRate: rate)
         return view
     }
 
