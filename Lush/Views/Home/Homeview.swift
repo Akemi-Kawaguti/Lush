@@ -60,6 +60,7 @@ struct HomeView: View {
     var onShowMyArea: () -> Void = {}
     @State private var showLookSuggestions = false
     @State private var showMyClothes = false
+    @State private var showAddClothing = false
     @State private var selectedLook: Look?
     
     var body: some View {
@@ -67,17 +68,22 @@ struct HomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
                     
-                    Text("Lush")
-                        .font(.AppTypography.largeTitle)
+                    header
                         .padding(.horizontal, 24)
-                        .foregroundStyle(Color("titles"))
                     
                     // Mais informações
                     VStack(alignment: .leading, spacing: 16) {
                         sectionTitle("Mais Informações") {
                             onShowMyArea()
                         }
-                        profileCard
+                        // Toque no card abre a Minha área
+                        Button {
+                            onShowMyArea()
+                        } label: {
+                            profileCard
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint("Abre a Minha área")
                     }
                     .padding(.horizontal, 24)
                     
@@ -95,15 +101,20 @@ struct HomeView: View {
                                     // Sem conexão: 3 cards cinza com o ícone de wi-fi
                                     ForEach(0..<3, id: \.self) { _ in
                                         RoundedRectangle(cornerRadius: 20)
-                                            .fill(Color.gray.opacity(0.2))
+                                            .fill(.white.opacity(0.6))
                                             .frame(width: 170, height: 220)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 20)
+                                                    .stroke(Color("borderLines"), lineWidth: 0.5)
+                                            )
                                             .overlay {
                                                 if isLoadingLooks {
                                                     ProgressView()
+                                                        .tint(Color("button"))
                                                 } else {
                                                     Image(systemName: "wifi.exclamationmark")
                                                         .font(.title2)
-                                                        .foregroundStyle(.secondary)
+                                                        .foregroundStyle(Color("quartenary").opacity(0.6))
                                                 }
                                             }
                                     }
@@ -129,11 +140,11 @@ struct HomeView: View {
                         
                         // Aviso quando não foi possível carregar as sugestões
                         if looks.isEmpty && !isLoadingLooks {
-                            VStack(spacing: 8) {
+                            VStack(alignment: .leading, spacing: 8) {
                                 Text("Não foi possível carregar as sugestões. Verifique sua conexão.")
                                     .font(.footnote)
                                     .foregroundStyle(Color("quartenary"))
-                                    .multilineTextAlignment(.center)
+                                    .multilineTextAlignment(.leading)
                                     .fixedSize(horizontal: false, vertical: true)
 
                                 Button("Tentar de novo") {
@@ -142,30 +153,29 @@ struct HomeView: View {
                                 .font(.footnote.weight(.semibold))
                                 .tint(Color("button"))
                             }
-                            .frame(maxWidth: .infinity)   // centralizado, como os avisos de Favoritos
+                            .frame(maxWidth: .infinity, alignment: .leading)   // alinhado à esquerda, como os títulos
                             .padding(.horizontal, 24)
                         }
                     }
                     
-                    // Minhas roupas conectadas ao SwiftData (`currentUser?.userClothes`)
-                    let userClothes = currentUser?.userClothes ?? []
-                    let clothesPhotos: [UIImage?] = userClothes.prefix(4).map { item in
-                        if let data = item.photo {
-                            return UIImage(data: data)
-                        }
-                        return nil
+                    // Minhas roupas (SwiftData): as 4 últimas cadastradas.
+                    // Sem roupas, aparece o card para cadastrar a primeira.
+                    let recentClothes = Array((currentUser?.userClothes ?? []).reversed().prefix(4))
+                    let clothesPhotos: [UIImage?] = recentClothes.map { item in
+                        item.photo.flatMap { UIImage(data: $0) }
                     }
-                    let displayPhotos = clothesPhotos.isEmpty ? [nil, nil, nil, nil] : clothesPhotos
-                    
+
                     ClothesCategorySection(
                         title: "Minhas roupas",
-                        photos: displayPhotos,
+                        photos: clothesPhotos,
                         onSeeAllClick: { showMyClothes = true },
                         onItemClick: { index in
-                            if index < userClothes.count {
-                                selectedClothingItem = userClothes[index]
+                            if index < recentClothes.count {
+                                selectedClothingItem = recentClothes[index]
                                 showClothingDetail = true
-                            }}
+                            }
+                        },
+                        onAddClick: { showAddClothing = true }
                     )
                 }
                 .padding(.vertical, 24)
@@ -183,6 +193,11 @@ struct HomeView: View {
                     ClothingDetailView(clothingItem: item)
                 }
             
+            }
+            .fullScreenCover(isPresented: $showAddClothing) {
+                NavigationStack {
+                    AddClothingView()
+                }
             }
             .sheet(item: $selectedLook) { look in
                 LookDetailView(
@@ -211,46 +226,109 @@ struct HomeView: View {
         .buttonStyle(.plain)
     }
     
-    // Card com o biotipo e a paleta da usuária
-    var profileCard: some View {
-        HStack(spacing: 20) {
-            Image(bodyShape.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 90, height: 130)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Seu biotipo:")
-                    .font(.footnote)
-                    .foregroundStyle(Color("textAttention").opacity(0.7))
-                
-                Text(bodyShape.rawValue)
-                    .font(.AppTypography.headline)
-                    .foregroundStyle(Color("titles"))
-                
-                // Faixa com as cores da paleta
-                HStack(spacing: 0) {
-                    ForEach(paletteColors, id: \.self) { color in
-                        Rectangle().fill(color)
-                    }
-                }
-                .frame(height: 6)
-                .clipShape(Capsule())
-                .padding(.vertical, 10)
-                
-                Text("Sua paleta:")
-                    .font(.footnote)
-                    .foregroundStyle(Color("textAttention").opacity(0.7))
-                Text(paleteSeason.rawValue)
-                    .font(.AppTypography.headline)
-                    .foregroundStyle(Color("titles"))
-            }
+    // Saudação com o primeiro nome da usuária
+    var header: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(firstName.isEmpty ? "Olá!" : "Olá, \(firstName)")
+                .font(.AppTypography.largeTitle)
+                .foregroundStyle(Color("titles"))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+
+            Text("Descubra o que valoriza o seu estilo")
+                .font(.subheadline)
+                .foregroundStyle(Color("quartenary"))
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 24).fill(.white))
-        .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color("borderLines"), lineWidth: 0.5))
+    }
+
+    var firstName: String {
+        (currentUser?.name ?? "")
+            .split(separator: " ")
+            .first
+            .map(String.init) ?? ""
+    }
+
+    // Card com o biotipo e a paleta da usuária:
+    // silhueta ocupando o lado esquerdo (fundo branco) e informações no degradê rosa suave
+    var profileCard: some View {
+        HStack(spacing: 0) {
+
+            // Lado esquerdo: painel branco com a silhueta centralizada
+            ZStack {
+                Color.white
+
+                Image(bodyShape.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 18)
+            }
+            .frame(width: 124)
+            .frame(maxHeight: .infinity)
+            .accessibilityHidden(true)
+
+            Rectangle()
+                .fill(Color("borderLines"))
+                .frame(width: 0.5)
+
+            // Lado direito: biotipo e paleta
+            VStack(alignment: .leading, spacing: 14) {
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Seu biotipo")
+                        .font(.footnote)
+                        .foregroundStyle(Color("textAttention").opacity(0.6))
+                    Text(bodyShape.rawValue)
+                        .font(.AppTypography.headline)
+                        .foregroundStyle(Color("titles"))
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Sua paleta")
+                        .font(.footnote)
+                        .foregroundStyle(Color("textAttention").opacity(0.6))
+                    Text(paleteSeason.rawValue)
+                        .font(.AppTypography.headline)
+                        .foregroundStyle(Color("titles"))
+
+                    // Cores da paleta em bolinhas, distribuídas na largura toda
+                    let dots = Array(paletteColors.prefix(8))
+                    HStack(spacing: 0) {
+                        ForEach(dots.indices, id: \.self) { index in
+                            Circle()
+                                .fill(dots[index])
+                                .frame(width: 18, height: 18)
+                                .overlay(Circle().stroke(.white, lineWidth: 1.5))
+
+                            if index < dots.count - 1 {
+                                Spacer(minLength: 4)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 8)
+                }
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color("button").opacity(0.10),
+                        Color("tertiary").opacity(0.22)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .clipShape(RoundedRectangle(cornerRadius: 28))
+        .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color("borderLines"), lineWidth: 0.5))
+        .shadow(color: .black.opacity(0.06), radius: 10, y: 4)
+        .contentShape(RoundedRectangle(cornerRadius: 28))
+        .accessibilityElement(children: .combine)
     }
     
     func toggleFavorite(_ look: Look) {

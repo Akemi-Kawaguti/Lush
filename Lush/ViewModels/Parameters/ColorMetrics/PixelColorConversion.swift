@@ -123,7 +123,7 @@ struct PixelColorConversion {
 
 // Extensão do UIImage colocada no nível global (fora da struct)
 extension UIImage {
-    func fixedOrientation() -> UIImage? {
+    nonisolated func fixedOrientation() -> UIImage? {
         if imageOrientation == .up { return self }
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
         draw(in: CGRect(origin: .zero, size: size))

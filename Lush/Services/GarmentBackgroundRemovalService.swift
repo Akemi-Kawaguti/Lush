@@ -10,7 +10,7 @@ import Vision
 import CoreImage
 import ImageIO
 
-enum GarmentBackgroundRemovalError: LocalizedError {
+nonisolated enum GarmentBackgroundRemovalError: LocalizedError {
     case invalidImage
     case noForegroundFound
 
@@ -24,7 +24,8 @@ enum GarmentBackgroundRemovalError: LocalizedError {
     }
 }
 
-struct GarmentBackgroundRemovalService {
+// Roda fora da thread principal (chamado pelo AddClothingViewModel)
+nonisolated struct GarmentBackgroundRemovalService {
 
     static func removeBackground(from image: UIImage) throws -> UIImage {
 
@@ -85,9 +86,8 @@ struct GarmentBackgroundRemovalService {
         return UIImage(
             cgImage: outputCGImage,
             scale: uprightImage.scale,
-            orientation: .up   
+            orientation: .up
         )
 
     }
 }
-

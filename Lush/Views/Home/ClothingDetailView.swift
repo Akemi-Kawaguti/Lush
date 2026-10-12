@@ -11,6 +11,7 @@ import SwiftData
 struct ClothingDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     
     // Conecta com o SwiftData para buscar o usuário atual e suas análises de biotipo/paleta
     @Query private var users: [UserModel]
@@ -21,11 +22,17 @@ struct ClothingDetailView: View {
 
     // Recebe a peça de roupa selecionada do SwiftData
     let clothingItem: ClothesModel
+
+    /// Ação do botão voltar. Vindo do cadastro, fecha o cadastro inteiro; senão, só volta.
+    var onClose: (() -> Void)?
+
     @State private var isShowingEdit = false
+    @State private var isShowingDeleteConfirmation = false
 
     // Inicializador que recebe a peça real
-    init(clothingItem: ClothesModel) {
+    init(clothingItem: ClothesModel, onClose: (() -> Void)? = nil) {
         self.clothingItem = clothingItem
+        self.onClose = onClose
     }
 
     // Helper para extrair o texto descritivo do corte, independente se é Top, Bottom ou OnePiece
@@ -122,7 +129,7 @@ struct ClothingDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
 
-                ScreenHeader(title: clothingItem.name, subtitle: "Detalhes da peça")
+                ScreenHeader(title: clothingItem.name, subtitle: clothingItem.garmentCategory.rawValue)
 
                 photoView
                     .frame(maxWidth: .infinity)
@@ -170,9 +177,27 @@ struct ClothingDetailView: View {
         .scrollIndicators(.hidden)
         .lushBackground()
         .toolbar {
+            // Excluir, à esquerda do editar
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    isShowingDeleteConfirmation = true
+                } label: {
+                    Image(systemName: "trash")
+                        .fontWeight(.semibold)
+                        .frame(width: 32, height: 32)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.glassProminent)
+                .tint(Color("quartenary"))   // círculo cinza: ação secundária, ao lado do editar
+                .accessibilityLabel("Excluir roupa")
+            }
+
+            // Separa os dois botões (cada um no seu círculo)
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
             Toolbar(
                 action: .edit,
-                onBackClick: { dismiss() },
+                onBackClick: { close() },
                 onActionClick: { isShowingEdit = true }
             )
         }
@@ -181,11 +206,42 @@ struct ClothingDetailView: View {
             NavigationStack {
                 AddClothingView(
                     isEditMode: true,
-                    name: clothingItem.name,
-                    category: clothingItem.garmentCategory,
-                    photo: clothingItem.photo != nil ? UIImage(data: clothingItem.photo!) : nil
+                    clothingToEdit: clothingItem
                 )
             }
+        }
+        .confirmationDialog(
+            "Excluir esta roupa?",
+            isPresented: $isShowingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Excluir", role: .destructive) {
+                deleteClothing()
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Essa ação não pode ser desfeita.")
+        }
+    }
+
+    private func close() {
+        if let onClose {
+            onClose()
+        } else {
+            dismiss()
+        }
+    }
+
+    // Exclusão: sai da tela de detalhes e só então apaga a peça
+    // (apagar antes faria esta tela tentar ler uma peça que não existe mais)
+    private func deleteClothing() {
+        let clothing = clothingItem
+        let context = modelContext
+        close()
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(500))
+            ClothingService.deleteClothing(clothing, in: context)
         }
     }
 
@@ -233,4 +289,3 @@ struct ClothingDetailView: View {
         .accessibilityLabel("\(garmentColors.count) cores na peça")
     }
 }
-

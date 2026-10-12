@@ -58,6 +58,16 @@ extension View {
                     .ignoresSafeArea()
             }
     }
+
+    // Avisos de tela vazia (sem favoritos, sem conexão, sem roupas...):
+    // ocupa a área abaixo do cabeçalho e fica centralizado nela
+    func centeredEmptyState() -> some View {
+        self
+            .frame(maxWidth: .infinity)
+            .containerRelativeFrame(.vertical, alignment: .center) { height, _ in
+                height * 0.55
+            }
+    }
 }
 
 #Preview {

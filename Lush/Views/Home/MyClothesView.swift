@@ -51,48 +51,34 @@ struct MyClothesView: View {
                 .padding(.bottom, 8)
 
 
+                // Busca (estilo suave)
                 HStack(spacing: 10) {
-
                     Image(systemName: "magnifyingglass")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color("titles"))
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color("quartenary").opacity(0.7))
 
-                    TextField(
-                        "Buscar minhas roupas",
-                        text: $searchText
-                    )
-                    .font(.system(size: 17))
-                    .foregroundStyle(.quartenary)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+                    TextField("Buscar minhas roupas", text: $searchText)
+                        .font(.body)
+                        .foregroundStyle(Color("titles"))
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .submitLabel(.search)
 
                     if !searchText.isEmpty {
                         Button {
                             searchText = ""
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 17))
-                                .foregroundStyle(
-                                    Color("titles").opacity(0.45)
-                                )
+                                .foregroundStyle(Color("quartenary").opacity(0.5))
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Limpar busca")
                     }
                 }
-                .padding(.horizontal, 17)
-                .frame(height: 48)
-                .background {
-                    Capsule()
-                        .fill(.ultraThinMaterial)
-                        .overlay {
-                            Capsule().fill(.white.opacity(0.4))
-                        }
-                }
-                .overlay {
-                    Capsule()
-                        .stroke(.white.opacity(0.65),lineWidth: 0.7)
-                }
-                .shadow(color: .black.opacity(0.06),radius: 8,y: 3)
+                .padding(.horizontal, 16)
+                .frame(height: 44)
+                .background(Capsule().fill(.white.opacity(0.7)))
+                .overlay(Capsule().stroke(Color("borderLines"), lineWidth: 0.5))
                 .padding(.horizontal, 24)
                 .padding(.bottom, 8)
 
@@ -138,73 +124,46 @@ struct MyClothesView: View {
     }
 
 
+    // Uma seção por categoria (Camisetas, Camisas, Calças...), só as que têm peças
     private var categoriesView: some View {
 
-        let categoriesToDisplay: [
-            (title: String,categories: [GarmentCategory])] = [
+        // Mais recentes primeiro
+        let userClothes = Array((currentUser?.userClothes ?? []).reversed())
 
-            ("Camisas",
-                [   .tShirt,
-                    .tankTop,
-                    .croppedTop,
-                    .blouse,
-                    .shirt,
-                    .bodysuit,
-                    .sweater
-                ]
-            ),
-
-            ("Calças",
-                [   .pants,
-                    .shorts,
-                    .leggings,
-                    .bermudaShorts
-                ]
-            ),
-
-            ("Saias", [.skirt]),
-
-            ("Vestidos",
-                [   .dress,
-                    .jumpsuit
-                ]
-            )
-        ]
-
-        let userClothes = currentUser?.userClothes ?? []
-
-        return ForEach(
-            categoriesToDisplay,
-            id: \.title
-        ) { group in
-
-            let clothes = userClothes.filter {
-                group.categories.contains($0.garmentCategory)
-            }
-
-            let photos: [UIImage?] = clothes.map { cloth in
-                if let data = cloth.photo {
-                    return UIImage(data: data)
-                }
-
-                return nil
-            }
-
-            ClothesCategorySection(
-                title: group.title,
-                photos: photos.isEmpty
-                    ? [nil, nil, nil, nil]
-                    : photos,
-                onSeeAllClick: {
-                },
-                onItemClick: { index in
-
-                    if index < clothes.count {
-                        selectedCloth = clothes[index]
-                    }
-                }
-            )
+        let groups = GarmentCategory.allCases.compactMap { category -> (category: GarmentCategory, clothes: [ClothesModel])? in
+            let clothes = userClothes.filter { $0.garmentCategory == category }
+            return clothes.isEmpty ? nil : (category, clothes)
         }
+
+        return Group {
+            if groups.isEmpty {
+                emptyClothesView
+            } else {
+                ForEach(groups, id: \.category) { group in
+                    ClothesCategorySection(
+                        title: group.category.pluralName,
+                        photos: group.clothes.map { cloth in
+                            cloth.photo.flatMap { UIImage(data: $0) }
+                        },
+                        onItemClick: { index in
+                            if index < group.clothes.count {
+                                selectedCloth = group.clothes[index]
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    // Nenhuma roupa cadastrada ainda (mesmo estilo do aviso de Favoritos)
+    private var emptyClothesView: some View {
+        ContentUnavailableView(
+            "Nenhuma roupa ainda",
+            systemImage: "hanger",
+            description: Text("Toque no + para adicionar suas peças e saber quais combinam com seu biotipo e sua paleta.")
+        )
+        .centeredEmptyState()
     }
 
 
@@ -214,19 +173,12 @@ struct MyClothesView: View {
 
             if filteredClothes.isEmpty {
 
-                VStack(spacing: 12) {
-
-                    Image(systemName: "hanger")
-                        .font(.system(size: 36))
-                        .foregroundStyle(Color("titles"))
-
-                    Text("Nenhuma roupa encontrada.")
-                        .font(.AppTypography.body)
-                        .foregroundStyle(Color("titles"))
-                        .multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 40)
+                ContentUnavailableView(
+                    "Nenhuma roupa encontrada",
+                    systemImage: "hanger",
+                    description: Text("Tente buscar por outro nome.")
+                )
+                .centeredEmptyState()
 
             } else {
 
@@ -285,6 +237,28 @@ struct MyClothesView: View {
             }
         }
         .padding(.horizontal, 24)
+    }
+}
+
+// Nome da categoria no plural, para os títulos das seções
+private extension GarmentCategory {
+    var pluralName: String {
+        switch self {
+        case .tShirt: "Camisetas"
+        case .tankTop: "Regatas"
+        case .croppedTop: "Croppeds"
+        case .blouse: "Blusas"
+        case .shirt: "Camisas"
+        case .bodysuit: "Bodies"
+        case .sweater: "Suéteres"
+        case .pants: "Calças"
+        case .shorts: "Shorts"
+        case .skirt: "Saias"
+        case .leggings: "Leggings"
+        case .bermudaShorts: "Bermudas"
+        case .dress: "Vestidos"
+        case .jumpsuit: "Macacões"
+        }
     }
 }
 

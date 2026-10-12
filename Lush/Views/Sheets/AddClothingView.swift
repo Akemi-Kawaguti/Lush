@@ -29,6 +29,10 @@ struct AddClothingView: View {
     @State private var position: GarmentPosition?
     @State private var category: GarmentCategory?
     @State private var analyzedClothing: ClothesModel?
+    @State private var isShowingReanalysisWarning = false
+
+    // Foto original da peça (edição): para saber se a usuária trocou a foto
+    @State private var originalImage: UIImage?
     
     
     init(
@@ -45,11 +49,9 @@ struct AddClothingView: View {
             _name = State(initialValue: clothing.name)
             _category = State(initialValue: clothing.garmentCategory)
             _position = State(initialValue: clothing.garmentPosition)
-            if let data = clothing.photo, let uiImage = UIImage(data: data) {
-                _image = State(initialValue: uiImage)
-            } else {
-                _image = State(initialValue: photo)
-            }
+            let savedImage = clothing.photo.flatMap { UIImage(data: $0) } ?? photo
+            _image = State(initialValue: savedImage)
+            _originalImage = State(initialValue: savedImage)
         } else {
             _name = State(initialValue: name)
             _category = State(initialValue: category)
@@ -72,6 +74,12 @@ struct AddClothingView: View {
     
     private var hasAnalysis: Bool {
         viewModel.analysis != nil
+    }
+
+    /// Na edição: trocar a foto ou a categoria muda a análise da peça (o nome não)
+    private var changesAnalysis: Bool {
+        guard let clothingToEdit else { return false }
+        return image !== originalImage || category != clothingToEdit.garmentCategory
     }
     
     var body: some View {
@@ -124,6 +132,16 @@ struct AddClothingView: View {
         }
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
+        // Tela "Analisando…" enquanto a peça é analisada (cadastro e edição)
+        .overlay {
+            if viewModel.isAnalyzing {
+                AnalyzingOverlay()
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.isAnalyzing)
+        .toolbar(viewModel.isAnalyzing ? .hidden : .visible, for: .navigationBar)
+        .interactiveDismissDisabled(viewModel.isAnalyzing)
         .background {
             Image("backgroundLush")
                 .resizable()
@@ -139,17 +157,15 @@ struct AddClothingView: View {
                     isConfirmEnabled: isFormComplete,
                     onClose: { dismiss() },
                     onConfirm: {
-                        if let clothing = clothingToEdit, let category, let position {
-                            ClothingService.updateClothing(
-                                clothing,
-                                name: name,
-                                image: image,
-                                category: category,
-                                position: position,
-                                in: modelContext
-                            )
+                        guard let clothing = clothingToEdit else { return }
+
+                        if changesAnalysis {
+                            // Avisa antes de refazer a análise
+                            isShowingReanalysisWarning = true
+                        } else {
+                            ClothingService.renameClothing(clothing, name: name, in: modelContext)
+                            dismiss()
                         }
-                        dismiss()
                     }
                 )
             } else {
@@ -159,16 +175,7 @@ struct AddClothingView: View {
                     onBackClick: { dismiss() },
                     onActionClick: {
                         analyzedClothing = nil
-                        viewModel.analysis = nil
-                        viewModel.processedImage = nil
-                        guard let image,
-                              let category else {
-                            return
-                        }
-                        viewModel.analyzeClothing(
-                            image: image,
-                            category: category
-                        )
+                        startAnalysis()
                     }
                 )
             
@@ -181,24 +188,129 @@ struct AddClothingView: View {
             }
         }
         
+        // Análise pronta
         .onChange(of: viewModel.analysis?.best?.label) {
-            guard let image,
+            guard viewModel.analysis != nil,
+                  let image,
                   let category else {
                 return
             }
 
-            analyzedClothing = viewModel.makeAnalyzedClothing(
+            // Edição: atualiza a peça com a nova análise e fecha a sheet
+            if isEditMode, let clothing = clothingToEdit {
+                let updated = viewModel.updateAnalyzedClothing(
+                    clothing,
+                    name: name,
+                    image: image,
+                    category: category,
+                    in: modelContext
+                )
+                if updated { dismiss() }
+                return
+            }
+
+            // Cadastro: salva a peça e abre os detalhes
+            analyzedClothing = viewModel.saveAnalyzedClothing(
                 name: name,
                 image: image,
-                category: category
+                category: category,
+                in: modelContext
             )
         }
-        
+
+        // A peça já está salva: voltar dos detalhes fecha o cadastro inteiro
         .navigationDestination(item: $analyzedClothing) { clothing in
             ClothingDetailView(
-                clothingItem: clothing
+                clothingItem: clothing,
+                onClose: { dismiss() }
             )
         }
+
+        // Aviso antes de refazer a análise na edição
+        .alert(
+            "Refazer a análise da peça?",
+            isPresented: $isShowingReanalysisWarning
+        ) {
+            Button("Cancelar", role: .cancel) {}
+            Button("Continuar") {
+                startAnalysis()
+            }
+        } message: {
+            Text("Ao trocar a foto ou a categoria, o Lush analisa a peça de novo. A modelagem, as cores e a compatibilidade com você podem mudar.")
+        }
+
+        // Erro na análise (ex.: categoria sem modelo de análise)
+        .alert(
+            "Não foi possível analisar a peça",
+            isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
+    }
+}
+
+// MARK: - Carregamento da análise
+
+/// Tela de "Analisando sua peça…".
+/// Usa o vídeo `analyzing.mov` (estrelinha pulsando) quando ele estiver no projeto;
+/// enquanto não estiver, mostra uma estrela do SF Symbols pulsando.
+private struct AnalyzingOverlay: View {
+
+    private let videoName = "analyzing"
+    private var hasVideo: Bool {
+        Bundle.main.url(forResource: videoName, withExtension: "mov") != nil
+    }
+
+    var body: some View {
+        VStack(spacing: 20) {
+            if hasVideo {
+                VideoPlayerView(fileName: videoName, loops: true, rate: 1)
+                    .frame(width: 140, height: 140)
+            } else {
+                Image(systemName: "sparkle")
+                    .font(.system(size: 64))
+                    .foregroundStyle(Color("button"))
+                    .symbolEffect(.pulse)
+                    .frame(width: 140, height: 140)
+            }
+
+            VStack(spacing: 8) {
+                Text("Analisando sua peça…")
+                    .font(.AppTypography.title3)
+                    .foregroundStyle(Color("titles"))
+
+                Text("Estamos identificando a modelagem e as cores")
+                    .font(.footnote)
+                    .foregroundStyle(Color("quartenary"))
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .padding(.horizontal, 32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            Image("backgroundLush")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Analisando sua peça")
+    }
+}
+
+extension AddClothingView {
+
+    /// Analisa a foto (tira o fundo, modelagem e cores). O resultado chega no onChange acima.
+    private func startAnalysis() {
+        viewModel.analysis = nil
+        viewModel.processedImage = nil
+        guard let image, let category else { return }
+        viewModel.analyzeClothing(image: image, category: category)
     }
 }
 

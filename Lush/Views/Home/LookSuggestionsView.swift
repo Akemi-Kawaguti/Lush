@@ -93,8 +93,7 @@ struct LookSuggestionsView: View {
     var content: some View {
         if isLoading {
             ProgressView("Buscando sugestões...")
-                .frame(maxWidth: .infinity)
-                .padding(.top, 80)
+                .centeredEmptyState()
         } else if let errorMessage {
             ContentUnavailableView {
                 Label("Sem sugestões agora", systemImage: "wifi.exclamationmark")
@@ -106,12 +105,14 @@ struct LookSuggestionsView: View {
                 }
                 .tint(Color("button"))
             }
+            .centeredEmptyState()
         } else if looks.isEmpty {
             ContentUnavailableView(
                 "Nenhum look encontrado",
                 systemImage: "hanger",
                 description: Text("Tente outro estilo.")
             )
+            .centeredEmptyState()
         } else {
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(looks) { look in
