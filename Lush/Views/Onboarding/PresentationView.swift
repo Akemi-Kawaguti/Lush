@@ -1,0 +1,97 @@
+//
+//  PresentationView.swift
+//  Lush
+//
+//  Created by Mariana Fracaroli Lopes on 29/09/26.
+//
+
+import SwiftUI
+
+struct PresentationView: View {
+
+    @State private var showTerms = false
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+
+                Image("presentationImage")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+
+                ZStack {
+                    Image("presentationImage")
+                        .resizable()
+                        .scaledToFill()
+                        .blur(radius: 18)
+
+                    Color.gray.opacity(0.35)
+                }
+                .mask {
+                    LinearGradient(
+                        stops: [
+                            .init(color: .clear, location: 0.50),
+                            .init(color: .black, location: 0.68),
+                            .init(color: .black, location: 1.0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
+                .ignoresSafeArea()
+
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: 0.45),
+                        .init(color: .black.opacity(0.75), location: 0.78),
+                        .init(color: .black.opacity(0.9), location: 1.0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+
+                VStack(alignment: .leading) {
+
+                    Spacer()
+
+                    VStack(alignment: .leading, spacing: 20) {
+
+                        Text("Seja bem-vinda\nao app Lush!")
+                            .font(.AppTypography.largeTitle)
+                            .foregroundStyle(.white)
+
+                        Text("""
+                        O Lush ajuda você a descobrir sua paleta de cores ideal e seu biotipo corporal de forma totalmente personalizada para que faça escolhas de looks assertivas e elegantes.
+                        """)
+                        .font(.callout)
+                        .foregroundStyle(.white)
+                        .lineSpacing(4)
+
+                        HStack {
+                            Spacer()
+
+                            PrimaryButton(title: "Começar") {
+                                showTerms = true
+                            }
+
+                            Spacer()
+                        }
+                        .padding(.top, 18)
+                    }
+                    .padding(.horizontal, 36)
+                    .padding(.bottom, 18)
+                }
+            }
+            .navigationDestination(isPresented: $showTerms) {
+                TermsView()
+            }
+            .toolbar(.hidden, for: .navigationBar)
+        }
+    }
+}
+
+#Preview {
+    PresentationView()
+}

@@ -1,0 +1,104 @@
+//
+//  Toolbar.swift
+//  Lush
+//
+//  Created by Agatha Barbosa Marinho dos Santos on 02/10/26.
+
+import SwiftUI
+
+enum ToolbarAction {
+    case add       // "+"  → Minhas roupas
+    case confirm   // "✓"  → Cadastrar roupa
+    case edit      // "✎"  → Detalhes da peça
+    case refresh   // "⇄"  → Sugestões de looks
+
+    var systemImage: String {
+        switch self {
+        case .add: "plus"
+        case .confirm: "checkmark"
+        case .edit: "pencil"
+        case .refresh: "repeat"
+        }
+    }
+
+    var accessibilityLabel: String {
+        switch self {
+        case .add: "Adicionar"
+        case .confirm: "Salvar"
+        case .edit: "Editar"
+        case .refresh: "Novas sugestões"
+        }
+    }
+}
+
+//toolbar
+struct Toolbar: ToolbarContent {
+    var title: String? = nil
+    var action: ToolbarAction? = .add
+    var isActionEnabled: Bool = true
+    var onBackClick: () -> Void = {}
+    var onActionClick: () -> Void = {}
+
+    var body: some ToolbarContent {
+
+        // Voltar
+        ToolbarItem(placement: .topBarLeading) {
+            Button(action: onBackClick) {
+                Image(systemName: "chevron.left")
+                    .fontWeight(.semibold)
+                    .frame(width: 32, height: 32)
+                    .contentShape(Circle())
+            }
+            .tint(Color("textAttention"))
+            .accessibilityLabel("Voltar")
+        }
+        
+        if let title {
+            ToolbarItem(placement: .principal) {
+                Text(title)
+                    .font(.AppTypography.title3)
+                    .foregroundStyle(Color("titles"))
+            }
+        }
+
+        // Ação da direita (opcional)
+        if let action {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: onActionClick) {
+                    Image(systemName: action.systemImage)
+                        .fontWeight(.semibold)
+                        .frame(width: 32, height: 32)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.glassProminent)
+                .tint(Color("button"))
+                .disabled(!isActionEnabled)
+                .accessibilityLabel(action.accessibilityLabel)
+            }
+        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Cadastrar roupa")
+                .font(.AppTypography.largeTitle)
+
+            Text("O Lush analisará as cores e modelagem para você!")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(.horizontal, 24)
+        .background {
+            Image("backgroundLush")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+        }
+        .toolbar {
+            Toolbar(action: .confirm)
+        }
+    }
+}
