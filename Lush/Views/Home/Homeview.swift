@@ -97,8 +97,8 @@ struct HomeView: View {
                         ScrollView(.horizontal) {
                             HStack(spacing: 12) {
                                 if looks.isEmpty {
-                                    // Carregando: 3 cards cinza com o indicador
-                                    // Sem conexão: 3 cards cinza com o ícone de wi-fi
+                                    // Carregando: 3 cards brancos com o indicador
+                                    // Sem conexão: 3 cards brancos com o ícone de wi-fi
                                     ForEach(0..<3, id: \.self) { _ in
                                         RoundedRectangle(cornerRadius: 20)
                                             .fill(.white.opacity(0.6))
@@ -248,15 +248,15 @@ struct HomeView: View {
             .map(String.init) ?? ""
     }
 
-    // Card com o biotipo e a paleta da usuária:
-    // silhueta ocupando o lado esquerdo (fundo branco) e informações no degradê rosa suave
+    // Card com o biotipo e a paleta da usuária (todo branco):
+    // silhueta no lado esquerdo, separada por uma linha fina das informações
     var profileCard: some View {
         HStack(spacing: 0) {
-
+ 
             // Lado esquerdo: painel branco com a silhueta centralizada
             ZStack {
                 Color.white
-
+ 
                 Image(bodyShape.imageName)
                     .resizable()
                     .scaledToFit()
@@ -266,14 +266,14 @@ struct HomeView: View {
             .frame(width: 124)
             .frame(maxHeight: .infinity)
             .accessibilityHidden(true)
-
+ 
             Rectangle()
-                .fill(Color("borderLines"))
+                .fill(Color("borderLines").opacity(0.3))
                 .frame(width: 0.5)
-
+ 
             // Lado direito: biotipo e paleta
             VStack(alignment: .leading, spacing: 14) {
-
+ 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Seu biotipo")
                         .font(.footnote)
@@ -282,7 +282,7 @@ struct HomeView: View {
                         .font(.AppTypography.headline)
                         .foregroundStyle(Color("titles"))
                 }
-
+ 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Sua paleta")
                         .font(.footnote)
@@ -290,7 +290,7 @@ struct HomeView: View {
                     Text(paleteSeason.rawValue)
                         .font(.AppTypography.headline)
                         .foregroundStyle(Color("titles"))
-
+ 
                     // Cores da paleta em bolinhas, distribuídas na largura toda
                     let dots = Array(paletteColors.prefix(8))
                     HStack(spacing: 0) {
@@ -298,8 +298,8 @@ struct HomeView: View {
                             Circle()
                                 .fill(dots[index])
                                 .frame(width: 18, height: 18)
-                                .overlay(Circle().stroke(.white, lineWidth: 1.5))
-
+                            
+ 
                             if index < dots.count - 1 {
                                 Spacer(minLength: 4)
                             }
@@ -312,16 +312,7 @@ struct HomeView: View {
             .padding(.horizontal, 18)
             .padding(.vertical, 20)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .background(
-                LinearGradient(
-                    colors: [
-                        Color("button").opacity(0.10),
-                        Color("tertiary").opacity(0.22)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
+            .background(.white)
         }
         .fixedSize(horizontal: false, vertical: true)
         .clipShape(RoundedRectangle(cornerRadius: 28))
