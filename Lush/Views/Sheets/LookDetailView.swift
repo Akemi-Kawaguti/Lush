@@ -65,7 +65,7 @@ struct LookDetailView: View {
                 }
         }
         .presentationBackground {
-            LookImage(imageName: look.imageName, url: look.highResImageURL, fallbackURL: look.largeImageURL)
+            LookImage(url: look.highResImageURL, fallbackURL: look.largeImageURL)
         }
         .presentationDragIndicator(.visible)
         .confirmExternalLinks(
@@ -122,9 +122,3 @@ struct LookDetailView: View {
     }
 }
 
-#Preview {
-    Text("Tela de fundo")
-        .sheet(isPresented: .constant(true)) {
-            LookDetailView(look: Look.samples[0], isFavorite: false, onFavorite: {})
-        }
-}

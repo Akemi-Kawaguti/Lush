@@ -12,7 +12,6 @@ import SwiftUI
 
 struct LookImage: View {
 
-    var imageName: String = ""
     var url: URL? = nil
     var fallbackURL: URL? = nil      // outra versão da mesma foto, se a primeira falhar
 
@@ -25,11 +24,6 @@ struct LookImage: View {
             .overlay {
                 if let image {
                     Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                } else if url == nil, let uiImage = UIImage(named: imageName) {
-                    // Looks de exemplo (Assets)
-                    Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
                 } else {
@@ -81,10 +75,4 @@ struct LookImage: View {
                 }
             }
     }
-}
-
-#Preview {
-    LookImage(imageName: "look1")
-        .frame(width: 170, height: 220)
-        .clipped()
 }

@@ -20,17 +20,14 @@ final class UserIntroViewModel {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
-    /// Carrega a foto selecionada na galeria
     func loadPhoto() async {
         if let data = try? await photoItem?.loadTransferable(type: Data.self) {
             photo = UIImage(data: data)
         }
     }
 
-    /// Salva o nome e a foto na usuária que já existe (criada na colorimetria)
     func saveUser(modelContext: ModelContext, isSkipped: Bool, onFinish: (_ name: String?, _ photo: UIImage?) -> Void) {
         let user = UserModel.current(in: modelContext)
-
         if !isSkipped {
             user.name = name.trimmingCharacters(in: .whitespaces)
             if let photo {
@@ -39,12 +36,9 @@ final class UserIntroViewModel {
         }
 
         try? modelContext.save()
-
-        // Chama o callback passando os dados reais ou nulos caso tenha pulado
         onFinish(isSkipped ? nil : user.name, photo)
     }
 
-    /// Diminui a foto antes de salvar (foto da câmera tem vários MB), igual à Configurações
     private func compressedPhotoData(_ image: UIImage) -> Data? {
         let maxSide: CGFloat = 800
         let scale = min(1, maxSide / max(image.size.width, image.size.height))

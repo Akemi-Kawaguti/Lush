@@ -155,8 +155,8 @@ struct PhotoPicker: View {
                 }
                 
             } catch {
-                
-                print("Erro ao carregar imagem: \(error)")
+                #if DEBUG
+                print("Erro ao carregar imagem: \(error)") #endif
             }
         }
     }

@@ -11,7 +11,7 @@ import SwiftData
 @Model
 final class AnalysisModel {
     var id: UUID
-    var date: Date //registrar quando foi feita a avaliação
+    var date: Date 
     var customName: String? = nil   // nome dado pela usuária em "Minhas avaliações" (nil = "Avaliação N")
     
     // Resultados da Avaliação
@@ -24,7 +24,6 @@ final class AnalysisModel {
     @Relationship(deleteRule: .cascade)
     var sizeSpecifications: SizeSpecifications?
     
-    // Relacionamento inverso com o usuário
     var user: UserModel?
     
     init(id: UUID = UUID(), date: Date = Date(), userSilhouette: String, userPalette: [String], pillarColor: PillarsColor? = nil, sizeSpecifications: SizeSpecifications? = nil, user: UserModel? = nil) {

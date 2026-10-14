@@ -117,7 +117,6 @@ struct LookSuggestionsView: View {
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(looks) { look in
                     LookCard(
-                        imageName: look.imageName,
                         imageURL: look.imageURL,
                         fallbackURL: look.largeImageURL,
                         credit: look.credit,

@@ -27,7 +27,6 @@ enum LookStyle: String, CaseIterable, Codable {
 struct Look: Identifiable, Codable {
     var id = UUID()
     var photoID: Int? = nil
-    var imageName: String = ""     // nome da imagem no Assets (looks de exemplo)
     let photographer: String
     let style: LookStyle
     var pexelsURL: URL? = nil      // página da foto no Pexels
@@ -67,13 +66,4 @@ extension Look {
             altText: photo.alt
         )
     }
-
-    // Dados de exemplo
-    static let samples: [Look] = [
-        Look(imageName: "look1", photographer: "Nome do Fotógrafo", style: .casual),
-        Look(imageName: "look3", photographer: "Nome do Fotógrafo", style: .work),
-        Look(imageName: "look4", photographer: "Nome do Fotógrafo", style: .party),
-        Look(imageName: "look5", photographer: "Nome do Fotógrafo", style: .casual),
-        Look(imageName: "look6", photographer: "Nome do Fotógrafo", style: .gym)
-    ]
 }

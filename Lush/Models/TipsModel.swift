@@ -5,8 +5,6 @@
 //  Created by Tais Akemi Kawaguti on 28/09/26.
 //
 
-// ID - nome - favoritos - roupas
-
 import Foundation
 import SwiftData
 

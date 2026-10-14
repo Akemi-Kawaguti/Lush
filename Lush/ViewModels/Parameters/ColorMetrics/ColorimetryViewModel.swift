@@ -28,14 +28,12 @@ final class ColorimetryViewModel {
         self.user = user
     }
     
-    // Etapa 1 da análise: calcula a paleta com as cores do conta-gotas e salva
     func saveAnalysisAndProceed(modelContext: ModelContext) {
         // Os nomes das chaves precisam ser os que o ColorMetricsAnalyzer procura
         var colorSamples: [String: UIColor] = [:]
         if let skinColor { colorSamples["pele"] = UIColor(skinColor) }
         if let hairColor { colorSamples["cabelo"] = UIColor(hairColor) }
         if let eyeColor {
-            // O conta-gotas pega um olho só: usa a mesma cor para os dois
             colorSamples["olhoEsquerdo"] = UIColor(eyeColor)
             colorSamples["olhoDireito"] = UIColor(eyeColor)
         }
@@ -45,9 +43,9 @@ final class ColorimetryViewModel {
 
         do {
             try modelContext.save()
-            showBiotypeMethod = true // Avança para a escolha do método do biotipo
-        } catch {
-            print("Erro ao salvar colorimetria: \(error.localizedDescription)")
+            showBiotypeMethod = true
+        } catch { #if DEBUG
+            print("Erro ao salvar colorimetria: \(error.localizedDescription)") #endif
         }
     }
 }

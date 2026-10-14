@@ -5,9 +5,6 @@
 //  Created by Tais Akemi Kawaguti on 29/09/26.
 //
 
-// temperatura - luminosidade
-// contraste - saturação
-
 import Foundation
 import SwiftData
 

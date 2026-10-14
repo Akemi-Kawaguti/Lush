@@ -319,9 +319,3 @@ extension AddClothingView {
         AddClothingView()
     }
 }
-
-#Preview("Edição") {
-    NavigationStack {
-        AddClothingView(isEditMode: true, name: "Vestido longo", category: .dress)
-    }
-}

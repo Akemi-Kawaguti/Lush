@@ -19,14 +19,11 @@ final class BiotypeMeasurementsViewModel: ObservableObject {
     @Published var showResult = false
     @Published var currentAnalysis: AnalysisModel?
     
-    // Converte o texto em número (aceita "48" ou "48,5")
     func number(_ text: String) -> Double? {
         Double(text.replacingOccurrences(of: ",", with: "."))
     }
     
-    // Valida se as 3 medidas estão preenchidas e com valores possíveis (contornos em cm)
-    static let validRange: ClosedRange<Double> = 15...100
-
+    static let validRange: ClosedRange<Double> = 15...200
     // Valida se as 3 medidas estão preenchidas e dentro da faixa
     var isFormValid: Bool {
         [shoulder, waist, hip].allSatisfy { text in
@@ -50,8 +47,8 @@ final class BiotypeMeasurementsViewModel: ObservableObject {
             try modelContext.save()
             self.currentAnalysis = analysis
             self.showResult = true // Dispara a navegação para o resultado
-        } catch {
-            print("Erro ao salvar dados no SwiftData: \(error.localizedDescription)")
+        } catch { #if DEBUG
+            print("Erro ao salvar dados no SwiftData: \(error.localizedDescription)") #endif
         }
     }
 }

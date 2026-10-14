@@ -7,14 +7,12 @@
 //  Para o conta-gotas acompanhar o dedo sem atraso, a foto é preparada UMA VEZ
 //  (em pé e reduzida, guardada como pixels na memória). A cada movimento do dedo
 //  só lemos os pixels, sem redesenhar a foto inteira.
-//
 
 import UIKit
 
 final class ColorSamplerService {
 
-    /// Maior lado da cópia da foto usada para ler as cores.
-    /// Suficiente mesmo com zoom de 3x no card, e bem mais leve que a foto original (12 MP).
+    // Suficiente mesmo com zoom de 3x no card, e bem mais leve que a foto original (12 MP).
     private let maxSide: CGFloat = 1500
 
     private var preparedImage: UIImage?
@@ -22,7 +20,7 @@ final class ColorSamplerService {
     private var width = 0
     private var height = 0
 
-    /// Prepara a foto (pode ser chamado ao abrir a tela; se não for, é feito no primeiro uso).
+    // Prepara a foto (pode ser chamado ao abrir a tela; se não for, é feito no primeiro uso).
     func prepare(_ image: UIImage) {
         guard image !== preparedImage else { return }
 
@@ -54,11 +52,9 @@ final class ColorSamplerService {
         preparedImage = image
     }
 
-    /// Cor no ponto do conta-gotas.
-    /// - point: posição no card (em pontos), já sem zoom e sem arraste
-    /// - displayedSize: tamanho do card onde a foto aparece com .scaledToFill()
-    func color(from image: UIImage, at point: CGPoint, displayedSize: CGSize) -> UIColor? {
-        prepare(image)
+    //MARK: Cor no ponto do conta-gotas.
+    // - point: posição no card (em pontos), já sem zoom e sem arraste
+    func color(from image: UIImage, at point: CGPoint, displayedSize: CGSize) -> UIColor? { prepare(image)
         guard width > 0, height > 0 else { return nil }
 
         let imageSize = image.size

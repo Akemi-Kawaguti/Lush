@@ -84,11 +84,3 @@ struct ColorimetryView: View {
     }
     
 }
-
-#Preview {
-    NavigationStack {
-        ColorimetryView(image: UIImage(named: "teste")
-        )
-    }
-}
-

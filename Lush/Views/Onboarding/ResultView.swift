@@ -161,14 +161,3 @@ struct ResultView: View {
         .overlay(RoundedRectangle(cornerRadius: 32).strokeBorder(Color.gray.opacity(0.3), lineWidth: 1))
     }
 }
-
-//#Preview {
-//    let sampleAnalysis = AnalysisModel(
-//        userSilhouette: "Ampulheta",
-//        userPalette: ["autumnDeep", "Quente", "Profundo", "Suave"]
-//    )
-//
-//    return NavigationStack {
-//        ResultView(analysis: sampleAnalysis)
-//    }
-//}
