@@ -11,7 +11,6 @@ import SwiftUI
 
 struct LookCard: View {
 
-    let imageName: String          // nome da imagem no Assets
     var imageURL: URL? = nil
     var fallbackURL: URL? = nil 
     let credit: String
@@ -25,7 +24,7 @@ struct LookCard: View {
             .frame(height: height)
             // Foto
             .overlay(alignment: .top) {
-                LookImage(imageName: imageName, url: imageURL, fallbackURL: fallbackURL)
+                LookImage(url: imageURL, fallbackURL: fallbackURL)
             }
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color("borderLines"), lineWidth: 0.5))
             // Botão de favoritar
@@ -56,6 +55,6 @@ struct LookCard: View {
 }
 
 #Preview {
-    LookCard(imageName: "look1", credit: "Foto de Nome no Pexels", isFavorite: false, onFavorite: {})
+    LookCard(credit: "Foto de Nome no Pexels", isFavorite: false, onFavorite: {})
         .frame(width: 170)
 }

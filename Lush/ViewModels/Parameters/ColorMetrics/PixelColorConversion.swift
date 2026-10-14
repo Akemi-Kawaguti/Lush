@@ -15,20 +15,16 @@ struct PixelColorConversion {
     // grafico reutilizavel do CoreImage (CIContext)
 
     static func convertVisionPointsToPixels(points: [CGPoint], imageSize: CGSize) -> [CGPoint] {
-        return points.map {
-            CGPoint(x: $0.x * imageSize.width, y: (1.0 - $0.y) * imageSize.height)
-        } // recebe pontos e dimensão da img
+        return points.map { CGPoint(x: $0.x * imageSize.width, y: (1.0 - $0.y) * imageSize.height)
+        }
+        // recebe pontos e dimensão da img
         //coloca map sobre cada ponto
         // converte coordenadas em pixel
-        /*
-         "o eixo Y no Vision começa de baixo para cima (0.0 na base), enquanto nas imagens em pixels ele começa de cima para baixo (0.0 no topo). Por isso, usa-se (1.0 - $0.y) para inverter o eixo Y corretamente
-         */
     }
 
     static func convertViewPointToImagePixel(point: CGPoint, viewSize: CGSize, imageSize: CGSize) -> CGPoint? {
         let imageAspect = imageSize.width / imageSize.height
         let viewAspect = viewSize.width / viewSize.height
-        // de ponto para pixel
 
         var drawRect = CGRect.zero
         if viewAspect > imageAspect {
@@ -114,21 +110,8 @@ struct PixelColorConversion {
         
         // O método getHue lê os valores HSB nativamente do UIColor
                 tempColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &extractedAlpha)
-
-                // 4. Retorna um UIColor inicializado diretamente com os componentes HSB
                 return UIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: extractedAlpha)
     } // finalmente podemos converter valores obtidos no vetor
     // criando objeto UIColor
 }
 
-// Extensão do UIImage colocada no nível global (fora da struct)
-extension UIImage {
-    nonisolated func fixedOrientation() -> UIImage? {
-        if imageOrientation == .up { return self }
-        UIGraphicsBeginImageContextWithOptions(size, false, scale)
-        draw(in: CGRect(origin: .zero, size: size))
-        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return normalizedImage
-    } // força usuario posicionar corretamente a foto
-}

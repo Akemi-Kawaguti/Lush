@@ -12,9 +12,7 @@ import Observation
 final class TermsViewModel {
 
     private(set) var hasReachedEnd = false
-
     var hasAcceptedTerms = false
-
     var canContinue: Bool {
         hasReachedEnd && hasAcceptedTerms
     }

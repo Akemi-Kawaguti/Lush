@@ -18,39 +18,12 @@
 //  - Cintura: a linha MAIS ESTREITA do tronco (entre ombros e quadril)
 //  - Quadril: a linha MAIS LARGA logo abaixo da articulação do quadril
 //  - Barriga: a linha MAIS LARGA do meio do tronco (para identificar o biotipo Oval)
-//
-
 
 import Vision
 import UIKit
-
-// MARK: - Erros (mensagens mostradas para a usuária)
-
-nonisolated enum PhotoBodyError: LocalizedError {
-    case noPerson
-    case bodyNotVisible
-    case notFacingFront
-    case armsTouchingBody
-    case segmentationFailed
-
-    var errorDescription: String? {
-        switch self {
-        case .noPerson:
-            "Não encontramos uma pessoa na foto. Tente uma foto de corpo inteiro, com boa iluminação."
-        case .bodyNotVisible:
-            "Não conseguimos ver seus ombros e quadril. Tire a foto de corpo inteiro, com a câmera um pouco mais longe."
-        case .notFacingFront:
-            "Parece que a foto está de lado. Fique de frente para a câmera."
-        case .armsTouchingBody:
-            "Seus braços estão encostados no corpo. Afaste um pouco os braços para medirmos sua cintura e quadril."
-        case .segmentationFailed:
-            "Não conseguimos analisar a foto. Tente outra foto, com fundo liso e boa iluminação."
-        }
-    }
-}
+import Foundation
 
 // MARK: - Função usada pelo app
-
 // Mede o corpo na foto e devolve as medidas em centímetros (contornos aproximados).
 // Lança `PhotoBodyError` com a mensagem certa quando a foto não serve.
 func analyzeBodyProportions(in image: CGImage, userRealHeightCm: CGFloat) async throws -> BodyMeasure {
@@ -140,8 +113,8 @@ nonisolated enum PhotoBodyMeasurer {
         let handler = VNImageRequestHandler(cgImage: image, options: [:])
         do {
             try handler.perform([poseRequest, segmentationRequest])
-        } catch {
-            print("Vision: erro ao processar a foto: \(error)")
+        } catch { #if DEBUG
+            print("Vision: erro ao processar a foto: \(error)") #endif
             throw PhotoBodyError.segmentationFailed
         }
 
@@ -247,7 +220,7 @@ nonisolated enum PhotoBodyMeasurer {
         let scaleX = CGFloat(image.width) / CGFloat(mask.width)
         let scaleY = CGFloat(image.height) / CGFloat(mask.height)
 
-        print("Vision: larguras na máscara: ombros \(shoulder), cintura \(waist), barriga \(belly), quadril \(hip)")
+        print("Vision: larguras na máscara: ombros \(shoulder), cintura \(waist), barriga \(belly), quadril \(hip)") 
 
         return Widths(
             shoulder: shoulder * scaleX,

@@ -5,8 +5,6 @@
 //  Created by Tais Akemi Kawaguti on 29/09/26.
 //
 
-// ombro - cintura - quadril
-
 import Foundation
 import SwiftData
 
@@ -22,7 +20,7 @@ final class SizeSpecifications{
         self.shoulderSize = shoulderSize
         self.waistSize = waistSize
         self.hipSize = hipSize
-        
+
         self.user = user
     }
 }

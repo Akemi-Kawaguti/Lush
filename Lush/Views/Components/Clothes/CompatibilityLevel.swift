@@ -3,17 +3,9 @@
 //  Lush
 //
 //  Created by Agatha Barbosa Marinho dos Santos on 02/10/26.
-//
 
-//  Nível de compatibilidade da peça com a usuária (biotipo ou paleta).
-
-//
-//  CompatibilityLevel.swift
-//  Lush
-//
 //  Nível de compatibilidade da peça com a usuária (biotipo ou paleta):
 //  Alta, Média ou Baixa — cada um com a cor da bolinha indicadora.
-//
 
 import SwiftUI
 

@@ -4,8 +4,6 @@
 //
 //  Created by Tais Akemi Kawaguti on 28/09/26.
 //
-// ID - nome - foto
-// categoria - posicao roupa - modelagem
 
 import Foundation
 import SwiftData
@@ -19,11 +17,6 @@ final class ClothesModel {
     var garmentPosition: GarmentPosition
     
     var predominantColors: [String]
-    
-    
-    //Como não pode receber varias enums
-    //precisa declarar como opcionais para selecionar 1
-    //MARK: para usar - For each
     
     var cutTop: GarmentCutTop?
     var cutBottom: GarmentCutBottom?

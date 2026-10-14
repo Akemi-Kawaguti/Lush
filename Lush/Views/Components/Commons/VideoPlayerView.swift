@@ -36,8 +36,8 @@ struct VideoPlayerView: UIViewRepresentable {
     func makeUIView(context: Context) -> PlayerUIView {
         let view = PlayerUIView()
 
-        guard let url = Bundle.main.url(forResource: fileName, withExtension: fileExtension) else {
-            print(" Vídeo \(fileName).\(fileExtension) não encontrado no app")
+        guard let url = Bundle.main.url(forResource: fileName, withExtension: fileExtension) else { #if DEBUG
+            print(" Vídeo \(fileName).\(fileExtension) não encontrado no app") #endif
             DispatchQueue.main.async { onFinish() }   // não deixa a splash travada
             return view
         }

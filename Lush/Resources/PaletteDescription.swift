@@ -21,10 +21,10 @@ struct PaletteDetails {
 
 struct PaletteDescriptionProvider {
     static func details(for seasonName: String) -> PaletteDetails {
-        // Tenta encontrar a estação correspondente pelo nome em português
         let season = PaleteSeason.allCases.first { $0.rawValue == seasonName } ?? .autumnDeep
         
         switch season {
+            
         // MARK: - Primavera
         case .springClear:
             return PaletteDetails(

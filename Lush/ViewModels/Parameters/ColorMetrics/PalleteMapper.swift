@@ -30,7 +30,6 @@ class PalleteMapper {
     }
 
     static func analyze(colors: [String: UIColor]) -> ColorProfile? {
-        // 1. Delega a extração de métricas puras
         guard let metrics = ColorMetricsAnalyzer.extractMetrics(from: colors) else {
             return nil
         }
@@ -45,7 +44,6 @@ class PalleteMapper {
             depth = "Escura"
         }
 
-        // 3. Determina Saturação 
         let saturation: String
         if metrics.saturation < Thresholds.satVeryLow {
             saturation = "Muito Baixa"
@@ -59,7 +57,6 @@ class PalleteMapper {
             saturation = "Muito Alta"
         }
 
-        // 4. Mapeia para a Estação
         let detectedSeason = mapToSeason(isWarm: metrics.isWarm, brightnessVal: metrics.brightness, saturationVal: metrics.saturation)
 
         return ColorProfile(

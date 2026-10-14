@@ -18,7 +18,6 @@ enum PrivacyPolicy {
     static let content = sections(prefix: "")
 
     // Monta as seções com um prefixo na numeração.
-    // Ex.: prefix "14." gera "14.1. Quais dados usamos" (usado dentro dos Termos de Uso).
     static func sections(prefix: String) -> String {
         """
         Esta Política de Privacidade explica como o Lush trata as suas informações, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 – LGPD). O Lush foi pensado para funcionar sem cadastro e sem login: as suas informações ficam guardadas no seu próprio iPhone.

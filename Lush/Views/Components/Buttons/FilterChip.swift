@@ -5,8 +5,6 @@
 //  Created by Agatha Barbosa Marinho dos Santos on 04/10/26.
 //
 
-//  Botão de filtro em cápsula (Todos, Casual, Trabalho...).
-
 import SwiftUI
 
 struct FilterChip: View {

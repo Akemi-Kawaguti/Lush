@@ -22,12 +22,8 @@ final class AddClothingViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var processedImage: UIImage?
 
-
-    /// Tempo mínimo da tela "Analisando…", para a animação não piscar quando a análise é rápida
     private let minimumLoadingTime: Duration = .seconds(1.5)
 
-    /// Tira o fundo da foto e roda o classificador fora da thread principal
-    /// (assim a tela de carregamento anima). O resultado chega em `analysis`.
     func analyzeClothing(image: UIImage, category: GarmentCategory) {
         guard let modelName = category.classifierModelName else {
             errorMessage = "Essa categoria ainda não possui um modelo de análise."
@@ -54,7 +50,6 @@ final class AddClothingViewModel: ObservableObject {
                 if elapsed < minimumLoadingTime {
                     try? await Task.sleep(for: minimumLoadingTime - elapsed)
                 }
-
                 processedImage = withoutBackground.image
                 analysis = result
             } catch {
@@ -63,28 +58,15 @@ final class AddClothingViewModel: ObservableObject {
             isAnalyzing = false
         }
     }
-
     
     private func predominantColorHexes(from image: UIImage) -> [String] {
         let colors = GarmentColorAnalysisService.predominantColors(from: image)
-
         return colors.map { $0.hexString }
     }
     
-    /// Salva a peça analisada no SwiftData (com modelagem e cores) e devolve a peça salva
-    func saveAnalyzedClothing(
-        name: String,
-        image: UIImage,
-        category: GarmentCategory,
-        in context: ModelContext
-    ) -> ClothesModel? {
-
-        guard analysis?.best != nil else {
-            return nil
-        }
-
+    func saveAnalyzedClothing( name: String, image: UIImage, category: GarmentCategory, in context: ModelContext ) -> ClothesModel? {
+        guard analysis?.best != nil else { return nil }
         let photo = processedImage ?? image
-
         return ClothingService.addClothing(
             name: name,
             image: photo,
@@ -98,22 +80,9 @@ final class AddClothingViewModel: ObservableObject {
         )
     }
 
-
-    /// Atualiza uma peça já salva com a nova análise (edição com troca de foto ou categoria)
-    func updateAnalyzedClothing(
-        _ clothing: ClothesModel,
-        name: String,
-        image: UIImage,
-        category: GarmentCategory,
-        in context: ModelContext
-    ) -> Bool {
-
-        guard analysis?.best != nil else {
-            return false
-        }
-
+    func updateAnalyzedClothing( _ clothing: ClothesModel, name: String, image: UIImage, category: GarmentCategory, in context: ModelContext ) -> Bool {
+        guard analysis?.best != nil else { return false }
         let photo = processedImage ?? image
-
         ClothingService.updateClothing(
             clothing,
             name: name,
@@ -131,10 +100,7 @@ final class AddClothingViewModel: ObservableObject {
 
 
     private func cutTop(for category: GarmentCategory) -> GarmentCutTop? {
-
-        guard let label = analysis?.best?.label else {
-            return nil
-        }
+        guard let label = analysis?.best?.label else { return nil }
 
         switch category {
 

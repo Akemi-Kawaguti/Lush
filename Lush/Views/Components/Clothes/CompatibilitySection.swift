@@ -1,5 +1,5 @@
 //
-//   CompatibilitySection.swift
+//  CompatibilitySection.swift
 //  Lush
 //
 //  Created by Agatha Barbosa Marinho dos Santos on 02/10/26.

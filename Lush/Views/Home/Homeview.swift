@@ -121,7 +121,6 @@ struct HomeView: View {
                                 } else {
                                     ForEach(looks) { look in
                                         LookCard(
-                                            imageName: look.imageName,
                                             imageURL: look.imageURL,
                                             fallbackURL: look.largeImageURL,
                                             credit: look.credit,

@@ -1,5 +1,5 @@
 //
-//  BodyShape+Details.swift
+//  BodyDescription.swift
 //  Lush
 //
 //  Created by Agatha Barbosa Marinho dos Santos on 03/10/26.

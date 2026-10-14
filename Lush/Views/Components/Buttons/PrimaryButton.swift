@@ -4,6 +4,7 @@
 //
 //  Created by Mariana Fracaroli Lopes on 29/09/26.
 //
+
 import SwiftUI
 
 struct PrimaryButton: View {
@@ -20,11 +21,5 @@ struct PrimaryButton: View {
                 .background(Color("button"))
                 .clipShape(Capsule())
         }
-    }
-}
-
-#Preview {
-    PrimaryButton(title: "Continuar") {
-        print("Botão pressionado")
     }
 }

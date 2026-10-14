@@ -4,8 +4,6 @@
 //
 //  Created by Tais Akemi Kawaguti on 07/10/26.
 //
-//  CRUD das roupas no SwiftData: cadastrar, editar (renomear ou refazer a análise) e excluir.
-//
 
 import Foundation
 import SwiftData
@@ -14,7 +12,7 @@ import UIKit
 @MainActor
 struct ClothingService {
 
-    /// Cadastra uma nova peça de roupa completa (com modelagem e cores predominantes) vinculada à usuária atual
+    //MARK: Adicionar
     @discardableResult
     static func addClothing(
         name: String,
@@ -25,9 +23,8 @@ struct ClothingService {
         cutBottom: GarmentCutBottom? = nil,
         cutOnePiece: GarmentCutOnePiece? = nil,
         predominantColors: [String] = [],
-        in context: ModelContext
-    ) -> ClothesModel {
-        let user = UserModel.current(in: context)
+        
+        in context: ModelContext ) -> ClothesModel { let user = UserModel.current(in: context)
 
         let newClothing = ClothesModel(
             id: UUID(),
@@ -42,19 +39,16 @@ struct ClothingService {
         )
 
         context.insert(newClothing)
-        // Vincula à usuária pela lista dela (o SwiftData preenche o `user` da roupa)
         user.userClothes.append(newClothing)
 
-        do {
-            try context.save()
-        } catch {
-            print("Erro ao adicionar roupa: \(error.localizedDescription)")
-        }
-
+        do { try context.save()
+        } catch { #if DEBUG
+            print("Erro ao adicionar roupa: \(error.localizedDescription)") #endif
+            }
         return newClothing
     }
 
-    /// Atualiza uma peça de roupa com uma nova análise (foto e/ou categoria mudaram)
+    //MARK: Atualizar
     static func updateClothing(
         _ clothing: ClothesModel,
         name: String,
@@ -76,47 +70,37 @@ struct ClothingService {
         clothing.cutOnePiece = cutOnePiece
         clothing.predominantColors = predominantColors
 
-        do {
-            try modelContext.save()
-        } catch {
-            print("Erro ao atualizar roupa: \(error.localizedDescription)")
+        do { try modelContext.save()
+        } catch { #if DEBUG
+            print("Erro ao atualizar roupa: \(error.localizedDescription)") #endif
         }
     }
 
-    /// Troca só o nome da peça (não muda a análise)
-    static func renameClothing(
-        _ clothing: ClothesModel,
-        name: String,
-        in modelContext: ModelContext
-    ) {
+    //MARK: Renomear
+    static func renameClothing( _ clothing: ClothesModel, name: String, in modelContext: ModelContext ) {
         clothing.name = name.trimmingCharacters(in: .whitespaces)
 
-        do {
-            try modelContext.save()
-        } catch {
-            print("Erro ao renomear roupa: \(error.localizedDescription)")
+        do { try modelContext.save()
+        } catch { #if DEBUG
+            print("Erro ao renomear roupa: \(error.localizedDescription)") #endif
         }
     }
 
-    /// Remove uma peça de roupa do SwiftData
-    static func deleteClothing(
-        _ clothing: ClothesModel,
-        in context: ModelContext
-    ) {
+    //MARK: Deleta
+    static func deleteClothing( _ clothing: ClothesModel,  in context: ModelContext ) {
         // Tira da lista da usuária antes de apagar, para a lista não ficar com uma peça "fantasma"
         let user = UserModel.current(in: context)
         user.userClothes.removeAll { $0.id == clothing.id }
 
         context.delete(clothing)
 
-        do {
-            try context.save()
-        } catch {
-            print("Erro ao deletar roupa: \(error.localizedDescription)")
+        do { try context.save()
+        } catch { #if DEBUG
+            print("Erro ao deletar roupa: \(error.localizedDescription)") #endif
         }
     }
 
-    /// Foto salva da peça: fundo branco (a foto sem fundo vira preto no JPEG) e no máximo 1200 px
+    //MARK: Foto salva da peça: fundo branco (a foto sem fundo vira preto no JPEG) e no máximo 1200 px
     static func photoData(from image: UIImage) -> Data? {
         let maxSide: CGFloat = 1200
         let scale = min(1, maxSide / max(image.size.width, image.size.height))

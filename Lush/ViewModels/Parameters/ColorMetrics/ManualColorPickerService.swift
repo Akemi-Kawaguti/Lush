@@ -4,37 +4,21 @@
 //
 //  Created by Tais Akemi Kawaguti on 02/10/26.
 //
-// USUARIO MANDA FOTO
-// USUARIO ANALISA MANUALMENTE
 
 import UIKit
 
 class ManualColorPickerService {
 
     func pickColor(from image: UIImage, at pointInView: CGPoint, inViewSize viewSize: CGSize) -> UIColor? {
-        // recebe como parametros: img q o usuario mandou, onde ele tocou, tamanho da tela onde vai ser exibida
-        // retorna cor
         guard let normalizedImage = image.fixedOrientation(),
-              let cgImage = normalizedImage.cgImage else {
-            return nil
-        } // deixa fixo um tipo de orientação para foto que mandarem
+              let cgImage = normalizedImage.cgImage else { return nil }
 
         let imageWidth = CGFloat(cgImage.width)
         let imageHeight = CGFloat(cgImage.height)
 
-        // Converte as coordenadas da interface para o sistema de pixels reais da CGImage
-        /*
-         traduzir o ponto onde o usuário tocou na tela (pointInView na viewSize) para o sistema de coordenadas reais da imagem (imageSize)"
-         */
-        // Se a conversão falhar (ex: toque fora da imagem), retorna nil.
         guard let pixelPoint = PixelColorConversion.convertViewPointToImagePixel(
-            point: pointInView,
-            viewSize: viewSize,
-            imageSize: CGSize(width: imageWidth, height: imageHeight)
-
-        ) else {
-            return nil
-        }
+            point: pointInView, viewSize: viewSize, imageSize: CGSize(width: imageWidth, height: imageHeight)
+        ) else { return nil }
 
         // Define uma pequena área (sample box) ao redor do toque para capturar uma média estável (ex: 5x5 pixels)
         let sampleSize: CGFloat = 5.0

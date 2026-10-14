@@ -20,9 +20,3 @@ struct BackButton: View {
         .glassEffect(.regular, in: .circle)
     }
 }
-
-#Preview {
-    BackButton {
-        print("Voltar")
-    }
-}

@@ -108,14 +108,3 @@ struct BodyShapeDetailView: View {
         .navigationBarTitleDisplayMode(.inline)   // tira o espaço grande abaixo da toolbar
     }
 }
-
-#Preview {
-    let mockAnalysis = AnalysisModel(
-        userSilhouette: "Ampulheta",
-        userPalette: ["Outono Quente"]
-    )
-    
-    return NavigationStack {
-        BodyShapeDetailView(analysis: mockAnalysis)
-    }
-}
