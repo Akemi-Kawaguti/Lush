@@ -34,14 +34,30 @@ struct LegalText: View {
     }
 
     // Transforma o e-mail de contato em link: toque abre o app de e-mail
+    
     func withEmailLink(_ text: String) -> AttributedString {
         var result = AttributedString(text)
+
         let email = PrivacyPolicy.contactEmail
+
         if let range = result.range(of: email) {
             result[range].link = URL(string: "mailto:\(email)")
         }
+
+        let links: [(String, String)] = [
+            (TermsOfUse.pexelsURL, TermsOfUse.pexelsURL),
+            (TermsOfUse.pexelsLicenseURL, TermsOfUse.pexelsLicenseURL)
+        ]
+
+        for (textToFind, destination) in links {
+            if let range = result.range(of: textToFind) {
+                result[range].link = URL(string: destination)
+            }
+        }
+
         return result
     }
+
 }
 
 #Preview {
