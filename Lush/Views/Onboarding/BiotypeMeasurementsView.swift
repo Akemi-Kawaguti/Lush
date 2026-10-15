@@ -65,7 +65,7 @@ struct BiotypeMeasurementsView: View {
                 .focused($isKeyboardOpen)
             }
             .padding(.horizontal, 32)
-            .padding(.bottom, 40)
+            .padding(.bottom, 120)
             .contentShape(Rectangle())
             .onTapGesture {
                 isKeyboardOpen = false
@@ -73,15 +73,22 @@ struct BiotypeMeasurementsView: View {
         }
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
-        .safeAreaInset(edge: .bottom) {
-            PrimaryButton(title: "Ver resultado") {
-                isKeyboardOpen = false
-                viewModel.saveAndAnalyze(using: modelContext, users: users)
+        .scrollBounceBehavior(.basedOnSize)
+        .overlay(alignment: .bottom) {
+            VStack {
+                PrimaryButton(title: "Ver resultado") {
+                    isKeyboardOpen = false
+                    viewModel.saveAndAnalyze(using: modelContext, users: users)
+                }
+                .disabled(!viewModel.isFormValid)
+                .opacity(viewModel.isFormValid ? 1 : 0.5)
+                .padding(.horizontal, 32)
+                .padding(.top, 12)
+                .padding(.bottom, 16)
             }
-            .disabled(!viewModel.isFormValid)
-            .opacity(viewModel.isFormValid ? 1 : 0.5)
-            .padding(.top, 12)
-            .padding(.bottom, 16)
+            .frame(maxWidth: .infinity)
+            .background(.ultraThinMaterial)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .background {
             Image("backgroundLush")
