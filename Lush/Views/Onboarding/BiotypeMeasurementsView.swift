@@ -16,10 +16,8 @@ struct BiotypeMeasurementsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
-    // Query para buscar a usuária
     @Query private var users: [UserModel]
 
-    // Instância do ViewModel
     @StateObject private var viewModel = BiotypeMeasurementsViewModel()
     @FocusState private var isKeyboardOpen: Bool
 
@@ -87,7 +85,7 @@ struct BiotypeMeasurementsView: View {
                 .padding(.bottom, 16)
             }
             .frame(maxWidth: .infinity)
-            .background(.ultraThinMaterial)
+            .background(.clear)
             .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .background {
@@ -108,7 +106,6 @@ struct BiotypeMeasurementsView: View {
         }
     }
 
-    // Card de dica
     private var tipCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
