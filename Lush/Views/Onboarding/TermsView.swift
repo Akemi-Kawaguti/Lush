@@ -114,22 +114,62 @@ struct TermsView: View {
             destinationName: "seu aplicativo de e-mail"
         )
         .toolbar {
-            Toolbar(title: "Termo de Uso", action: nil, onBackClick: { dismiss() })
+            Toolbar(title: "Termos de Uso", action: nil, onBackClick: { dismiss() })
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
 
     }
     
+    
+    func withEmailLink(_ text: String) -> AttributedString {
+        var result = AttributedString(text)
+
+        let email = PrivacyPolicy.contactEmail
+
+        if let range = result.range(of: email) {
+            result[range].link = URL(string: "mailto:\(email)")
+        }
+
+        let links: [(String, String)] = [
+            (TermsOfUse.pexelsURL, TermsOfUse.pexelsURL),
+            (TermsOfUse.pexelsLicenseURL, TermsOfUse.pexelsLicenseURL)
+        ]
+
+        for (textToFind, destination) in links {
+            if let range = result.range(of: textToFind) {
+                result[range].link = URL(string: destination)
+            }
+        }
+
+        return result
+    }
+
     private func textWithLink(_ paragraph: String) -> AttributedString {
         var text = AttributedString(paragraph)
+
         let email = PrivacyPolicy.contactEmail
 
         if let range = text.range(of: email) {
             text[range].link = URL(string: "mailto:\(email)")
         }
+
+        let pexelsLinks = [
+            TermsOfUse.pexelsURL,
+            TermsOfUse.pexelsLicenseURL
+        ]
+
+        for link in pexelsLinks {
+            if let range = text.range(of: link),
+               let url = URL(string: link) {
+                text[range].link = url
+            }
+        }
+
         return text
     }
+
+    
 }
 
 #Preview {

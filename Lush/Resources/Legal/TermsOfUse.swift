@@ -8,6 +8,10 @@
 import Foundation
 
 enum TermsOfUse {
+    
+    static let pexelsURL = "https://www.pexels.com"
+    static let pexelsLicenseURL = "https://www.pexels.com/license/"
+
 
     static let lastUpdated = "Última atualização: 5 de outubro de 2026"
 
@@ -16,7 +20,10 @@ enum TermsOfUse {
 
     1. Definições
 
-    Lush ou aplicativo: o aplicativo Lush, disponível para iPhone. Nós: a equipe responsável pelo desenvolvimento do Lush. Você ou usuária: a pessoa que utiliza o aplicativo. Loja de aplicativos: a App Store, da Apple, por onde o Lush é baixado.
+    Lush ou aplicativo: o aplicativo Lush, disponível para iPhone. 
+    Nós: a equipe responsável pelo desenvolvimento do Lush. 
+    Você ou usuária: a pessoa que utiliza o aplicativo. 
+    Loja de aplicativos: a App Store, da Apple, por onde o Lush é baixado.
 
     2. Aceitação dos termos
 
@@ -24,7 +31,7 @@ enum TermsOfUse {
 
     3. Sobre o Lush
 
-    O Lush ajuda você a explorar o seu estilo pessoal. O aplicativo analisa a sua paleta de cores e o seu biotipo de silhueta, mostra a compatibilidade das suas roupas com você e apresenta sugestões de looks.
+    O Lush ajuda você a explorar o seu estilo pessoal. O aplicativo analisa os tons de cores referentes à sua pele, cabelo e olhos, e o seu biotipo de silhueta, mostra a compatibilidade das suas roupas com você e apresenta sugestões de looks.
 
     4. Análises e resultados
 
@@ -32,11 +39,11 @@ enum TermsOfUse {
 
     5. Fotos enviadas por você
 
-    Envie apenas fotos suas ou de roupas que sejam suas. Não envie fotos de outras pessoas sem a autorização delas. As fotos são usadas somente para as análises, conforme descrito na Política de Privacidade.
+    As fotos são usadas somente para as análises informadas nas seções 3 e 4, armazenadas exclusivamente neste seu dispositivo pessoal e não são compartilhadas com terceiros, conforme descrito na Política de Privacidade.
 
     6. Imagens de referência
 
-    As sugestões de looks utilizam imagens do Pexels, um banco de imagens gratuito, sempre com o crédito ao fotógrafo. Essas imagens pertencem aos seus autores e seguem a licença do Pexels. Os links para o site do Pexels levam a um serviço de terceiros, que tem os próprios termos e política de privacidade e pelo qual não somos responsáveis.
+    As sugestões de looks utilizam imagens disponibilizadas pelo Pexels, uma plataforma de imagens gratuitas. Os créditos dos fotógrafos são apresentados no aplicativo. Para conhecer a plataforma, acesse \(TermsOfUse.pexelsURL). O uso das imagens segue a licença do Pexels, disponível em \(TermsOfUse.pexelsLicenseURL). Ao acessar esses links, você será direcionada ao site do Pexels, um serviço de terceiros sujeito aos próprios termos de uso e à própria política de privacidade. O Lush não é responsável pelas práticas de privacidade ou pelo conteúdo de serviços externos.
 
     7. Uso adequado
 
@@ -44,7 +51,7 @@ enum TermsOfUse {
 
     8. Propriedade intelectual
 
-    O nome, a identidade visual, as ilustrações e os textos do Lush pertencem à equipe responsável pelo aplicativo. As fotos que você envia continuam sendo suas.
+    O nome, a identidade visual, as ilustrações e os textos do Lush pertencem à equipe responsável pelo aplicativo. As fotos enviadas por você continuam sendo suas. As imagens de referência disponibilizadas pelo Pexels pertencem aos seus respectivos autores e estão sujeitas à licença da plataforma.
 
     9. Limitação de responsabilidade
 
@@ -52,12 +59,12 @@ enum TermsOfUse {
 
     10. Encerramento do uso
 
-    Você pode deixar de usar o Lush a qualquer momento, basta apagar o aplicativo do seu iPhone. Podemos alterar, suspender ou encerrar o aplicativo a qualquer momento.
-
+    Você pode deixar de usar o Lush a qualquer momento, bastando apagar o aplicativo do seu iPhone. A equipe do Lush poderá alterar, suspender ou encerrar a disponibilização do aplicativo a qualquer momento, respeitando os direitos garantidos pela legislação aplicável.
+    
     11. Alterações nos termos
 
-    Estes Termos de Uso podem ser atualizados. Quando isso acontecer, a nova versão ficará disponível no aplicativo, com a data da última atualização. Ao continuar usando o Lush após as alterações, você concorda com a nova versão.
-
+    Estes Termos de Uso poderão ser atualizados sempre que necessário. Quando houver alterações, a nova versão ficará disponível no aplicativo, acompanhada da data da última atualização. Ao continuar usando o Lush após as alterações, você declara estar ciente da nova versão.
+    
     12. Lei aplicável
 
     Estes termos seguem as leis da República Federativa do Brasil, incluindo o Código de Defesa do Consumidor e a Lei Geral de Proteção de Dados.
