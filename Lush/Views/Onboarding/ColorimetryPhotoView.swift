@@ -15,6 +15,7 @@ struct ColorimetryPhotoView: View {
     
     @State private var image: UIImage?
     @State private var showColorimetry = false
+    @State private var didBeginFlow = false
     
     var body: some View {
         
@@ -75,7 +76,13 @@ struct ColorimetryPhotoView: View {
             ColorimetryView(image: image)
         }
         .navigationBarBackButtonHidden(true)
-        
+        // Primeira tela do fluxo de avaliação: começa um fluxo novo (uma vez só,
+        // não quando a usuária volta para cá das telas seguintes)
+        .onAppear {
+            guard !didBeginFlow else { return }
+            didBeginFlow = true
+            AnalysisService.beginFlow()
+        }
     }
 }
 
