@@ -10,7 +10,6 @@ import UIKit
 
 struct ColorSelectionCard: View {
 
-    // Tamanho da área da foto (a coluna das cores tem 103 de largura)
     private static let photoWidth: CGFloat = 242
     private static let photoHeight: CGFloat = 370
 
@@ -28,15 +27,12 @@ struct ColorSelectionCard: View {
     @Binding var eyeColor: Color?
 
     @State private var zoomScale: CGFloat = 1.0
-    @State private var lastZoomScale: CGFloat = 1.0   // zoom no começo da pinça
+    @State private var lastZoomScale: CGFloat = 1.0
     private static let maxZoom: CGFloat = 3.0
 
-    // Arrastar a foto depois do zoom
     @State private var panOffset: CGSize = .zero
     @State private var lastPanOffset: CGSize = .zero
 
-    // @State: a foto é preparada uma vez e fica guardada enquanto a tela existir
-    // (com "let", o serviço era recriado a cada cor escolhida e preparava a foto de novo)
     @State private var sampler = ColorSamplerService()
 
     var body: some View {
@@ -53,7 +49,6 @@ struct ColorSelectionCard: View {
                         .offset(panOffset)
                         .clipped()
                         .contentShape(Rectangle())
-                        // Arrastar a foto: só com zoom e fora do conta-gotas
                         .gesture(
                             DragGesture()
                                 .onChanged { value in
@@ -64,14 +59,12 @@ struct ColorSelectionCard: View {
                                 }
                                 .onEnded { _ in
                                     lastPanOffset = panOffset
-                                    // A foto andou embaixo do conta-gotas: atualiza a cor
                                     if hasSelectedColor {
                                         sampleColor(at: dropperPosition, image: image)
                                     }
                                 },
                             isEnabled: zoomScale > 1
                         )
-                        // Pinça para dar zoom na foto (junto com os botões + e −)
                         .simultaneousGesture(
                             MagnifyGesture()
                                 .onChanged { value in
@@ -81,45 +74,66 @@ struct ColorSelectionCard: View {
                                 .onEnded { _ in
                                     lastZoomScale = zoomScale
                                     lastPanOffset = panOffset
-                                    // A foto mudou embaixo do conta-gotas: atualiza a cor
                                     if hasSelectedColor {
                                         sampleColor(at: dropperPosition, image: image)
                                     }
                                 }
                         )
+   
+                    ZStack {
+                        Circle()
+                            .stroke(
+                                currentColor,
+                                lineWidth: 14
+                            )
+                            .frame(width: 76, height: 76)
 
-                    // Conta-gotas
-                    Circle()
-                        .fill(currentColor)
-                        .frame(width: 32, height: 32)
-                        .overlay {
-                            Circle()
-                                .stroke(.white, lineWidth: 3)
+                        Path { path in
+                            path.move(to: CGPoint(x: 38, y: 12))
+                            path.addLine(to: CGPoint(x: 38, y: 34))
+
+                            path.move(to: CGPoint(x: 38, y: 42))
+                            path.addLine(to: CGPoint(x: 38, y: 64))
                         }
-                        .shadow(color: .black.opacity(0.25), radius: 4)
-                        // Área de toque maior e inteira (o miolo transparente também conta)
-                        .padding(8)
-                        .contentShape(Circle())
-                        .position(dropperPosition)
-                        // highPriority: ao tocar na bolinha, ela ganha do arraste da foto
-                        .highPriorityGesture(
-                            DragGesture(coordinateSpace: .named("photo"))
-                                .onChanged { value in
-                                    let x = min(max(value.location.x, 16), Self.photoWidth - 16)
-                                    let y = min(max(value.location.y, 16), Self.photoHeight - 16)
+                        .stroke(.white, style: StrokeStyle(lineWidth: 2, lineCap: .butt))
+                        .frame(width: 76, height: 76)
 
-                                    let position = CGPoint(x: x, y: y)
-                                    dropperPosition = position
-                                    sampleColor(at: position, image: image)
-                                }
-                        )
+                        Path { path in
+                            path.move(to: CGPoint(x: 12, y: 38))
+                            path.addLine(to: CGPoint(x: 34, y: 38))
+
+                            path.move(to: CGPoint(x: 42, y: 38))
+                            path.addLine(to: CGPoint(x: 64, y: 38))
+                        }
+                        .stroke(.white, style: StrokeStyle(lineWidth: 2, lineCap: .butt))
+                        .frame(width: 76, height: 76)
+                    }
+                    .frame(width: 76, height: 76)
+                    .shadow(color: .black.opacity(0.15), radius: 2)
+                    .contentShape(Circle())
+                    .position(dropperPosition)
+                    .highPriorityGesture(
+                        DragGesture(coordinateSpace: .named("photo"))
+                            .onChanged { value in
+                                let x = min(max(value.location.x, 38),Self.photoWidth - 38)
+
+                                let y = min(max(value.location.y, 38),Self.photoHeight - 38)
+
+                                let position = CGPoint(x: x, y: y)
+                                dropperPosition = position
+                                sampleColor(at: position, image: image)
+                            }
+                    )
+
+
+
+
 
                     HStack(spacing: 0) {
 
                         Button {
                             zoomScale = max(1.0, zoomScale - 0.25)
                             lastZoomScale = zoomScale
-                            // Com menos zoom, a foto não pode ficar fora do card
                             panOffset = clampedOffset(panOffset)
                             lastPanOffset = panOffset
                         } label: {
@@ -144,14 +158,12 @@ struct ColorSelectionCard: View {
                         .accessibilityLabel("Aumentar zoom")
                     }
                     .foregroundStyle(.white)
-                    // Mesmo vidro escuro do crédito dos cards de looks
                     .glassEffect(.regular.tint(.black.opacity(0.5)), in: Capsule())
                     .position(x: 70, y: Self.photoHeight - 40)
                 }
                 .frame(width: Self.photoWidth, height: Self.photoHeight)
                 .clipped()
                 .coordinateSpace(name: "photo")
-                // Prepara a foto para o conta-gotas assim que a tela abre
                 .onAppear { sampler.prepare(image) }
 
             } else {
@@ -200,7 +212,6 @@ struct ColorSelectionCard: View {
         }
     }
 
-    // A parte selecionada (pele, cabelo ou olhos) já tem cor?
     private var hasSelectedColor: Bool {
         switch selectedTarget {
         case .skin: return skinColor != nil
@@ -209,7 +220,6 @@ struct ColorSelectionCard: View {
         }
     }
 
-    // Limita o arraste para a foto não sair do card
     private func clampedOffset(_ offset: CGSize) -> CGSize {
         let maxX = Self.photoWidth * (zoomScale - 1) / 2
         let maxY = Self.photoHeight * (zoomScale - 1) / 2
@@ -223,7 +233,6 @@ struct ColorSelectionCard: View {
 
         let center = CGPoint(x: Self.photoWidth / 2, y: Self.photoHeight / 2)
 
-        // desconta o arraste e o zoom para achar o ponto na foto original
         let unzoomedX = center.x + (position.x - panOffset.width - center.x) / zoomScale
         let unzoomedY = center.y + (position.y - panOffset.height - center.y) / zoomScale
 
@@ -267,14 +276,12 @@ private struct ColorOption: View {
                 Circle()
                     .fill(color ?? .white)
                     .frame(width: 44, height: 44)
-                    // Sem cor ainda: contorno cinza fino para a bolinha aparecer no branco
                     .overlay {
                         if color == nil && !isSelected {
                             Circle()
                                 .strokeBorder(Color.gray.opacity(0.5), lineWidth: 1.5)
                         }
                     }
-                    // Selecionada: anel rosa com um respiro branco
                     .padding(4)
                     .overlay {
                         if isSelected {
