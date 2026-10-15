@@ -13,8 +13,8 @@ func mathBodyShape(measurements: BodyMeasure) -> BodyShape {
     let hip = measurements.hip
     guard shoulder > 0, waist > 0, hip > 0 else { return .rectangle }
 
-    let balanceTolerance: Double = 0.05   // ombros e quadril "iguais" se a diferença for até 5%
-    let waistNarrowRatio: Double = 0.75   // cintura marcada: até 75% da maior medida
+    let balanceTolerance: Double = 0.09   // ombros e quadril "iguais" se a diferença for até n%
+    let waistNarrowRatio: Double = 0.80   // cintura marcada: até n% da maior medida
 
     if waist >= shoulder && waist >= hip {
         return .oval
@@ -22,8 +22,9 @@ func mathBodyShape(measurements: BodyMeasure) -> BodyShape {
 
     let larger = max(shoulder, hip)
     let isBalanced = abs(shoulder - hip) <= larger * balanceTolerance
-
-    if isBalanced {
+    let isSuperCinturada = waist <= larger * 0.72
+        
+        if isBalanced || isSuperCinturada{
         return waist <= larger * waistNarrowRatio ? .hourglass : .rectangle
     }
 
