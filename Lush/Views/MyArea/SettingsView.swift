@@ -31,7 +31,6 @@ struct SettingsView: View {
     @State private var showCamera = false
     
 
-    // Foto salva no UserModel
     var savedPhoto: UIImage? {
         guard let data = currentUser?.photoData else { return nil }
         return UIImage(data: data)
@@ -56,7 +55,6 @@ struct SettingsView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 8)
 
-                // Mais informações
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Mais informações")
                         .font(.AppTypography.title3)
@@ -86,6 +84,16 @@ struct SettingsView: View {
                         } label: {
                             settingsRow(icon: "lock.shield.fill", title: "Política de Privacidade")
                         }
+
+                        Rectangle()
+                            .fill(Color("borderLines"))
+                            .frame(height: 0.5)
+
+                        NavigationLink {
+                            AboutView()
+                        } label: {
+                            settingsRow(icon: "info.circle", title: "Sobre o app")
+                        }
                     }
                     .buttonStyle(.plain)
                     .background(RoundedRectangle(cornerRadius: 20).fill(.white))
@@ -114,11 +122,9 @@ struct SettingsView: View {
 
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
-        // Ao abrir a tela, mostra o nome salvo
         .onAppear {
             name = currentUser?.name ?? ""
         }
-        // Carrega a foto escolhida na galeria (só aparece; é salva ao confirmar)
         .onChange(of: photoItem) {
             Task {
                 if let data = try? await photoItem?.loadTransferable(type: Data.self) {
@@ -169,7 +175,6 @@ struct SettingsView: View {
 
     }
 
-    // Salva nome e foto no UserModel
     func saveChanges() {
         let user = UserModel.current(in: modelContext)
         user.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -190,7 +195,6 @@ struct SettingsView: View {
 
 
 
-    // Diminui a foto antes de salvar (foto da câmera tem vários MB)
     func compressedPhotoData(_ image: UIImage) -> Data? {
         let maxSide: CGFloat = 800
         let largestSide = max(image.size.width, image.size.height)
@@ -203,7 +207,6 @@ struct SettingsView: View {
         return resized.jpegData(compressionQuality: 0.8)
     }
 
-    // Foto: no modo edição ganha o selo de câmera e abre a galeria
     
     var photo: some View {
         Button {
@@ -229,14 +232,11 @@ struct SettingsView: View {
             }
         }
         .buttonStyle(.plain)
-        // Fora do modo edição a foto só não responde ao toque.
-        // (.disabled deixava a foto acinzentada)
         .allowsHitTesting(isEditing)
         .accessibilityLabel(isEditing ? "Editar foto do perfil" : "Foto do perfil")
     }
 
 
-    // Nome: no modo edição vira campo com lápis e borda rosa
     var nameField: some View {
         Group {
             if isEditing {
@@ -244,7 +244,7 @@ struct SettingsView: View {
                     .multilineTextAlignment(.center)
                     .focused($isNameFocused)
                     .submitLabel(.done)
-                    .padding(.horizontal, 28)   // espaço pro lápis sem empurrar o nome
+                    .padding(.horizontal, 28)
                     .overlay(alignment: .trailing) {
                         Image(systemName: "pencil")
                             .foregroundStyle(Color("button"))
