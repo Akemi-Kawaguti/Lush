@@ -108,12 +108,14 @@ struct BiotypeMeasurementsView: View {
 
     private var tipCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
+                
                 Text("Dica")
                     .font(.callout.weight(.semibold))
                     .foregroundStyle(Color("labels"))
                 Image(systemName: "lightbulb.max")
                     .foregroundStyle(Color("button"))
+                    .padding(.bottom, 4)
             }
             Text("Meça de frente, em linha reta, com fita métrica ou régua")
                 .font(.subheadline)
