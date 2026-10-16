@@ -82,28 +82,21 @@ struct FavoritesView: View {
         }
     }
 
-    /// Calcula a altura baseada na proporção real da imagem ou usa um fallback proporcional padrão se a proporção não estiver salva no Look.
-    private func heightFor(look: Look, columnWidth: CGFloat) -> CGFloat {
-        // Se o seu modelo Look já tiver a proporção (aspectRatio = largura / altura) salva, use-a:
-        // if let ratio = look.aspectRatio { return columnWidth / ratio }
-        
-        // Caso contrário, se você tiver as dimensões originais (width e height):
-        // if let w = look.originalWidth, let h = look.originalHeight { return columnWidth * (h / w) }
-        
-        // Se não tiver nenhuma proporção salva no banco/modelo, você pode definir um valor padrão proporcional
-        // (por exemplo, fotos verticais de estilo costumam ter proporção 4:5 ou 2:3)
-        let defaultAspectRatio: CGFloat = 4.0 / 5.0 // Largura / Altura
-        return columnWidth / defaultAspectRatio
+    /// Alturas alternadas (altura ÷ largura) para a galeria ficar desencontrada, como no protótipo
+    private let heightRatios: [CGFloat] = [1.42, 1.88, 0.75, 0.85, 1.45, 1.25]
+
+    private func heightFor(index: Int, columnWidth: CGFloat) -> CGFloat {
+        columnWidth * heightRatios[index % heightRatios.count]
     }
 
-    /// Distribui os itens na coluna mais curta dinamicamente, acumulando as alturas reais
+    /// Distribui os itens na coluna mais curta dinamicamente, acumulando as alturas
     private func factoredData(for items: [Look], columnsCount: Int, columnWidth: CGFloat) -> [[(element: Look, height: CGFloat)]] {
         var colData = Array(repeating: [(element: Look, height: CGFloat)](), count: columnsCount)
         var colHeights = Array(repeating: CGFloat(0), count: columnsCount)
-        
-        for item in items {
+
+        for (index, item) in items.enumerated() {
             let shortestColumn = colHeights.firstIndex(of: colHeights.min()!) ?? 0
-            let itemHeight = heightFor(look: item, columnWidth: columnWidth)
+            let itemHeight = heightFor(index: index, columnWidth: columnWidth)
             
             colData[shortestColumn].append((element: item, height: itemHeight))
             colHeights[shortestColumn] += itemHeight + 16 // 16 é o espaçamento vertical entre os cards

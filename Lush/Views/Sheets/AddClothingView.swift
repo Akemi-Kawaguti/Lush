@@ -98,12 +98,14 @@ struct AddClothingView: View {
                 // Foto (câmera ou galeria — componente PhotoPicker + CameraView)
                 PhotoPicker(
                     image: $image,
-                    title: "Adicione uma foto da sua\npeça de roupa",
+                    title: "Adicione uma foto só da peça,\nem um fundo liso",
                     width: 345,
                     height: 360
                 )
                 .frame(maxWidth: .infinity)
-                
+
+                photoTipCard
+
                 LushTextField(
                     title: "Nome da roupa",
                     placeholder: "Adicione o nome para a sua roupa",
@@ -304,6 +306,30 @@ private struct AnalyzingOverlay: View {
 }
 
 extension AddClothingView {
+
+    /// Orienta a foto: só a peça, em fundo liso, para a análise de cores e modelagem acertar
+    var photoTipCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Text("Como tirar a foto")
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(Color("titles"))
+                Image(systemName: "lightbulb.max")
+                    .foregroundStyle(Color("button"))
+                    .accessibilityHidden(true)
+                    .padding(.bottom, 4)
+            }
+            Text("Fotografe **só a peça**, estendida em um **fundo liso** de uma cor só, como uma parede, a cama ou o chão. Evite fotos com a roupa no corpo ou com outras peças por perto.")
+                .font(.subheadline)
+                .foregroundStyle(Color("quartenary"))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(17)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 20).fill(.white))
+        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Color("borderLines"), lineWidth: 0.5))
+        .accessibilityElement(children: .combine)
+    }
 
     /// Analisa a foto (tira o fundo, modelagem e cores). O resultado chega no onChange acima.
     private func startAnalysis() {
