@@ -44,3 +44,13 @@ struct ScreenHeader: View {
     }
     .padding(24)
 }
+
+
+// No iPad (app de iPhone em janela), os controles da janela ("•••") ficam no
+// canto de cima e cobrem o título das telas sem barra de navegação.
+// Só nesse caso damos um espaço extra; no iPhone não muda nada.
+extension View {
+    func windowControlsPadding() -> some View {
+        padding(.top, UIDevice.current.model.hasPrefix("iPad") ? 24 : 0)
+    }
+}

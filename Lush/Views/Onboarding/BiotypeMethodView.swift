@@ -20,6 +20,7 @@ struct BiotypeMethodView: View {
 
     var body: some View {
 
+        ScrollView {
         VStack(spacing: 0) {
 
             ProgressBar(
@@ -71,10 +72,13 @@ struct BiotypeMethodView: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 40)
-
-            Spacer()
-
-
+            .padding(.bottom, 16)
+        }
+        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        // Botão sempre visível, preso embaixo, em qualquer tamanho de tela
+        .safeAreaInset(edge: .bottom) {
             PrimaryButton(title: "Continuar") {
 
                 switch selectedMethod {
@@ -92,12 +96,9 @@ struct BiotypeMethodView: View {
             .disabled(selectedMethod == nil)
             .opacity(selectedMethod == nil ? 0.5 : 1)
             .padding(.horizontal, 32)
+            .padding(.top, 8)
             .padding(.bottom, 16)
         }
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity
-        )
         .background {
             Image("backgroundLush")
                 .resizable()

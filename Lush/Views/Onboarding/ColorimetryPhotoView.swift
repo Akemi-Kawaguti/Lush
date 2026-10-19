@@ -19,6 +19,7 @@ struct ColorimetryPhotoView: View {
     
     var body: some View {
         
+        ScrollView {
         VStack(spacing: 0) {
             
             ProgressBar(currentStep: 1,totalSteps: 4)
@@ -50,18 +51,22 @@ struct ColorimetryPhotoView: View {
                 height: 370
             )
             .padding(.top, 20)
-            
-            Spacer()
-            
+            .padding(.bottom, 16)
+        }
+        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        // Botão sempre visível, preso embaixo, em qualquer tamanho de tela
+        .safeAreaInset(edge: .bottom) {
             PrimaryButton(title: "Continuar") {
                 showColorimetry = true
             }
             .disabled(image == nil)
             .opacity(image == nil ? 0.5 : 1)
             .padding(.horizontal, 32)
+            .padding(.top, 8)
             .padding(.bottom, 16)
         }
-        .frame(maxWidth: .infinity,maxHeight: .infinity)
         .background {
             Image("backgroundLush")
                 .resizable()

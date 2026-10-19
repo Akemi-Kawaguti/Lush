@@ -20,7 +20,8 @@ struct FavoritesView: View {
             let totalHorizontalPadding: CGFloat = 48 // 24 de cada lado
             let spacing: CGFloat = 16
             let availableWidth = geometry.size.width - totalHorizontalPadding
-            let columnWidth = (availableWidth - spacing) / 2
+            // Nunca negativa: no iPad a janela pode começar com largura 0 ao abrir ou redimensionar
+            let columnWidth = max(0, (availableWidth - spacing) / 2)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -29,6 +30,7 @@ struct FavoritesView: View {
                         title: "Favoritos",
                         subtitle: "Verifique as sugestões de looks favoritadas"
                     )
+                    .windowControlsPadding()
 
                     if favorites.isEmpty {
                         ContentUnavailableView(
