@@ -81,7 +81,7 @@ struct MyAreaView: View {
                         .padding(.horizontal, 18)
                     }
                     .padding(.top, 20)
-                    
+                    .windowControlsPadding()
 
                     // Foto e nome
                     VStack(spacing: 8) {

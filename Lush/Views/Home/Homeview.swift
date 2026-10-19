@@ -70,6 +70,7 @@ struct HomeView: View {
                     
                     header
                         .padding(.horizontal, 24)
+                        .windowControlsPadding()
                     
                     // Mais informações
                     VStack(alignment: .leading, spacing: 16) {

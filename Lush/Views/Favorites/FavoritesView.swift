@@ -29,6 +29,7 @@ struct FavoritesView: View {
                         title: "Favoritos",
                         subtitle: "Verifique as sugestões de looks favoritadas"
                     )
+                    .windowControlsPadding()
 
                     if favorites.isEmpty {
                         ContentUnavailableView(

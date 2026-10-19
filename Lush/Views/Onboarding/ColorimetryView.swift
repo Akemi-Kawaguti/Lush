@@ -20,6 +20,7 @@ struct ColorimetryView: View {
     }
     
     var body: some View {
+        ScrollView {
         VStack(spacing: 0) {
             
             ProgressBar( currentStep: 2, totalSteps: 4)
@@ -55,17 +56,20 @@ struct ColorimetryView: View {
                 eyeColor: $viewModel.eyeColor
             )
             .padding(.top, 16)
-            
-            Spacer()
-            
-            
+            .padding(.bottom, 16)
+        }
+        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        // Botão sempre visível, preso embaixo, em qualquer tamanho de tela
+        .safeAreaInset(edge: .bottom) {
             PrimaryButton(title: "Continuar") {viewModel.saveAnalysisAndProceed(modelContext: modelContext)}
             .disabled(!viewModel.hasAllColors)
             .opacity(viewModel.hasAllColors ? 1 : 0.5)
             .padding(.horizontal, 32)
+            .padding(.top, 8)
             .padding(.bottom, 10)
         }
-        .frame(maxWidth: .infinity,maxHeight: .infinity)
         .background {
             Image("backgroundLush")
                 .resizable()
